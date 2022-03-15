@@ -18,7 +18,7 @@ class DefaultConfig:
         PATH_ROOT + "/output/preprocessed_data_without_temporal.txt")
 
     PATH_DATA_CLEANED = (
-        PATH_ROOT + "/output/data_cleaned.pkl")
+        PATH_ROOT + "/output/data_cleaned.csv")
 
     PATH_SFS_ANALYSIS_DIR = (
         PATH_ROOT + "/output/sfs_analysis")

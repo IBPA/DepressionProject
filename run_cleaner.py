@@ -63,7 +63,7 @@ def dump_X_and_y(X, y, path_data):
     """
     data = pd.concat([X, y], axis=1)
 
-    data.to_pickle(path_data)
+    data.to_csv(path_data)
 
 
 def run_model_combination(
