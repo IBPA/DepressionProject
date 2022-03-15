@@ -1,0 +1,26 @@
+class DefaultConfig:
+    #columns_categorical = ['_CH_BirthOrder_0d']
+    columns_categorical = [
+        'c804_32wg', 'c800_32wg',
+        'c801_32wg', 'kz021_0m',
+        'b122r_18wg', 'b123_18wg',
+        'c101_32wg', 'd536a_12wg',
+        'd586a_12wg', 'd171a_12wg',
+        'e327_8w', 'f021a_8m',
+        'f063a_8m', 'b107_18wg',
+        'c093_32wg', 'f020a_8m',
+        'f229a_8m', 'kb066_6m',
+        'kd057_18m', 'kd510b_18m',
+        'e411r_8w', 'e414r_8w',
+        'f251a_8m', 'f252a_8m',
+        'f260a_8m', 'f635r_8m',
+        'a522_8wg', 'neverm8wg_8wg',
+        'married8wg_8wg', 'widowed8wg_8wg',
+        'divorced8wg_8wg', 'separated8wg_8wg',
+        'c760_32wg', 'f220a_8m',
+        'f228a_8m', 'f235a_8m',
+        'f237a_8m', 'f245a_8m',
+        'neverm8m_8m', 'married8m_8m',
+        'widowed8m_8m', 'divorced8m_8m',
+        'separated8m_8m', 'f500_8m',
+        'f501_8m']
