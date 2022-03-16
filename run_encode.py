@@ -6,7 +6,7 @@ Authors:
     Arielle Yoo - asmyoo@ucdavis.edu
 
 Todo:
-    * Everything
+    * Comments
 
 """
 
