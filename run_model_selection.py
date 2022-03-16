@@ -29,6 +29,8 @@ from msap.utils import (
     load_X_and_y,
     dump_X_and_y,
     KFold_by_feature)
+from msap.utils.plot import (
+    plot_tsne_with_outliers)
 
 os.environ["PYTHONWARNINGS"] = (
     "ignore::RuntimeWarning"
@@ -98,12 +100,19 @@ def main(
 
         X = data.drop([feature_label], axis=1)
         y = data[feature_label]
+
+        # test - TODO remove
+        X = X[:60]
+        y = y[:60]
+
         for scale_mode, impute_mode, outlier_mode \
                 in tqdm(cfg_model.get_all_preprocessing_combinations()):
 
             filename_data_prep = cfg_model.get_filename_preprocessed_data(
                 scale_mode, impute_mode, outlier_mode)
             filename_outliers = cfg_model.get_filename_outliers(
+                scale_mode, impute_mode, outlier_mode)
+            filename_outliers_tsne = cfg_model.get_filename_outliers_tsne(
                 scale_mode, impute_mode, outlier_mode)
 
             try:
@@ -113,6 +122,12 @@ def main(
                     outlier_mode)
                 X_prep, y_prep, idxs_outlier = preprocessor.preprocess(X, y)
 
+                plot_tsne_with_outliers(
+                    X = X_prep,
+                    y = y_prep,
+                    idxs_outlier = idxs_outlier,
+                    path_save = f"{path_data_preprocessed_dir}/"
+                    f"{filename_outliers_tsne}")
                 dump_X_and_y(
                     X=X_prep
                     if feature_kfold is None else X_prep.reset_index(),
@@ -125,7 +140,8 @@ def main(
                     f"{path_data_preprocessed_dir}/{filename_outliers}",
                     idxs_outlier,
                     fmt='%d')
-            except Exception:
+            except Exception as e:
+                logging.info(f"Something happened during preprocessing {e}")
                 pass
 
     n_total_combinations \
