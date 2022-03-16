@@ -7,7 +7,7 @@ Authors:
 
 Todo:
     * Comments
-
+    * Run: python -m DepressionProjectNew.run_encode in.csv out.csv
 """
 
 import click
