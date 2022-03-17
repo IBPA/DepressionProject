@@ -152,7 +152,8 @@ def main(
         n_splits=5,
         feature=feature_kfold,
         random_state=random_state)
-    X = X.drop([feature_kfold], axis=1)
+    if feature_kfold is not None:
+        X = X.drop([feature_kfold], axis=1)
 
     clf = ClassifierHandler(
         classifier_mode=best_clf,
