@@ -144,6 +144,9 @@ def main(
                 logging.info(f"Something happened during preprocessing {e}")
                 pass
 
+            # test - TODO remove
+            #break
+
     n_total_combinations \
         = len(cfg_model.get_all_preprocessing_combinations()) \
         * len(cfg_model.get_all_classifier_modes())
@@ -223,6 +226,9 @@ def main(
                     (i * len(cfg_model.get_all_classifier_modes()) + j,
                      (scale_mode, impute_mode, outlier_mode, classifier_mode),
                      e)]
+            
+            # test - TODO remove
+            #break
 
     with open(path_output, 'wb') as f:
         pickle.dump((results, failures), f)
