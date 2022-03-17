@@ -8,6 +8,9 @@ Authors:
 Todo:
     * Comments
     * Run: python -m DepressionProjectNew.run_encode in.csv out.csv
+    * python -m DepressionProjectNew.run_encode
+        DepressionProjectNew/output/data_cleaned.csv
+        DepressionProjectNew/output/data_cleaned_encoded.csv
 """
 
 import click
@@ -62,7 +65,10 @@ def main(
             raise ValueError("All NaN or constant.")
     X = binary_encode(X, cols_be)
     X = one_hot_encode(X, cols_ohe)
-    X.rename(columns={'Unnamed: 0':''}, inplace=True)
+    #X.rename(columns={'Unnamed: 0':''}, inplace=True)
+    # drop index column
+    if 'Unnamed: 0' in X.columns:
+        X = X.drop(['Unnamed: 0'], axis=1)
     dump_X_and_y(X=X,y=y,path_output_data=path_output)
 
 if __name__ == '__main__':
