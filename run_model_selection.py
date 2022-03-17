@@ -102,8 +102,8 @@ def main(
         y = data[feature_label]
 
         # test - TODO remove
-        X = X[:60]
-        y = y[:60]
+        #X = X[:60]
+        #y = y[:60]
 
         for scale_mode, impute_mode, outlier_mode \
                 in tqdm(cfg_model.get_all_preprocessing_combinations()):
