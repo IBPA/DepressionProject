@@ -51,3 +51,4 @@ mapper = dict(zip(
 
 result = [mapper.get(item,item) for item in want_readable]
 print(f"{result}")
+print(f"Reversed list: {result[::-1]}")
