@@ -5,17 +5,12 @@ import numpy as np
 
 DEFAULT_VARIABLE_INFO = '../../data/Variables013122new.csv'
 DEFAULT_PREPROCESSED = '../../output/preprocessed_data_without_temporal.txt'
-DEFAULT_PPC = '../../output/output_18_yesmental/pc_rank_pearson.csv'
-DEFAULT_SC = '../../output/output_18_yesmental/pc_rank_spearman.csv'
-OUT_PPC = '../../output/output_18_yesmental/pc_rank_pearson_readable.csv'
-OUT_SC = '../../output/output_18_yesmental/pc_rank_spearman_readable.csv'
 
 df_variable_info = pd.read_csv(DEFAULT_VARIABLE_INFO, dtype='str', encoding = 'unicode_escape')
-ppc = pd.read_csv(DEFAULT_PPC, dtype='str', encoding = 'unicode_escape')
-sc = pd.read_csv(DEFAULT_SC, dtype='str', encoding = 'unicode_escape')
 
 # if categorical, get new name
 #categorical = df_variable_info.loc[df_variable_info['Categorical'] == '1', 'RelabeledName'].tolist()
+want_readable = ['c601_32wg', 'Max_ed_32wg', 'kb010_6m', 'kd510a_18m', 'Adaptability_24m', 'Avg_FinDiff_61m', 'kz021_0m_1.0_0_2.0_1', 'f020a_8m_1.0_0_2.0_1']
 relabeled = []
 variable_description = []
 unfound = []
@@ -24,7 +19,7 @@ mapper = dict(zip(
     list(df_variable_info['RelabeledName']),
     list(df_variable_info['Variable Label'])))
 
-for name in ppc['Unnamed: 0']:
+for name in want_readable:
     if len(name.split("_")) > 2:
         label_in_variable_info = "_".join(name.split("_")[0:2])
         var_map = map(mapper.get, [label_in_variable_info])
@@ -54,13 +49,5 @@ mapper = dict(zip(
     relabeled,
     variable_description))
 
-
-ppc.replace({'Unnamed: 0': mapper}, inplace=True)
-#print(ppc["Variable"])
-ppc.to_csv(OUT_PPC, index=False)
-print(f"Shape of PCC where p-value <= 0.05: {ppc.loc[pd.to_numeric(ppc['p-value']) <= 0.05].shape}")
-
-sc.replace({'Unnamed: 0': mapper}, inplace=True)
-#print(sc["Variable"])
-sc.to_csv(OUT_SC, index=False)
-print(f"Shape of SC where p-value <= 0.05: {sc.loc[pd.to_numeric(sc['p-value']) <= 0.05].shape}")
+result = [mapper.get(item,item) for item in want_readable]
+print(f"{result}")
