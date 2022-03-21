@@ -120,9 +120,9 @@ def main(
                     scale_mode,
                     impute_mode,
                     outlier_mode,
-                    filename_data_scale_impute)
+                    f"{path_data_preprocessed_dir}/"
+                    f"{filename_data_scale_impute}")
                 X_prep, y_prep, idxs_outlier = preprocessor.preprocess(X, y)
-                
                 dump_X_and_y(
                     X=X_prep
                     if feature_kfold is None else X_prep.reset_index(),
