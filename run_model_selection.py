@@ -30,7 +30,7 @@ from msap.utils import (
     dump_X_and_y,
     KFold_by_feature)
 from msap.utils.plot import (
-    plot_tsne_with_outliers)
+    plot_tsne)
 
 os.environ["PYTHONWARNINGS"] = (
     "ignore::RuntimeWarning"
@@ -107,27 +107,22 @@ def main(
 
         for scale_mode, impute_mode, outlier_mode \
                 in tqdm(cfg_model.get_all_preprocessing_combinations()):
-
+            
+            filename_data_scale_impute = cfg_model.get_filename_scale_impute_data(
+                scale_mode, impute_mode, outlier_mode)
             filename_data_prep = cfg_model.get_filename_preprocessed_data(
                 scale_mode, impute_mode, outlier_mode)
             filename_outliers = cfg_model.get_filename_outliers(
-                scale_mode, impute_mode, outlier_mode)
-            filename_outliers_tsne = cfg_model.get_filename_outliers_tsne(
                 scale_mode, impute_mode, outlier_mode)
 
             try:
                 preprocessor = Preprocessor(
                     scale_mode,
                     impute_mode,
-                    outlier_mode)
+                    outlier_mode,
+                    filename_data_scale_impute)
                 X_prep, y_prep, idxs_outlier = preprocessor.preprocess(X, y)
-
-                plot_tsne_with_outliers(
-                    X = X_prep,
-                    y = y_prep,
-                    idxs_outlier = idxs_outlier,
-                    path_save = f"{path_data_preprocessed_dir}/"
-                    f"{filename_outliers_tsne}")
+                
                 dump_X_and_y(
                     X=X_prep
                     if feature_kfold is None else X_prep.reset_index(),
