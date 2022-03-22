@@ -119,28 +119,28 @@ def map_variables(df_data: pd.DataFrame, df_mapping: pd.DataFrame) -> pd.DataFra
     #assert df_mapping.shape[0] == df_data.shape[1], \
     #    'Number of features in raw data and variable mapping file does not match!'
 
-    df_mapping_missing = df_mapping[df_mapping['renamed_variable_name'].isnull()]
-    df_mapping_exists = df_mapping[~df_mapping['renamed_variable_name'].isnull()]
+    df_mapping_missing = df_mapping[df_mapping['RelabeledName'].isnull()]
+    df_mapping_exists = df_mapping[~df_mapping['RelabeledName'].isnull()]
 
     # add df_mapping_missing if exists in df_data but does not exist in df_mapping
     #logger.debug(f'Variables in raw: {set(df_data.columns)}')
     #test = set(df_mapping['original_variable_name'])
     #logger.debug(f'Variables in mapping: {test}')
-    missing_in_df_data = list(set(df_data.columns) - set(df_mapping['original_variable_name']))
+    missing_in_df_data = list(set(df_data.columns) - set(df_mapping['VariableName']))
     logger.debug(f'Variables in raw data but not in mapping: {len(missing_in_df_data)}')
     
-    original_variables_without_mapping = df_mapping_missing['original_variable_name'].tolist() + missing_in_df_data
+    original_variables_without_mapping = df_mapping_missing['VariableName'].tolist() + missing_in_df_data
     logger.warning(
         f'Number of variables without mapping: {len(original_variables_without_mapping)}')
-    logger.debug(f'Features without variable mapping:\n{original_variables_without_mapping}')
+    #logger.debug(f'Features without variable mapping:\n{original_variables_without_mapping}')
 
     df_renamed = df_data.copy()
     df_renamed.drop(labels=original_variables_without_mapping, axis=1, inplace=True)
     logger.debug(f'Size of data after dropping variables without mapping: {df_renamed.shape}')
 
     mapper = dict(zip(
-        df_mapping_exists['original_variable_name'],
-        df_mapping_exists['renamed_variable_name']))
+        df_mapping_exists['VariableName'],
+        df_mapping_exists['RelabeledName']))
     df_renamed.rename(mapper=mapper, axis=1, inplace=True)
 
     return df_renamed
@@ -320,7 +320,7 @@ def main():
         _random = random.Random()
 
     # read and process raw data
-    df_raw = pd.read_csv(args.raw_data, dtype='str')
+    df_raw = pd.read_csv(args.raw_data, dtype='str', encoding='utf-8-sig')
     df_raw = df_raw.applymap(lambda x: x.strip())  # remove white space
     logger.info(f'Raw data {df_raw.shape}:\n{df_raw.head()}')
 
@@ -339,13 +339,13 @@ def main():
         logger.info(f'Data size after sampling: {df_raw.shape}')
 
     # read name mapping data, csv not tab
-    df_name_mapping = pd.read_csv(args.mapping_data)
+    df_name_mapping = pd.read_csv(args.mapping_data, encoding='unicode_escape')
     logger.info(f'Variable mapping data {df_name_mapping.shape}:\n{df_name_mapping.head()}')
 
     # Map variables
     logger.info('Mapping variables...')
     df_renamed = map_variables(df_raw, df_name_mapping)
-    logger.info(f'Data after variable renaming:\n{df_renamed.head()}')
+    #logger.info(f'Data after variable renaming:\n{df_renamed.head()}')
 
     if args.use_smaller_features:
         smaller_features = read_lines(args.use_smaller_features)
