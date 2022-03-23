@@ -56,13 +56,18 @@ def main(
     vars_cat = PreprocessingConfig.columns_categorical
     cols_be = []
     cols_ohe = []
+    cols_skip = []
     for col in vars_cat:
+        if col not in X.columns:
+            cols_skip += [col]
+            continue
         if len(X[col].value_counts() == 2):
             cols_be += [col]
         elif len(X[col].value_counts() > 2):
             cols_ohe += [col]
         else:
             raise ValueError("All NaN or constant.")
+    logging.info(f"Skipping bc do not exist in data: {cols_skip}")
     X = binary_encode(X, cols_be)
     X = one_hot_encode(X, cols_ohe)
     #X.rename(columns={'Unnamed: 0':''}, inplace=True)

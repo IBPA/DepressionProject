@@ -23,11 +23,11 @@ class DefaultConfig:
     PATH_SFS_ANALYSIS_DIR = (
         PATH_ROOT + "/output/sfs_analysis")
 
-    COLUMN_DEPENDENT = 'y18CH_Dep_YN_216m'
-    #COLUMN_DEPENDENT = 'y12CH_Dep_144m'
+    #COLUMN_DEPENDENT = 'y18CH_Dep_YN_216m'
+    COLUMN_DEPENDENT = 'y12CH_Dep_YN_144m'
 
-    AGE_CUTOFF = 18 # year from column_dependent
-    #AGE_CUTOFF = 12
+    #AGE_CUTOFF = 18 # year from column_dependent
+    AGE_CUTOFF = 12
 
     @classmethod
     def get_default_preprocessed_data_path(

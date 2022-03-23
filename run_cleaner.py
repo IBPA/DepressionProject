@@ -144,7 +144,7 @@ def main():
         X, y = load_X_and_y(test_data_clean_path)
     except Exception:  # Generate cleaned data and store.
         logging.warning(
-            ("Cleaned data pickle file not found. Generating and storing "
+            ("Cleaned data file not found. Generating and storing "
              f"cleaned data at {test_data_clean_path}"))
 
         # Load raw data.
@@ -167,6 +167,8 @@ def main():
             (f"Dumping cleaned data to "
              f"{test_data_clean_path}"))
         dump_X_and_y(X, y, test_data_clean_path)
+        # print depressed and not depressed
+        logging.info(f"Depressed shape: \n{y.value_counts()}")
 
     path_data_raw = parse_args().datapath.name
     # drops data missing dependent variable

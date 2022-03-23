@@ -6,9 +6,12 @@ import pickle
 #logger = logging.set_logging(__name__)
 
 DEFAULT_VARIABLE_INFO = '../../data/Variables013122new.csv'
-DEFAULT_CLEANED = '../../output/data_cleaned.pkl'
+#DEFAULT_CLEANED = '../../output/data_cleaned.pkl'
+#DEFAULT_CLEANED = '../../output/data_cleaned.csv'
+DEFAULT_CLEANED = '../../output/preprocessed_data_without_temporal.txt'
 
-cleaned_data = pickle.load(open(DEFAULT_CLEANED, 'rb'))
+#cleaned_data = pickle.load(open(DEFAULT_CLEANED, 'rb'))
+cleaned_data = pd.read_csv(DEFAULT_CLEANED, dtype='str', encoding= 'unicode_escape')
 
 # Predicting for y18CH_Dep_YN_216m - change model_selecting.py COLUMN_DEPENDENT
 # make sure to change age cutoff too
