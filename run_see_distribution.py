@@ -268,7 +268,7 @@ def main(
         #logging.info(f"Test Sex info: \n{X_test[sex].value_counts()}")
         #print(X_test[sex])
         # calculate which F1 based on which is better
-    logging.info(f"F1 tests: {F1_validation}")
+    logging.info(f"Ave F1 test: {sum(F1_validation)/len(F1_validation)}")
 
 
 if __name__ == '__main__':
