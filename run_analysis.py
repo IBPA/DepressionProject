@@ -188,7 +188,7 @@ def main(
         path_save=f"{path_output_dir}/sim.png")
 
     # Plot embedded data points.
-    y_scatter = y.map({1.0: 'Success', 0.0: 'Fail'})
+    y_scatter = y.map({1.0: 'Depressed', 0.0: 'Not Depressed'})
     y_scatter.name = 'Translation'
     for method in METHODS_EMBEDDING:
         X_embedded = pd.DataFrame(
@@ -250,7 +250,7 @@ def main(
     del best_cv_result['param']
     plot_confusion_matrix(
         cv_result=best_cv_result,
-        axis_labels=['Success', 'Failure'],
+        axis_labels=['Depressed', 'Not Depressed'],
         path_save=f"{path_output_dir}/cm.png")
 
     # Plot confusion matrix with various metrics for validation.
@@ -258,7 +258,7 @@ def main(
         clf, X, y, splits)
     plot_confusion_matrix(
         cv_result=best_cv_result_train,
-        axis_labels=['Success', 'Failure'],
+        axis_labels=['Depressed', 'Not Depressed'],
         path_save=f"{path_output_dir}/cm_train.png")
 
 
