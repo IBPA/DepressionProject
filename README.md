@@ -48,3 +48,8 @@ python -m DepressionProjectNew.run_encode DepressionProjectNew/output/data_clean
 ## Run run_tsne.py
 
 ## Run make_readable_pcc_sc_kendall.py and make_readable_list.py after pasting in the best rfe list
+
+## Can also run model using current best results if low on time
+```
+python -u -m DepressionProjectNew.run_model_and_analysis ./DepressionProjectNew/output/output_18_yesmental/results.pkl ./DepressionProjectNew/output/output_12_yesmental/preprocessed ./DepressionProjectNew/output/data_cleaned_encoded_12_yesmental.csv ./DepressionProjectNew/output/output_12_yesmental y12CH_Dep_YN_144m
+```
