@@ -53,3 +53,4 @@ python -m DepressionProjectNew.run_encode DepressionProjectNew/output/data_clean
 ```
 python -u -m DepressionProjectNew.run_model_and_analysis ./DepressionProjectNew/output/output_18_yesmental/results.pkl ./DepressionProjectNew/output/output_12_yesmental/preprocessed ./DepressionProjectNew/output/data_cleaned_encoded_12_yesmental.csv ./DepressionProjectNew/output/output_12_yesmental y12CH_Dep_YN_144m
 ```
+or use script
