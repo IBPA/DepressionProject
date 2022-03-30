@@ -10,7 +10,7 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=64
 #SBATCH --mem=500G
-#SBATCH --time=12:00:00
+#SBATCH --time=3:00:00
 
 cd ../..
 python -u -m DepressionProjectNew.run_model_and_analysis ./DepressionProjectNew/output/output_18_yesmental/results.pkl ./DepressionProjectNew/output/output_16_yesmental/preprocessed ./DepressionProjectNew/output/data_cleaned_encoded_16_yesmental.csv ./DepressionProjectNew/output/output_16_yesmental y16CH_Dep_YN_192m
