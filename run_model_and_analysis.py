@@ -29,6 +29,7 @@ from msap.explanatory_analysis import get_pairwise_correlation
 from msap.utils import (
     ClassifierHandler,
     load_X_and_y,
+    dump_X_and_y,
     KFold_by_feature)
 from msap.utils.plot import (
     plot_heatmap,
