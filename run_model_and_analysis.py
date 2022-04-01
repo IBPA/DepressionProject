@@ -125,7 +125,6 @@ def main(
         random_state):
     """
     """
-    np.random.seed(random_state) # unsure if needed
 
     cfg_model = ModelSelectionConfig
 
@@ -181,9 +180,9 @@ def main(
             best_scale_mode,
             best_impute_mode,
             best_outlier_mode,
+            random_state,
             f"{path_input_preprocessed_data_dir}/"
-            f"{filename_data_scale_impute}",
-            random_state)
+            f"{filename_data_scale_impute}")
         X_prep, y_prep, idxs_outlier = preprocessor.preprocess(X, y)
         dump_X_and_y(
             X=X_prep
