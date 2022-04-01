@@ -121,7 +121,8 @@ def main(
                     impute_mode,
                     outlier_mode,
                     f"{path_data_preprocessed_dir}/"
-                    f"{filename_data_scale_impute}")
+                    f"{filename_data_scale_impute}",
+                    random_state)
                 X_prep, y_prep, idxs_outlier = preprocessor.preprocess(X, y)
                 dump_X_and_y(
                     X=X_prep
