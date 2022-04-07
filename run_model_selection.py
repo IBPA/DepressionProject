@@ -17,6 +17,7 @@ import logging
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
+from multiprocessing import Pool
 import click
 
 from msap.modeling.configs import (
@@ -39,6 +40,50 @@ os.environ["PYTHONWARNINGS"] = (
 logger = logging.getLogger(__file__)
 logging.basicConfig(
     level=logging.DEBUG)
+
+
+def preprocess(
+    scale_mode: str,
+    impute_mode: str,
+    outlier_mode: str,
+    random_state: int,
+    feature_kfold,
+    path_data_preprocessed_dir: str,
+    X: pd.DataFrame,
+    y: pd.Series,
+    cfg_model: ModelSelectionConfig):
+
+    filename_data_scale_impute = cfg_model.get_filename_scale_impute_data(
+        scale_mode, impute_mode, outlier_mode)
+    filename_data_prep = cfg_model.get_filename_preprocessed_data(
+        scale_mode, impute_mode, outlier_mode)
+    filename_outliers = cfg_model.get_filename_outliers(
+        scale_mode, impute_mode, outlier_mode)
+
+    try:
+        preprocessor = Preprocessor(
+            scale_mode,
+            impute_mode,
+            outlier_mode,
+            random_state,
+            f"{path_data_preprocessed_dir}/"
+            f"{filename_data_scale_impute}")
+        X_prep, y_prep, idxs_outlier = preprocessor.preprocess(X, y)
+        dump_X_and_y(
+            X=X_prep
+            if feature_kfold is None else X_prep.reset_index(),
+            y=y_prep
+            if feature_kfold is None else y_prep.reset_index(
+                drop=True),
+            path_output_data=f"{path_data_preprocessed_dir}/"
+            f"{filename_data_prep}")
+        np.savetxt(
+            f"{path_data_preprocessed_dir}/{filename_outliers}",
+            idxs_outlier,
+            fmt='%d')
+    except Exception as e:
+        logging.info(f"Something happened during preprocessing {e}")
+        pass
 
 
 @click.command()
@@ -101,43 +146,63 @@ def main(
         y = data[feature_label]
 
         # test - TODO remove
-        #X = X[:60]
-        #y = y[:60]
+        X = X[:60]
+        y = y[:60]
+        preprocess_inputs = []
 
         for scale_mode, impute_mode, outlier_mode \
-                in tqdm(cfg_model.get_all_preprocessing_combinations()):
+                in cfg_model.get_all_preprocessing_combinations():
             
-            filename_data_scale_impute = cfg_model.get_filename_scale_impute_data(
-                scale_mode, impute_mode, outlier_mode)
-            filename_data_prep = cfg_model.get_filename_preprocessed_data(
-                scale_mode, impute_mode, outlier_mode)
-            filename_outliers = cfg_model.get_filename_outliers(
-                scale_mode, impute_mode, outlier_mode)
+            preprocess_inputs += [[
+                scale_mode,
+                impute_mode,
+                outlier_mode,
+                random_state,
+                feature_kfold,
+                path_data_preprocessed_dir,
+                X,
+                y,
+                cfg_model]]
 
-            try:
-                preprocessor = Preprocessor(
-                    scale_mode,
-                    impute_mode,
-                    outlier_mode,
-                    random_state,
-                    f"{path_data_preprocessed_dir}/"
-                    f"{filename_data_scale_impute}")
-                X_prep, y_prep, idxs_outlier = preprocessor.preprocess(X, y)
-                dump_X_and_y(
-                    X=X_prep
-                    if feature_kfold is None else X_prep.reset_index(),
-                    y=y_prep
-                    if feature_kfold is None else y_prep.reset_index(
-                        drop=True),
-                    path_output_data=f"{path_data_preprocessed_dir}/"
-                    f"{filename_data_prep}")
-                np.savetxt(
-                    f"{path_data_preprocessed_dir}/{filename_outliers}",
-                    idxs_outlier,
-                    fmt='%d')
-            except Exception as e:
-                logging.info(f"Something happened during preprocessing {e}")
-                pass
+        # print(len(preprocess_inputs))
+        # Preprocess using multiprocessing
+        with Pool() as p:
+            p.starmap(preprocess, tqdm(preprocess_inputs, total=len(preprocess_inputs)))
+
+        # return bc testing just preprocess
+        return
+
+            # filename_data_scale_impute = cfg_model.get_filename_scale_impute_data(
+            #     scale_mode, impute_mode, outlier_mode)
+            # filename_data_prep = cfg_model.get_filename_preprocessed_data(
+            #     scale_mode, impute_mode, outlier_mode)
+            # filename_outliers = cfg_model.get_filename_outliers(
+            #     scale_mode, impute_mode, outlier_mode)
+
+            # try:
+            #     preprocessor = Preprocessor(
+            #         scale_mode,
+            #         impute_mode,
+            #         outlier_mode,
+            #         random_state,
+            #         f"{path_data_preprocessed_dir}/"
+            #         f"{filename_data_scale_impute}")
+            #     X_prep, y_prep, idxs_outlier = preprocessor.preprocess(X, y)
+            #     dump_X_and_y(
+            #         X=X_prep
+            #         if feature_kfold is None else X_prep.reset_index(),
+            #         y=y_prep
+            #         if feature_kfold is None else y_prep.reset_index(
+            #             drop=True),
+            #         path_output_data=f"{path_data_preprocessed_dir}/"
+            #         f"{filename_data_prep}")
+            #     np.savetxt(
+            #         f"{path_data_preprocessed_dir}/{filename_outliers}",
+            #         idxs_outlier,
+            #         fmt='%d')
+            # except Exception as e:
+            #     logging.info(f"Something happened during preprocessing {e}")
+            #     pass
 
             # test - TODO remove
             #break
