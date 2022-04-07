@@ -146,8 +146,8 @@ def main(
         y = data[feature_label]
 
         # test - TODO remove
-        X = X[:60]
-        y = y[:60]
+        #X = X[:60]
+        #y = y[:60]
         preprocess_inputs = []
 
         for scale_mode, impute_mode, outlier_mode \
@@ -169,8 +169,8 @@ def main(
         with Pool() as p:
             p.starmap(preprocess, tqdm(preprocess_inputs, total=len(preprocess_inputs)))
 
-        # return bc testing just preprocess
-        return
+        # test - TODO remove return bc testing just preprocess
+        #return
 
             # filename_data_scale_impute = cfg_model.get_filename_scale_impute_data(
             #     scale_mode, impute_mode, outlier_mode)
