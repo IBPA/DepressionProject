@@ -176,6 +176,10 @@ def main(
     X = data.drop([feature_label], axis=1)
     y = data[feature_label]
 
+    # test
+    #X = X[:60]
+    #y = y[:60]
+
     try:
         preprocessor = Preprocessor(
             best_scale_mode,
