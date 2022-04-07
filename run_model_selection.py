@@ -148,26 +148,56 @@ def main(
         # test - TODO remove
         #X = X[:60]
         #y = y[:60]
+        
         preprocess_inputs = []
+        missforest_preprocess = []
 
         for scale_mode, impute_mode, outlier_mode \
                 in cfg_model.get_all_preprocessing_combinations():
-            
-            preprocess_inputs += [[
-                scale_mode,
-                impute_mode,
-                outlier_mode,
-                random_state,
-                feature_kfold,
-                path_data_preprocessed_dir,
-                X,
-                y,
-                cfg_model]]
+            if impute_mode == 'missforest':
+                missforest_preprocess += [[
+                    scale_mode,
+                    impute_mode,
+                    outlier_mode,
+                    random_state,
+                    feature_kfold,
+                    path_data_preprocessed_dir,
+                    X,
+                    y,
+                    cfg_model]]
+            else:
+                preprocess_inputs += [[
+                    scale_mode,
+                    impute_mode,
+                    outlier_mode,
+                    random_state,
+                    feature_kfold,
+                    path_data_preprocessed_dir,
+                    X,
+                    y,
+                    cfg_model]]
 
         # print(len(preprocess_inputs))
-        # Preprocess using multiprocessing
+        # Preprocess using multiprocessing for missforest
+        logging.info("Starting Preprocessing MissForest")
         with Pool() as p:
-            p.starmap(preprocess, tqdm(preprocess_inputs, total=len(preprocess_inputs)))
+            p.starmap(preprocess, tqdm(missforest_preprocess, total=len(missforest_preprocess)))
+        
+        logging.info("Starting Preprocessing Not MissForest")
+        # Preprocess the rest normally
+        for scale_mode, impute_mode, outlier_mode, random_state, \
+                feature_kfold, path_data_preprocessed_dir, X, y, \
+                cfg_model in tqdm(preprocess_inputs):
+
+            preprocess(scale_mode,
+                    impute_mode,
+                    outlier_mode,
+                    random_state,
+                    feature_kfold,
+                    path_data_preprocessed_dir,
+                    X,
+                    y,
+                    cfg_model)
 
         # test - TODO remove return bc testing just preprocess
         #return
