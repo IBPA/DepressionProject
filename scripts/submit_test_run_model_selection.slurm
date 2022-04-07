@@ -13,4 +13,4 @@
 #SBATCH --time=3:00:00
 
 cd ../..
-python -u -m DepressionProject.run_model_selection ./DepressionProjectNew/output/data_cleaned_encoded.csv ./DepressionProjectNew/output/results.pkl ./DepressionProjectNew/output/preprocessed y18CH_Dep_YN_216m
+python -u -m DepressionProject.run_model_selection ./DepressionProjectNew/output/data_cleaned_encoded_18_yesmental.csv ./DepressionProjectNew/output/results.pkl ./DepressionProjectNew/output/preprocessed y18CH_Dep_YN_216m
