@@ -11,7 +11,7 @@ Todo:
 
 python -u -m DepressionProjectNew.run_tsne
 ./DepressionProjectNew/output/output_18_yesmental/preprocessed
-robust missforest lof y18CH_Dep_YN_216m
+robust missforest none y18CH_Dep_YN_216m
 """
 import os
 import pickle
@@ -74,7 +74,6 @@ def main(
         random_state):
     """
     """
-    np.random.seed(random_state)
 
     cfg_model = ModelSelectionConfig
 
@@ -102,11 +101,13 @@ def main(
         X = X_scale_impute,
         y = y,
         idxs_outlier = idxs_outlier,
+        random_state = random_state,
         path_save = f"{path_data_preprocessed_dir}/"
         f"{filename_outliers_tsne}")
     plot_tsne( # removed outliers
         X = X_prep,
         y = y_prep,
+        random_state = random_state,
         path_save = f"{path_data_preprocessed_dir}/"
         f"{filename_tsne}")
     
