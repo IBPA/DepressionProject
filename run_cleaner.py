@@ -176,7 +176,7 @@ def main():
     original_data = pd.concat([X_orig, y_orig], axis=1)
     logging.info(f"Data shape: {original_data.shape}")
     missing_value_path = os.path.abspath(os.path.dirname(__file__)) + \
-        "/output/missing_value.png"
+        "/output/missing_value_original_drop_dependent.png"
     plot_missing_value_ratio_histogram(original_data, missing_value_path)
     # graph for raw data without dropping rows that do not have dependent variable
     missing_value_path = os.path.abspath(os.path.dirname(__file__)) + \
