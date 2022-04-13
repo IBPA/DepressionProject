@@ -26,7 +26,7 @@ python reformat_ml.py
 python get_config_info.py
 ```
 - Change preprocessing.py config categorical variables if needed (probably not)
-- Change cleaning.py with columns_ignored to add mental health variables
+- Change cleaning.py with columns_ignored to add mental health variables (don't do for now because our predictions are bad already)
 
 ## Run run_cleaner.py
 ```
