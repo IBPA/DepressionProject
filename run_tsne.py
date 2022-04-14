@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Model selection running script.
+"""run tsne and tsne for outliers
 
 Authors:
     Fangzhou Li - fzli@ucdavis.edu
