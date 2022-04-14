@@ -61,12 +61,13 @@ def main(
         if col not in X.columns:
             cols_skip += [col]
             continue
-        if len(X[col].value_counts() == 2):
+        if len(X[col].value_counts()) == 2:
             cols_be += [col]
-        elif len(X[col].value_counts() > 2):
+        elif len(X[col].value_counts()) > 2:
             cols_ohe += [col]
         else:
             raise ValueError("All NaN or constant.")
+            #logging.info(f"Column {col} is all constant or NaN")
     logging.info(f"Skipping bc do not exist in data: {cols_skip}")
     X = binary_encode(X, cols_be)
     X = one_hot_encode(X, cols_ohe)

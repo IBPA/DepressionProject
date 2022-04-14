@@ -50,7 +50,8 @@ class Cleaner:
             (pd.DataFrame): Cleaned data.
 
         """
-        data_new_df = data_df.loc[:, (data_df != data_df.iloc[0]).any()]
+        #data_new_df = data_df.loc[:, (data_df != data_df.iloc[0]).any()]
+        data_new_df = data_df.loc[:, data_df.apply(pd.Series.nunique) != 1]
         return data_new_df
 
     def remove_overly_missing_variables(self, data_df):
