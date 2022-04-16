@@ -5,12 +5,18 @@ import numpy as np
 
 DEFAULT_VARIABLE_INFO = '../../data/Variables013122new.csv'
 DEFAULT_PREPROCESSED = '../../output/preprocessed_data_without_temporal.txt'
-DEFAULT_PPC = '../../output/output_18_yesmental/pc_rank_pearson.csv'
-DEFAULT_SC = '../../output/output_18_yesmental/pc_rank_spearman.csv'
-DEFAULT_K = '../../output/output_18_yesmental/pc_rank_kendall.csv'
-OUT_PPC = '../../output/output_18_yesmental/pc_rank_pearson_readable.csv'
-OUT_SC = '../../output/output_18_yesmental/pc_rank_spearman_readable.csv'
-OUT_K = '../../output/output_18_yesmental/pc_rank_kendall_readable.csv'
+#DEFAULT_PPC = '../../output/output_18_yesmental/pc_rank_pearson.csv'
+#DEFAULT_SC = '../../output/output_18_yesmental/pc_rank_spearman.csv'
+#DEFAULT_K = '../../output/output_18_yesmental/pc_rank_kendall.csv'
+#OUT_PPC = '../../output/output_18_yesmental/pc_rank_pearson_readable.csv'
+#OUT_SC = '../../output/output_18_yesmental/pc_rank_spearman_readable.csv'
+#OUT_K = '../../output/output_18_yesmental/pc_rank_kendall_readable.csv'
+DEFAULT_PPC = '../../output/10MVIout/output_17_yesmental/pc_rank_pearson.csv'
+DEFAULT_SC = '../../output/10MVIout/output_17_yesmental/pc_rank_spearman.csv'
+DEFAULT_K = '../../output/10MVIout/output_17_yesmental/pc_rank_kendall.csv'
+OUT_PPC = '../../output/10MVIout/output_17_yesmental/pc_rank_pearson_readable.csv'
+OUT_SC = '../../output/10MVIout/output_17_yesmental/pc_rank_spearman_readable.csv'
+OUT_K = '../../output/10MVIout/output_17_yesmental/pc_rank_kendall_readable.csv'
 
 df_variable_info = pd.read_csv(DEFAULT_VARIABLE_INFO, dtype='str', encoding = 'unicode_escape')
 ppc = pd.read_csv(DEFAULT_PPC, dtype='str', encoding = 'unicode_escape')

@@ -10,7 +10,7 @@ df_variable_info = pd.read_csv(DEFAULT_VARIABLE_INFO, dtype='str', encoding = 'u
 
 # if categorical, get new name
 #categorical = df_variable_info.loc[df_variable_info['Categorical'] == '1', 'RelabeledName'].tolist()
-want_readable = ['Max_ed_32wg', 'e376a_8w', 'f856_8m', 'f922_8m', 'kd515_18m', 'Intensity_24m', 'Distractibility_24m', 'Avg_FinDiff_61m', 'kz021_0m_1.0_0_2.0_1', 'f020a_8m_1.0_0_2.0_1']
+want_readable = ['Avg_income_97m', 'Avg_neighb_122m', 'kz021_0m_1.0_0_2.0_1']
 relabeled = []
 variable_description = []
 unfound = []
