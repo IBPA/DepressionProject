@@ -105,7 +105,7 @@ def preprocess(
 @click.option(
     '--load-data-preprocessed',
     type=bool,
-    default=True) #TODO remove - Load preprocessed data by default for one run
+    default=False)
 @click.option(
     '--random-state',
     type=int,
