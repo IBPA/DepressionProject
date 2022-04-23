@@ -15,6 +15,7 @@ import logging
 import numpy as np
 import pandas as pd
 import click
+from sklearn.metrics import precision_score
 
 from msap.modeling.configs import (
     ModelSelectionConfig)
@@ -268,6 +269,10 @@ def main(
     pd.DataFrame(sfs.get_metric_dict()).transpose().reset_index().to_csv(
         f"{path_output_dir}/rfe_result.csv", index=False)
 
+    # for baseline precision, predict all positive/depressed
+    y_pred_allpos = pd.Series(np.ones(len(y)))
+    p_base = precision_score(y, y_pred_allpos)
+
     # Calculate and plot curves, all classifiers and the best model.
     for method in METHODS_CURVE:
         try:
@@ -282,6 +287,7 @@ def main(
         plot_curves(
             curve_metrics,
             method=method,
+            pr_base = p_base,
             path_save=f"{path_output_dir}/{method}.png")
 
     # # Plot outliers.
