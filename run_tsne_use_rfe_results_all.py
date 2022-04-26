@@ -389,13 +389,13 @@ def main(
         X_18 = X_18.drop([feature_kfold], axis=1)
     
     # replot pr curve but with correct baseline
-    y_18_pred_allpos = pd.Series(np.ones(len(y_18)))
-    p_base = precision_score(y_18, y_18_pred_allpos)
-    method = 'pr'
     clf = ClassifierHandler(
         classifier_mode=best_clf_18,
         params=best_cv_result_18['param'],
         random_state=random_state).clf
+    y_18_pred_allpos = pd.Series(np.ones(len(y_18)))
+    p_base = precision_score(y_18, y_18_pred_allpos)
+    method = 'pr'
     try:
         curve_metrics = get_curve_metrics(
             clf, X_18, y_18, method, splits)
