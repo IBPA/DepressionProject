@@ -5,9 +5,8 @@ Authors:
     Fangzhou Li - fzli@ucdavis.edu
 
 Todo:
-    * include reformat.
-    * I don;t like preprocessor...
-    * Help for clicks
+    * Actually change tsne to look at clusters and manually separate
+    * rfe_xy.csv by cluster to look at ?
 
 python -u -m DepressionProjectNew.run_tsne_use_rfe_results \
 ./DepressionProjectNew/output/10MVIout/output_12_yesmental \
@@ -185,6 +184,15 @@ def main(
         path_save = f"{path_data_dir_12}/"
         "tsne_from_rfe.png")
     
+    dump_X_and_y(
+        X=X_12[rfe12]
+        if feature_kfold is None else X_12[rfe12].reset_index(),
+        y=y_12
+        if feature_kfold is None else y_12.reset_index(
+            drop=True),
+        path_output_data=f"{path_data_dir_12}/"
+        "rfe_xy.csv")
+
     splits = KFold_by_feature(
         X=X_12,
         n_splits=5,
@@ -240,6 +248,15 @@ def main(
         path_save = f"{path_data_dir_16}/"
         "tsne_from_rfe.png")
     
+    dump_X_and_y(
+        X=X_16[rfe16]
+        if feature_kfold is None else X_16[rfe16].reset_index(),
+        y=y_16
+        if feature_kfold is None else y_16.reset_index(
+            drop=True),
+        path_output_data=f"{path_data_dir_16}/"
+        "rfe_xy.csv")
+    
     splits = KFold_by_feature(
         X=X_16,
         n_splits=5,
@@ -292,6 +309,15 @@ def main(
         random_state = random_state,
         path_save = f"{path_data_dir_17}/"
         "tsne_from_rfe.png")
+    
+    dump_X_and_y(
+        X=X_17[rfe17]
+        if feature_kfold is None else X_17[rfe17].reset_index(),
+        y=y_17
+        if feature_kfold is None else y_17.reset_index(
+            drop=True),
+        path_output_data=f"{path_data_dir_17}/"
+        "rfe_xy.csv")
 
     splits = KFold_by_feature(
         X=X_17,
@@ -344,6 +370,15 @@ def main(
         random_state = random_state,
         path_save = f"{path_data_dir_18}/"
         "tsne_from_rfe.png")
+    
+    dump_X_and_y(
+        X=X_18[rfe18]
+        if feature_kfold is None else X_18[rfe18].reset_index(),
+        y=y_18
+        if feature_kfold is None else y_18.reset_index(
+            drop=True),
+        path_output_data=f"{path_data_dir_18}/"
+        "rfe_xy.csv")
     
     splits = KFold_by_feature(
         X=X_18,
