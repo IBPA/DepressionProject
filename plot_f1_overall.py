@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-"""run tsne and tsne for outliers
+"""Plot F1 scores as bar graph
+Must change info hard coded in main
 
 Authors:
     Fangzhou Li - fzli@ucdavis.edu
