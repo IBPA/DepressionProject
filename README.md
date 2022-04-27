@@ -54,3 +54,46 @@ python -m DepressionProjectNew.run_encode DepressionProjectNew/output/data_clean
 python -u -m DepressionProjectNew.run_model_and_analysis ./DepressionProjectNew/output/output_18_yesmental/results.pkl ./DepressionProjectNew/output/output_12_yesmental/preprocessed ./DepressionProjectNew/output/data_cleaned_encoded_12_yesmental.csv ./DepressionProjectNew/output/output_12_yesmental y12CH_Dep_YN_144m
 ```
 or use script
+
+## Plot tsne using only best results from RFE/Elbow method
+Make sure to input the hardcoded variables for the rfe results
+```
+python -u -m DepressionProjectNew.run_tsne_use_rfe_results_all \
+    ./DepressionProjectNew/output/10MVIout/output_12_yesmental \
+    ./DepressionProjectNew/output/10MVIout/output_16_yesmental \
+    ./DepressionProjectNew/output/10MVIout/output_17_yesmental \
+    ./DepressionProjectNew/output/10MVIout/output_18_yesmental \
+    y12CH_Dep_YN_144m \
+    y16CH_Dep_YN_192m \
+    y17CH_Dep_YN_204m \
+    y18CH_Dep_YN_216m
+```
+
+## Can also run analysis without rfe and calculate f1's
+```
+python -u -m DepressionProjectNew.run_model_and_analysis_no_rfe_calc \
+    ./DepressionProjectNew/output/10MVIout/output_18_yesmental/results.pkl \
+    ./DepressionProjectNew/output/output_18_yesmental/preprocessed \
+    ./DepressionProjectNew/output/data_cleaned_encoded_18_yesmental_30MVI.csv \
+    ./DepressionProjectNew/output/output_18_yesmental \
+    y18CH_Dep_YN_216m
+```
+
+## Calculate F1 baselines and plot into confusion matrix
+```
+python -u -m DepressionProjectNew.run_f1_calcs_baseline_all \
+    ./DepressionProjectNew/output/10MVIout/output_12_yesmental \
+    ./DepressionProjectNew/output/10MVIout/output_16_yesmental \
+    ./DepressionProjectNew/output/10MVIout/output_17_yesmental \
+    ./DepressionProjectNew/output/10MVIout/output_18_yesmental \
+    y12CH_Dep_YN_144m \
+    y16CH_Dep_YN_192m \
+    y17CH_Dep_YN_204m \
+    y18CH_Dep_YN_216m
+```
+
+## Plot F1's with their baseline
+```
+python -u -m DepressionProjectNew.plot_f1_overall
+    ./DepressionProjectNew/output/10MVIout/f1s.png
+```

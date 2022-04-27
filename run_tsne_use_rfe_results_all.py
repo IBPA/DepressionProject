@@ -8,7 +8,7 @@ Todo:
     * Actually change tsne to look at clusters and manually separate
     * rfe_xy.csv by cluster to look at ?
 
-python -u -m DepressionProjectNew.run_tsne_use_rfe_results \
+python -u -m DepressionProjectNew.run_tsne_use_rfe_results_all \
 ./DepressionProjectNew/output/10MVIout/output_12_yesmental \
 ./DepressionProjectNew/output/10MVIout/output_16_yesmental \
 ./DepressionProjectNew/output/10MVIout/output_17_yesmental \
