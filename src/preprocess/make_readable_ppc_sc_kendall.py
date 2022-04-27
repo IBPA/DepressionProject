@@ -67,14 +67,14 @@ mapper = dict(zip(
 ppc.replace({'Unnamed: 0': mapper}, inplace=True)
 #print(ppc["Variable"])
 ppc.to_csv(OUT_PPC, index=False)
-print(f"Shape of PCC where p-value <= 0.05: {ppc.loc[pd.to_numeric(ppc['p-value']) <= 0.05].shape}")
+print(f"Shape of PCC where p-value < 0.05: {ppc.loc[pd.to_numeric(ppc['p-value']) < 0.05].shape}")
 
 sc.replace({'Unnamed: 0': mapper}, inplace=True)
 #print(sc["Variable"])
 sc.to_csv(OUT_SC, index=False)
-print(f"Shape of SC where p-value <= 0.05: {sc.loc[pd.to_numeric(sc['p-value']) <= 0.05].shape}")
+print(f"Shape of SC where p-value < 0.05: {sc.loc[pd.to_numeric(sc['p-value']) < 0.05].shape}")
 
 kendall.replace({'Unnamed: 0': mapper}, inplace=True)
 #print(sc["Variable"])
 kendall.to_csv(OUT_K, index=False)
-print(f"Shape of Kendall where p-value <= 0.05: {sc.loc[pd.to_numeric(sc['p-value']) <= 0.05].shape}")
+print(f"Shape of Kendall where p-value < 0.05: {sc.loc[pd.to_numeric(sc['p-value']) < 0.05].shape}")
