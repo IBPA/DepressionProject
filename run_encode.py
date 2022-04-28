@@ -8,8 +8,8 @@ Authors:
 Todo:
     * Comments
     * Run: python -m DepressionProjectNew.run_encode in.csv out.csv
-    * python -m DepressionProjectNew.run_encode
-        DepressionProjectNew/output/data_cleaned.csv
+    * python -m DepressionProjectNew.run_encode \
+        DepressionProjectNew/output/data_cleaned.csv \
         DepressionProjectNew/output/data_cleaned_encoded.csv
 """
 
