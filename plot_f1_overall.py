@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Plot F1 scores as bar graph
+"""Plot F1 scores for different ages as bar graph
 Must change info hard coded in main
 
 Authors:
