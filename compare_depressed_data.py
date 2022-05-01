@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Compare what data exists at what indices
+"""Compare what data exists for what depression variables
 
 Authors:
     Fangzhou Li - fzli@ucdavis.edu
