@@ -193,7 +193,8 @@ def main(
     #logging.info(rfe_fts_ordered)
     df_fs = pd.DataFrame(list(zip(fts_univariate, rfe_fts_ordered)),
         columns = ['Univariate', 'RFE'])
-    df_fs.to_csv(f"{path_output_dir}/feature_selection_ordered.csv")
+    df_fs.to_csv(f"{path_output_dir}/feature_selection_ordered.csv",
+        index = False)
 
     # print what top 10 match
     top10match = [x for x in fts_univariate[:10] if x in rfe_fts_ordered[:10]]
