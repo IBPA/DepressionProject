@@ -4,6 +4,7 @@
 
 Authors:
     Fangzhou Li - fzli@ucdavis.edu
+    Arielle Yoo - asmyoo@ucdavis.edu
 
 """
 import os
