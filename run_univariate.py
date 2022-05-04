@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-"""Model evaluation script.
+"""Run univariate feature selection and
+    compare to rfe output
 
 Authors:
     Fangzhou Li - fzli@ucdavis.edu
