@@ -201,6 +201,16 @@ def main(
     logging.info("Top 10 matching: "\
         f"{top10match}")
     
+    # organize into table
+    # row is column, column rank in RFE, column rank in univariate
+    indices_rfe = [rfe_fts_ordered.index(x) for x in rfe_fts_ordered] # should just be 0 to end
+    indices_univariate = [fts_univariate.index(x) for x in rfe_fts_ordered]
+    #print(indices_rfe)
+    #print(indices_univariate)
+    df = pd.DataFrame(list(zip(rfe_fts_ordered, indices_rfe, indices_univariate)),
+        columns = ['Variable','RFE Index', 'Univariate Index'])
+    df.to_csv(f"{path_output_dir}/feature_selection_indices.csv",
+        index = False)
 
 
 
