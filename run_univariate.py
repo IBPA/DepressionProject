@@ -191,8 +191,8 @@ def main(
     for i in range(len(rfe_fts) - 1):
         rfe_fts_ordered += [x for x in rfe_fts[i+1] if x not in rfe_fts[i]]
     #logging.info(rfe_fts_ordered)
-    df_fs = pd.DataFrame(list(zip(fts_univariate, rfe_fts_ordered)),
-        columns = ['Univariate', 'RFE'])
+    df_fs = pd.DataFrame(list(zip(rfe_fts_ordered, fts_univariate)),
+        columns = ['RFE', 'Univariate'])
     df_fs.to_csv(f"{path_output_dir}/feature_selection_ordered.csv",
         index = False)
 
