@@ -174,18 +174,34 @@ def main(
 
     # perform univariate feature selection
     fts_scores = get_univariate_features_all(X,y)
-    #logging.info(fts_scores)
+    # get only fts
+    fts_univariate = [item[0] for item in fts_scores]
+    #logging.info(fts_univariate)
 
     rfe = pd.read_csv(f"{path_output_dir}/rfe_result.csv")
-    logging.info(rfe)
+    #logging.info(rfe)
     # reverse list of rfe features
     rfe_fts = rfe["feature_names"][::-1].reset_index(drop=True)
+    # read as list
     rfe_fts = rfe_fts.apply(lambda x: literal_eval(str(x)))
     # get into same format as fts_scores
     rfe_fts_ordered = [] # most important is first
-    rfe_fts_ordered += rfe_fts[0]
-    #print(rfe_fts_ordered)
+    rfe_fts_ordered += list(rfe_fts[0])
+    # loop through results and grab next unique value
+    for i in range(len(rfe_fts) - 1):
+        rfe_fts_ordered += [x for x in rfe_fts[i+1] if x not in rfe_fts[i]]
+    #logging.info(rfe_fts_ordered)
+    df_fs = pd.DataFrame(list(zip(fts_univariate, rfe_fts_ordered)),
+        columns = ['Univariate', 'RFE'])
+    df_fs.to_csv(f"{path_output_dir}/feature_selection_ordered.csv")
+
+    # print what top 10 match
+    top10match = [x for x in fts_univariate[:10] if x in rfe_fts_ordered[:10]]
+    logging.info("Top 10 matching: "\
+        f"{top10match}")
     
+
+
 
 if __name__ == '__main__':
     main()
