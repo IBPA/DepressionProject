@@ -100,20 +100,20 @@ def main(
     
     #logging.info(f"Has 18 Dep Shape: {has_18_dep.shape}")
 
-    # check how much missing data in each column
+    # check how much missing data in each row
     mvr_df = data.isnull().mean(axis=1)
     #logging.info(f"Missing Info by Row: {mvr_df}")
     data_removed_df = data.loc[mvr_df[mvr_df >= 0.1].index]
     logging.info(f"Removed Samples with over 10% missing data by row: {data_removed_df.shape}")
     data_new_df = data.loc[mvr_df[mvr_df < 0.1].index]
     logging.info(f"Shape: {data_new_df.shape}")
-    logging.info(f"Age 12 Depressed of data with over 10% missing by"
+    logging.info(f"Age 12 Depressed of data with under 10% missing by"
         f" row:\n{data_new_df[feature_label_12].value_counts()}")
-    logging.info(f"Age 16 Depressed of data with over 10% missing by"
+    logging.info(f"Age 16 Depressed of data with under 10% missing by"
         f" row:\n{data_new_df[feature_label_16].value_counts()}")
-    logging.info(f"Age 17 Depressed of data with over 10% missing by"
+    logging.info(f"Age 17 Depressed of data with under 10% missing by"
         f" row:\n{data_new_df[feature_label_17].value_counts()}")
-    logging.info(f"Age 18 Depressed of data with over 10% missing by"
+    logging.info(f"Age 18 Depressed of data with under 10% missing by"
         f" row:\n{data_new_df[feature_label_18].value_counts()}")
     
 
@@ -121,26 +121,26 @@ def main(
     logging.info(f"Removed Samples with over 15% missing data by row: {data_removed_df.shape}")
     data_new_df = data.loc[mvr_df[mvr_df < 0.15].index]
     logging.info(f"Shape: {data_new_df.shape}")
-    logging.info(f"Age 12 Depressed of data with over 15% missing by"
+    logging.info(f"Age 12 Depressed of data with under 15% missing by"
         f" row:\n{data_new_df[feature_label_12].value_counts()}")
-    logging.info(f"Age 16 Depressed of data with over 15% missing by"
+    logging.info(f"Age 16 Depressed of data with under 15% missing by"
         f" row:\n{data_new_df[feature_label_16].value_counts()}")
-    logging.info(f"Age 17 Depressed of data with over 15% missing by"
+    logging.info(f"Age 17 Depressed of data with under 15% missing by"
         f" row:\n{data_new_df[feature_label_17].value_counts()}")
-    logging.info(f"Age 18 Depressed of data with over 15% missing by"
+    logging.info(f"Age 18 Depressed of data with under 15% missing by"
         f" row:\n{data_new_df[feature_label_18].value_counts()}")
     
     data_removed_df = data.loc[mvr_df[mvr_df >= 0.20].index]
     logging.info(f"Removed Samples with over 20% missing data by row: {data_removed_df.shape}")
     data_new_df = data.loc[mvr_df[mvr_df < 0.20].index]
     logging.info(f"Shape: {data_new_df.shape}")
-    logging.info(f"Age 12 Depressed of data with over 20% missing by"
+    logging.info(f"Age 12 Depressed of data with under 20% missing by"
         f" row:\n{data_new_df[feature_label_12].value_counts()}")
-    logging.info(f"Age 16 Depressed of data with over 20% missing by"
+    logging.info(f"Age 16 Depressed of data with under 20% missing by"
         f" row:\n{data_new_df[feature_label_16].value_counts()}")
-    logging.info(f"Age 17 Depressed of data with over 20% missing by"
+    logging.info(f"Age 17 Depressed of data with under 20% missing by"
         f" row:\n{data_new_df[feature_label_17].value_counts()}")
-    logging.info(f"Age 18 Depressed of data with over 20% missing by"
+    logging.info(f"Age 18 Depressed of data with under 20% missing by"
         f" row:\n{data_new_df[feature_label_18].value_counts()}")
     
 

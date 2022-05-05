@@ -3,7 +3,7 @@ import os
 class DefaultConfig:
     PATH_OUTPUT_REMOVED = (os.path.abspath(os.path.dirname(__file__))
         + "/../output/overly_missing_data.csv")
-    THRESHOLD_DROP_MISSING_RATIO = 0.1
+    THRESHOLD_DROP_MISSING_RATIO = 1
     COLUMNS_IGNORED = ['cidB2846_0m']
         #'MR_CH_SMFQDepressionScoreComplete_9y',
         #'MR_CH_SMFQDepressionScoreProrated_9y',
