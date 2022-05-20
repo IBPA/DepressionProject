@@ -131,8 +131,11 @@ def map_variables(df_data: pd.DataFrame, df_mapping: pd.DataFrame) -> pd.DataFra
     
     original_variables_without_mapping = df_mapping_missing['VariableName'].tolist() + missing_in_df_data
     logger.warning(
-        f'Number of variables without mapping: {len(original_variables_without_mapping)}')
+        f"Number of variables in mapping file but without mapping: {len(df_mapping_missing['VariableName'].tolist())}")
     #logger.debug(f'Features without variable mapping:\n{original_variables_without_mapping}')
+
+    missing_in_mapping = list(set(df_mapping['VariableName']) - set(df_data.columns))
+    logger.debug(f'Variables in mapping but not in raw data: {missing_in_mapping}')
 
     df_renamed = df_data.copy()
     df_renamed.drop(labels=original_variables_without_mapping, axis=1, inplace=True)
@@ -320,9 +323,10 @@ def main():
         _random = random.Random()
 
     # read and process raw data
-    df_raw = pd.read_csv(args.raw_data, dtype='str', encoding='utf-8-sig')
-    df_raw = df_raw.applymap(lambda x: x.strip())  # remove white space
+    df_raw = pd.read_csv(args.raw_data, dtype='str')
     logger.info(f'Raw data {df_raw.shape}:\n{df_raw.head()}')
+    df_raw = df_raw.applymap(lambda x: x.strip() if isinstance(x, str) else x)  # remove white space
+    #logger.info(f'After Strip: Raw data {df_raw.shape}:\n{df_raw.head()}')
 
     if args.use_smaller_samples:
         if args.use_smaller_samples < 1:
@@ -339,8 +343,19 @@ def main():
         logger.info(f'Data size after sampling: {df_raw.shape}')
 
     # read name mapping data, csv not tab
-    df_name_mapping = pd.read_csv(args.mapping_data, encoding='unicode_escape')
+    df_name_mapping = pd.read_csv(args.mapping_data, dtype='str', encoding='unicode_escape')
     logger.info(f'Variable mapping data {df_name_mapping.shape}:\n{df_name_mapping.head()}')
+    # remove whitespace
+    df_name_mapping = df_name_mapping.applymap(lambda x: x.strip() if isinstance(x, str) else x)
+    #logger.info(f'After Strip: Variable mapping data {df_name_mapping.shape}:\n{df_name_mapping.head()}')
+
+    # Test - what variables are in mapping but not in raw if read like this
+    what = list(set(df_name_mapping['VariableName']) - set(df_raw.columns))
+    #what = []
+    #for var in df_name_mapping['VariableName']:
+    #    if var not in df_raw.columns:
+    #        what.append(var)
+    logger.info(f'What needs to be relabeled: {what}')
 
     # Map variables
     logger.info('Mapping variables...')
