@@ -33,6 +33,9 @@ from msap.utils import (
 from msap.utils.plot import (
     plot_tsne)
 
+# need to know categorical variables
+from .configs import PreprocessingConfig
+
 os.environ["PYTHONWARNINGS"] = (
     "ignore::RuntimeWarning"
 )
@@ -51,6 +54,7 @@ def preprocess(
     path_data_preprocessed_dir: str,
     X: pd.DataFrame,
     y: pd.Series,
+    cat_vars: list,
     cfg_model: ModelSelectionConfig):
 
     filename_data_scale_impute = cfg_model.get_filename_scale_impute_data(
@@ -65,6 +69,7 @@ def preprocess(
             scale_mode,
             impute_mode,
             outlier_mode,
+            cat_vars,
             random_state,
             f"{path_data_preprocessed_dir}/"
             f"{filename_data_scale_impute}")
@@ -84,6 +89,18 @@ def preprocess(
     except Exception as e:
         logging.info(f"Something happened during preprocessing {e}")
         pass
+
+# returns list of categorical variables from the data using
+# prefixes specified in categorical
+def get_all_categorical(
+    categorical: list,
+    X: pd.DataFrame):
+
+    names = []
+    for feature in X.columns:
+        if feature.startswith(tuple(categorical)):
+            names.append(feature)
+    return names
 
 
 @click.command()
@@ -146,11 +163,15 @@ def main(
         y = data[feature_label]
 
         # test - TODO remove
-        #X = X[:60]
-        #y = y[:60]
+        X = X[:60]
+        y = y[:60]
         
         preprocess_inputs = []
         missforest_preprocess = []
+
+        # get full list of categorical variables
+        vars_cat_prefs = PreprocessingConfig.columns_categorical
+        vars_cat = get_all_categorical(vars_cat_prefs, X)
 
         for scale_mode, impute_mode, outlier_mode \
                 in cfg_model.get_all_preprocessing_combinations():
@@ -164,6 +185,7 @@ def main(
                     path_data_preprocessed_dir,
                     X,
                     y,
+                    vars_cat,
                     cfg_model]]
             else:
                 preprocess_inputs += [[
@@ -175,6 +197,7 @@ def main(
                     path_data_preprocessed_dir,
                     X,
                     y,
+                    vars_cat,
                     cfg_model]]
 
         # print(len(preprocess_inputs))
@@ -187,7 +210,7 @@ def main(
         # Preprocess the rest normally
         for scale_mode, impute_mode, outlier_mode, random_state, \
                 feature_kfold, path_data_preprocessed_dir, X, y, \
-                cfg_model in tqdm(preprocess_inputs):
+                vars_cat, cfg_model in tqdm(preprocess_inputs):
 
             preprocess(scale_mode,
                     impute_mode,
@@ -197,6 +220,7 @@ def main(
                     path_data_preprocessed_dir,
                     X,
                     y,
+                    vars_cat,
                     cfg_model)
 
         # test - TODO remove return bc testing just preprocess
