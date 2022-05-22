@@ -14,8 +14,8 @@ import os
 class DefaultConfig:
     PATH_ROOT = os.path.abspath(os.path.dirname(__file__)) + "/.."
 
-    #PATH_DATA_INPUT_FILE = (
-    #    PATH_ROOT + "/output/preprocessed_data_without_temporal.txt")
+    PATH_DATA_INPUT_FILE = (
+        PATH_ROOT + "/output/preprocessed_data_without_temporal.txt")
 
     #PATH_DATA_INPUT_FILE = (
     #    PATH_ROOT + "/output/has_alldep_preprocessed_data_without_temporal.csv")
@@ -29,8 +29,8 @@ class DefaultConfig:
     #PATH_DATA_INPUT_FILE = (
     #    PATH_ROOT + "/output/drop_samples_17_preprocessed_data_without_temporal.csv")
     
-    PATH_DATA_INPUT_FILE = (
-        PATH_ROOT + "/output/drop_samples_18_preprocessed_data_without_temporal.csv")
+    #PATH_DATA_INPUT_FILE = (
+    #    PATH_ROOT + "/output/drop_samples_18_preprocessed_data_without_temporal.csv")
 
     PATH_DATA_CLEANED = (
         PATH_ROOT + "/output/data_cleaned.csv")

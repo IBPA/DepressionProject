@@ -46,16 +46,16 @@ logging.basicConfig(
 
 
 def preprocess(
-    scale_mode: str,
-    impute_mode: str,
-    outlier_mode: str,
-    random_state: int,
-    feature_kfold,
-    path_data_preprocessed_dir: str,
-    X: pd.DataFrame,
-    y: pd.Series,
-    cat_vars: list,
-    cfg_model: ModelSelectionConfig):
+        scale_mode: str,
+        impute_mode: str,
+        outlier_mode: str,
+        random_state: int,
+        feature_kfold,
+        path_data_preprocessed_dir: str,
+        X: pd.DataFrame,
+        y: pd.Series,
+        cat_vars: list,
+        cfg_model: ModelSelectionConfig):
 
     filename_data_scale_impute = cfg_model.get_filename_scale_impute_data(
         scale_mode, impute_mode, outlier_mode)
@@ -64,43 +64,56 @@ def preprocess(
     filename_outliers = cfg_model.get_filename_outliers(
         scale_mode, impute_mode, outlier_mode)
 
-    try:
-        preprocessor = Preprocessor(
-            scale_mode,
-            impute_mode,
-            outlier_mode,
-            cat_vars,
-            random_state,
-            f"{path_data_preprocessed_dir}/"
-            f"{filename_data_scale_impute}")
-        X_prep, y_prep, idxs_outlier = preprocessor.preprocess(X, y)
-        dump_X_and_y(
-            X=X_prep
-            if feature_kfold is None else X_prep.reset_index(),
-            y=y_prep
-            if feature_kfold is None else y_prep.reset_index(
-                drop=True),
-            path_output_data=f"{path_data_preprocessed_dir}/"
-            f"{filename_data_prep}")
-        np.savetxt(
-            f"{path_data_preprocessed_dir}/{filename_outliers}",
-            idxs_outlier,
-            fmt='%d')
-    except Exception as e:
-        logging.info(f"Something happened during preprocessing {e}")
-        pass
+    # try:
+    preprocessor = Preprocessor(
+        scale_mode,
+        impute_mode,
+        outlier_mode,
+        cat_vars,
+        random_state,
+        f"{path_data_preprocessed_dir}/"
+        f"{filename_data_scale_impute}")
+    X_prep, y_prep, idxs_outlier = preprocessor.preprocess(X, y)
+    dump_X_and_y(
+        X=X_prep
+        if feature_kfold is None else X_prep.reset_index(),
+        y=y_prep
+        if feature_kfold is None else y_prep.reset_index(
+            drop=True),
+        path_output_data=f"{path_data_preprocessed_dir}/"
+        f"{filename_data_prep}")
+    np.savetxt(
+        f"{path_data_preprocessed_dir}/{filename_outliers}",
+        idxs_outlier,
+        fmt='%d')
+    # except Exception as e:
+    #    logging.info(f"Something happened during preprocessing {e}")
+    #    pass
 
 # returns list of categorical variables from the data using
 # prefixes specified in categorical
+
+
 def get_all_categorical(
-    categorical: list,
-    X: pd.DataFrame):
+        categorical: list,
+        X: pd.DataFrame):
 
     names = []
     for feature in X.columns:
         if feature.startswith(tuple(categorical)):
             names.append(feature)
-    return names
+    # print(names)
+    indices = [X.columns.get_loc(c) for c in names if c in X]
+    return indices
+
+
+def change_type_to_cat(
+        indices: list,
+        X: pd.DataFrame):
+
+    for i in indices:
+        X.iloc[:, i] = X.iloc[:, i].astype("category")
+    return X
 
 
 @click.command()
@@ -124,6 +137,14 @@ def get_all_categorical(
     type=bool,
     default=False)
 @click.option(
+    '--use-categorical',
+    type=bool,
+    default=False)
+@click.option(
+    '--use-multiprocess-missforest',
+    type=bool,
+    default=True)
+@click.option(
     '--random-state',
     type=int,
     default=42)
@@ -134,6 +155,8 @@ def main(
         feature_label,
         feature_kfold,
         load_data_preprocessed,
+        use_categorical,
+        use_multiprocess_missforest,
         random_state):
     """
     """
@@ -160,22 +183,28 @@ def main(
             data = data.set_index(feature_kfold)
 
         X = data.drop([feature_label], axis=1)
-        y = data[feature_label]
+        y = data[feature_label].astype("category")
 
         # test - TODO remove
         X = X[:60]
         y = y[:60]
-        
+
         preprocess_inputs = []
         missforest_preprocess = []
 
-        # get full list of categorical variables
-        vars_cat_prefs = PreprocessingConfig.columns_categorical
-        vars_cat = get_all_categorical(vars_cat_prefs, X)
+        if use_categorical:
+            raise NotImplementedError
+            # get full list of categorical variables
+            vars_cat_prefs = PreprocessingConfig.columns_categorical
+            cat_indices = get_all_categorical(vars_cat_prefs, X)
+            X = change_type_to_cat(cat_indices, X)
+        else:
+            cat_indices = None
 
         for scale_mode, impute_mode, outlier_mode \
                 in cfg_model.get_all_preprocessing_combinations():
             if impute_mode == 'missforest':
+                # print(cat_indices)
                 missforest_preprocess += [[
                     scale_mode,
                     impute_mode,
@@ -185,7 +214,7 @@ def main(
                     path_data_preprocessed_dir,
                     X,
                     y,
-                    vars_cat,
+                    cat_indices,
                     cfg_model]]
             else:
                 preprocess_inputs += [[
@@ -197,34 +226,52 @@ def main(
                     path_data_preprocessed_dir,
                     X,
                     y,
-                    vars_cat,
+                    cat_indices,
                     cfg_model]]
 
         # print(len(preprocess_inputs))
         # Preprocess using multiprocessing for missforest
         logging.info("Starting Preprocessing MissForest")
-        with Pool() as p:
-            p.starmap(preprocess, tqdm(missforest_preprocess, total=len(missforest_preprocess)))
-        
+        if use_multiprocess_missforest:
+            with Pool() as p:
+                p.starmap(preprocess, tqdm(missforest_preprocess,
+                          total=len(missforest_preprocess)))
+        else:
+            for scale_mode, impute_mode, outlier_mode, random_state, \
+                    feature_kfold, path_data_preprocessed_dir, X, y, \
+                    cat_indices, cfg_model in tqdm(missforest_preprocess):
+
+                preprocess(scale_mode,
+                           impute_mode,
+                           outlier_mode,
+                           random_state,
+                           feature_kfold,
+                           path_data_preprocessed_dir,
+                           X,
+                           y,
+                           cat_indices,
+                           cfg_model)
+        logging.info("Done Preprocessing MissForest")
+
         logging.info("Starting Preprocessing Not MissForest")
         # Preprocess the rest normally
         for scale_mode, impute_mode, outlier_mode, random_state, \
                 feature_kfold, path_data_preprocessed_dir, X, y, \
-                vars_cat, cfg_model in tqdm(preprocess_inputs):
+                cat_indices, cfg_model in tqdm(preprocess_inputs):
 
             preprocess(scale_mode,
-                    impute_mode,
-                    outlier_mode,
-                    random_state,
-                    feature_kfold,
-                    path_data_preprocessed_dir,
-                    X,
-                    y,
-                    vars_cat,
-                    cfg_model)
+                       impute_mode,
+                       outlier_mode,
+                       random_state,
+                       feature_kfold,
+                       path_data_preprocessed_dir,
+                       X,
+                       y,
+                       cat_indices,
+                       cfg_model)
 
         # test - TODO remove return bc testing just preprocess
-        #return
+        # return
 
             # filename_data_scale_impute = cfg_model.get_filename_scale_impute_data(
             #     scale_mode, impute_mode, outlier_mode)
@@ -259,7 +306,7 @@ def main(
             #     pass
 
             # test - TODO remove
-            #break
+            # break
 
     n_total_combinations \
         = len(cfg_model.get_all_preprocessing_combinations()) \
@@ -340,9 +387,9 @@ def main(
                     (i * len(cfg_model.get_all_classifier_modes()) + j,
                      (scale_mode, impute_mode, outlier_mode, classifier_mode),
                      e)]
-            
+
             # test - TODO remove
-            #break
+            # break
 
     with open(path_output, 'wb') as f:
         pickle.dump((results, failures), f)
