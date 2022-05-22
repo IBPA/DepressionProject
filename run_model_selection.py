@@ -233,7 +233,7 @@ def main(
         # Preprocess using multiprocessing for missforest
         logging.info("Starting Preprocessing MissForest")
         if use_multiprocess_missforest:
-            with Pool() as p:
+            with Pool() as p:  # tqdm might not be working
                 p.starmap(preprocess, tqdm(missforest_preprocess,
                           total=len(missforest_preprocess)))
         else:
