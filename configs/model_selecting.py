@@ -38,7 +38,8 @@ class DefaultConfig:
     PATH_SFS_ANALYSIS_DIR = (
         PATH_ROOT + "/output/sfs_analysis")
 
-    COLUMN_DEPENDENT = 'y12CH_Dep_YN_144m'
+    #COLUMN_DEPENDENT = 'y12CH_Dep_YN_144m'
+    COLUMN_DEPENDENT = 'y13CH_Dep_YN_162m'
     #COLUMN_DEPENDENT = 'y16CH_Dep_YN_192m'
     #COLUMN_DEPENDENT = 'y17CH_Dep_YN_204m'
     #COLUMN_DEPENDENT = 'y18CH_Dep_YN_216m'
