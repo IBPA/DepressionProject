@@ -17,9 +17,11 @@ from utils import logging  # noqa: E402
 from utils.utils import calc_chunksize, read_lines  # noqa: E402
 logger = logging.set_logging(__name__)
 
-DEFAULT_RAW_DATA = '../../data/Dataset012322.csv'
+# DEFAULT_RAW_DATA = '../../data/Dataset012322.csv'
 # DEFAULT_RAW_DATA = '../../data/small.csv'
-DEFAULT_MAPPING = '../../data/Variables013122new.csv'
+DEFAULT_RAW_DATA = '../../data/Dataset052122.csv'
+#DEFAULT_MAPPING = '../../data/Variables013122new.csv'
+DEFAULT_MAPPING = '../../data/Variables052122.csv'
 DEFAULT_OUTPUT_FILE_WITHOUT_TEMPORAL = '../../output/preprocessed_data_without_temporal.txt'
 DEFAULT_OUTPUT_FILE_WITH_TEMPORAL = '../../output/preprocessed_data_with_temporal.txt'
 DEFAULT_LOG_LEVEL = 'DEBUG'
@@ -116,7 +118,7 @@ def map_variables(df_data: pd.DataFrame, df_mapping: pd.DataFrame) -> pd.DataFra
     """
     Fill this section up later.
     """
-    #assert df_mapping.shape[0] == df_data.shape[1], \
+    # assert df_mapping.shape[0] == df_data.shape[1], \
     #    'Number of features in raw data and variable mapping file does not match!'
 
     df_mapping_missing = df_mapping[df_mapping['RelabeledName'].isnull()]
@@ -126,20 +128,27 @@ def map_variables(df_data: pd.DataFrame, df_mapping: pd.DataFrame) -> pd.DataFra
     #logger.debug(f'Variables in raw: {set(df_data.columns)}')
     #test = set(df_mapping['original_variable_name'])
     #logger.debug(f'Variables in mapping: {test}')
-    missing_in_df_data = list(set(df_data.columns) - set(df_mapping['VariableName']))
-    logger.debug(f'Variables in raw data but not in mapping: {len(missing_in_df_data)}')
-    
-    original_variables_without_mapping = df_mapping_missing['VariableName'].tolist() + missing_in_df_data
+    missing_in_df_data = list(
+        set(df_data.columns) - set(df_mapping['VariableName']))
+    logger.debug(
+        f'Variables in raw data but not in mapping: {len(missing_in_df_data)}')
+
+    original_variables_without_mapping = df_mapping_missing['VariableName'].tolist(
+    ) + missing_in_df_data
     logger.warning(
         f"Number of variables in mapping file but without mapping: {len(df_mapping_missing['VariableName'].tolist())}")
     #logger.debug(f'Features without variable mapping:\n{original_variables_without_mapping}')
 
-    missing_in_mapping = list(set(df_mapping['VariableName']) - set(df_data.columns))
-    logger.debug(f'Variables in mapping but not in raw data: {missing_in_mapping}')
+    missing_in_mapping = list(
+        set(df_mapping['VariableName']) - set(df_data.columns))
+    logger.debug(
+        f'Variables in mapping but not in raw data: {missing_in_mapping}')
 
     df_renamed = df_data.copy()
-    df_renamed.drop(labels=original_variables_without_mapping, axis=1, inplace=True)
-    logger.debug(f'Size of data after dropping variables without mapping: {df_renamed.shape}')
+    df_renamed.drop(labels=original_variables_without_mapping,
+                    axis=1, inplace=True)
+    logger.debug(
+        f'Size of data after dropping variables without mapping: {df_renamed.shape}')
 
     mapper = dict(zip(
         df_mapping_exists['VariableName'],
@@ -163,19 +172,24 @@ def sort_features_by_age(
     """
     ages = list(set([x.split('_')[-1] for x in list(df_renamed)]))
     logger.debug(f'Age representations in the features: {ages}')
-    ages_before_birth = [x for x in ages if x.endswith(before_birth_representation)]
-    ages_after_birth = [x for x in ages if not x.endswith(before_birth_representation)]
+    ages_before_birth = [x for x in ages if x.endswith(
+        before_birth_representation)]
+    ages_after_birth = [x for x in ages if not x.endswith(
+        before_birth_representation)]
 
     # before birth
     def _to_years_before_birth(age):
         if before_birth_month_representation in age:
-            age_in_years = int(age.replace(before_birth_month_representation, ''))
+            age_in_years = int(age.replace(
+                before_birth_month_representation, ''))
             age_in_years /= 12
         elif before_birth_week_representation in age:
-            age_in_years = int(age.replace(before_birth_week_representation, ''))
+            age_in_years = int(age.replace(
+                before_birth_week_representation, ''))
             age_in_years /= 52
         elif before_birth_day_representation in age:
-            age_in_years = int(age.replace(before_birth_day_representation, ''))
+            age_in_years = int(age.replace(
+                before_birth_day_representation, ''))
             age_in_years /= 365
         else:
             raise ValueError('Invalid age format!')
@@ -184,7 +198,8 @@ def sort_features_by_age(
 
     def _sort_before_birth(input_list):
         np_input = np.array(input_list)
-        np_input_in_years = np.array([_to_years_before_birth(x) for x in input_list])
+        np_input_in_years = np.array(
+            [_to_years_before_birth(x) for x in input_list])
         index_array = np.argsort(np_input_in_years)
         return np_input[index_array]
 
@@ -251,11 +266,13 @@ def _reformat_func(
             continue
 
         if val != '':
-            df_subset.at[feature.rsplit('_', 1)[1], feature.rsplit('_', 1)[0]] = val
+            df_subset.at[feature.rsplit(
+                '_', 1)[1], feature.rsplit('_', 1)[0]] = val
     df_subset.dropna(how='all', inplace=True)
 
     # child ID column added to last column of timestamped data from row
-    df_subset[child_id_column_name.rsplit('_', 1)[0]] = row[child_id_column_name]
+    df_subset[child_id_column_name.rsplit(
+        '_', 1)[0]] = row[child_id_column_name]
     # move child ID column to first column
     df_subset = df_subset[[child_id_column_name.rsplit('_', 1)[0]] +
                           features_without_timestamp_and_child_id]
@@ -272,35 +289,43 @@ def reformat_data(
     """
     """
     features_with_timestamp = list(df_renamed_and_sorted)
-    logger.debug(f'Number of features with timestamp: {len(features_with_timestamp)}')
+    logger.debug(
+        f'Number of features with timestamp: {len(features_with_timestamp)}')
 
-    features_without_timestamp = [x.rsplit('_', 1)[0] for x in features_with_timestamp]
+    features_without_timestamp = [
+        x.rsplit('_', 1)[0] for x in features_with_timestamp]
     seen = set()
     seen_add = seen.add
-    features_without_timestamp = [x for x in features_without_timestamp if not (x in seen or seen_add(x))]
-    logger.debug(f'Number of features without timestamp: {len(features_without_timestamp)}')
+    features_without_timestamp = [
+        x for x in features_without_timestamp if not (x in seen or seen_add(x))]
+    logger.debug(
+        f'Number of features without timestamp: {len(features_without_timestamp)}')
 
-    features_without_timestamp_and_child_id = copy.deepcopy(features_without_timestamp)
-    features_without_timestamp_and_child_id.remove(child_id_column_name.rsplit('_', 1)[0])
+    features_without_timestamp_and_child_id = copy.deepcopy(
+        features_without_timestamp)
+    features_without_timestamp_and_child_id.remove(
+        child_id_column_name.rsplit('_', 1)[0])
 
     with open(output_file, mode='w', encoding='utf-8') as file:
         logger.info(f'File opened for saving reformatted data: {output_file}')
-        file.write('timestamp,CH_ID,' + ','.join(features_without_timestamp_and_child_id) + '\n')
+        file.write('timestamp,CH_ID,' +
+                   ','.join(features_without_timestamp_and_child_id) + '\n')
 
         rows = [x for _, x in df_renamed_and_sorted.iterrows()]
 
-        chunksize = calc_chunksize(n_workers=num_workers, len_iterable=len(rows))
+        chunksize = calc_chunksize(
+            n_workers=num_workers, len_iterable=len(rows))
         logger.debug(f'Chunk size: {chunksize}')
         logger.debug(f'Number of parallel workers: {num_workers}')
         with Pool(num_workers) as p:
             for result in list(tqdm(p.imap(
-                        partial(
-                            _reformat_func,
-                            sorted_age_representation,
-                            features_without_timestamp_and_child_id,
-                            child_id_column_name),
-                        rows,
-                        chunksize=chunksize),
+                partial(
+                    _reformat_func,
+                    sorted_age_representation,
+                    features_without_timestamp_and_child_id,
+                    child_id_column_name),
+                rows,
+                chunksize=chunksize),
                     total=len(rows))):
                 file.write(result)
 
@@ -325,7 +350,8 @@ def main():
     # read and process raw data
     df_raw = pd.read_csv(args.raw_data, dtype='str')
     logger.info(f'Raw data {df_raw.shape}:\n{df_raw.head()}')
-    df_raw = df_raw.applymap(lambda x: x.strip() if isinstance(x, str) else x)  # remove white space
+    df_raw = df_raw.applymap(lambda x: x.strip() if isinstance(
+        x, str) else x)  # remove white space
     #logger.info(f'After Strip: Raw data {df_raw.shape}:\n{df_raw.head()}')
 
     if args.use_smaller_samples:
@@ -343,16 +369,21 @@ def main():
         logger.info(f'Data size after sampling: {df_raw.shape}')
 
     # read name mapping data, csv not tab
-    df_name_mapping = pd.read_csv(args.mapping_data, dtype='str', encoding='unicode_escape')
-    logger.info(f'Variable mapping data {df_name_mapping.shape}:\n{df_name_mapping.head()}')
+    #df_name_mapping = pd.read_csv(
+    #    args.mapping_data, dtype='str', encoding='unicode_escape')
+    df_name_mapping = pd.read_csv(
+        args.mapping_data, dtype='str', encoding='utf-8-sig')
+    logger.info(
+        f'Variable mapping data {df_name_mapping.shape}:\n{df_name_mapping.head()}')
     # remove whitespace
-    df_name_mapping = df_name_mapping.applymap(lambda x: x.strip() if isinstance(x, str) else x)
+    df_name_mapping = df_name_mapping.applymap(
+        lambda x: x.strip() if isinstance(x, str) else x)
     #logger.info(f'After Strip: Variable mapping data {df_name_mapping.shape}:\n{df_name_mapping.head()}')
 
     # Test - what variables are in mapping but not in raw if read like this
     what = list(set(df_name_mapping['VariableName']) - set(df_raw.columns))
     #what = []
-    #for var in df_name_mapping['VariableName']:
+    # for var in df_name_mapping['VariableName']:
     #    if var not in df_raw.columns:
     #        what.append(var)
     logger.info(f'What needs to be relabeled: {what}')
@@ -366,19 +397,25 @@ def main():
         smaller_features = read_lines(args.use_smaller_features)
         logger.info(f'Number of smaller features: {len(smaller_features)}')
 
-        invalid_smaller_features = [x for x in smaller_features if x not in df_renamed]
-        valid_smaller_features = [x for x in smaller_features if x in df_renamed]
+        invalid_smaller_features = [
+            x for x in smaller_features if x not in df_renamed]
+        valid_smaller_features = [
+            x for x in smaller_features if x in df_renamed]
 
         if len(invalid_smaller_features) > 0:
-            logger.warning(f'Invalid smaller features exist: {invalid_smaller_features}')
+            logger.warning(
+                f'Invalid smaller features exist: {invalid_smaller_features}')
         logger.info(f'Using smaller feature subset: {valid_smaller_features}')
 
         df_renamed = df_renamed[valid_smaller_features]
 
     # Sort the age representation
-    df_renamed_and_sorted, sorted_age_representation = sort_features_by_age(df_renamed)
-    df_renamed_and_sorted.to_csv(args.output_file_without_temporal, index=False)
-    logger.info(f'Output file without temporal data saved to: {args.output_file_without_temporal}')
+    df_renamed_and_sorted, sorted_age_representation = sort_features_by_age(
+        df_renamed)
+    df_renamed_and_sorted.to_csv(
+        args.output_file_without_temporal, index=False)
+    logger.info(
+        f'Output file without temporal data saved to: {args.output_file_without_temporal}')
 
     # Do final reformatting
     reformat_data(
