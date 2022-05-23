@@ -139,7 +139,7 @@ def change_type_to_cat(
 @click.option(
     '--use-categorical',
     type=bool,
-    default=False)
+    default=True)
 @click.option(
     '--use-multiprocess-missforest',
     type=bool,
@@ -193,7 +193,7 @@ def main(
         missforest_preprocess = []
 
         if use_categorical:
-            raise NotImplementedError
+            #raise NotImplementedError
             # get full list of categorical variables
             vars_cat_prefs = PreprocessingConfig.columns_categorical
             cat_indices = get_all_categorical(vars_cat_prefs, X)
