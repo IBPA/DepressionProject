@@ -186,8 +186,8 @@ def main(
         y = data[feature_label].astype("category")
 
         # test - TODO remove
-        X = X[:60]
-        y = y[:60]
+        #X = X[:60]
+        #y = y[:60]
 
         preprocess_inputs = []
         missforest_preprocess = []
