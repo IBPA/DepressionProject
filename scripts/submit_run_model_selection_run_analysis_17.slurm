@@ -3,9 +3,9 @@
 #SBATCH --job-name=dep
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=asmyoo@ucdavis.edu
-#SBATCH --output=/share/taglab/Arielle/DepressionProjectNew/output/logs/%j.out
-#SBATCH --error=/share/taglab/Arielle/DepressionProjectNew/output/logs/%j.err
-#SBATCH --partition=production
+#SBATCH --output=/home/asmyoo/DepressionProjectNew/output/logs/%j.out
+#SBATCH --error=/home/asmyoo/DepressionProjectNew/output/logs/%j.err
+#SBATCH --partition=compute
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=64
