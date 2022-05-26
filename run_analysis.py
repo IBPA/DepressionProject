@@ -178,7 +178,7 @@ def main(
         plot_heatmap(
             corr,
             title=f"Pairwise {method.capitalize()} Correlation",
-            path_save=f"{path_output_dir}/pc_{method}.png")
+            path_save=f"{path_output_dir}/pc_{method}.svg")
 
     # Plot similarity matrix for the data points heatmap.
     sm = get_similarity_matrix(X, y)
@@ -186,7 +186,7 @@ def main(
         sm,
         title=f"Similarity Matrix",
         cmap='Greys',
-        path_save=f"{path_output_dir}/sim.png")
+        path_save=f"{path_output_dir}/sim.svg")
 
     # Plot embedded data points.
     y_scatter = y.map({1.0: 'Depressed', 0.0: 'Not Depressed'})
@@ -201,14 +201,14 @@ def main(
             X_embedded,
             y_scatter,
             title=f"{method.upper()}",
-            path_save=f"{path_output_dir}/embed_{method}.png")
+            path_save=f"{path_output_dir}/embed_{method}.svg")
 
     # Calculate and plot feature selection for the best model.
     sfs = get_selected_features(clf, X, y, splits)
     plot_rfe_line(
         sfs,
         title="Recursive Feature Elimination",
-        path_save=f"{path_output_dir}/rfe.png")
+        path_save=f"{path_output_dir}/rfe.svg")
     pd.DataFrame(sfs.get_metric_dict()).transpose().reset_index().to_csv(
         f"{path_output_dir}/rfe_result.csv", index=False)
 
@@ -230,8 +230,8 @@ def main(
         plot_curves(
             curve_metrics,
             method=method,
-            pr_base = p_base,
-            path_save=f"{path_output_dir}/{method}.png")
+            pr_base=p_base,
+            path_save=f"{path_output_dir}/{method}.svg")
 
     # # Plot outliers.
     # y_in_out = ['Inlier' for _ in range(len(X_raw))]
@@ -257,7 +257,7 @@ def main(
     plot_confusion_matrix(
         cv_result=best_cv_result,
         axis_labels=['Depressed', 'Not Depressed'],
-        path_save=f"{path_output_dir}/cm.png")
+        path_save=f"{path_output_dir}/cm.svg")
 
     # Plot confusion matrix with various metrics for validation.
     best_cv_result_train = get_training_statistics(
@@ -265,7 +265,7 @@ def main(
     plot_confusion_matrix(
         cv_result=best_cv_result_train,
         axis_labels=['Depressed', 'Not Depressed'],
-        path_save=f"{path_output_dir}/cm_train.png")
+        path_save=f"{path_output_dir}/cm_train.svg")
 
 
 if __name__ == '__main__':
