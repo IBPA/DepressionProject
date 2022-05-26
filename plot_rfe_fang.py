@@ -5,6 +5,7 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 
+
 def plot_rfe_line_from_dataframe(
         sfs_result: pd.DataFrame,
         k_selected: int,
@@ -122,8 +123,11 @@ def get_parsimonious(rfe_result):
 
 if __name__ == "__main__":
     rfe_result = pd.read_csv(
+        # './rfe_result.csv'
         # './output/old_results/10MVIout/output_12_yesmental/rfe_result.csv'
-        './rfe_result.csv'
+        # './output/old_results/10MVIout/output_16_yesmental/rfe_result.csv'
+        # './output/old_results/10MVIout/output_17_yesmental/rfe_result.csv'
+        './output/old_results/10MVIout/output_18_yesmental/rfe_result.csv'
     )
     rfe_result['feature_idx'] = rfe_result['feature_idx'].apply(literal_eval)
     rfe_result['cv_scores'] = rfe_result['cv_scores'].apply(
@@ -137,7 +141,11 @@ if __name__ == "__main__":
         rfe_result,
         get_parsimonious(rfe_result)[0],
         title='Sequential Feature Selection',
-        path_save="rfe.svg",
+        # path_save="rfe.svg",
+        # path_save='./output/old_results/10MVIout/output_12_yesmental/age12_10MVI.svg'
+        # path_save='./output/old_results/10MVIout/output_16_yesmental/age16_10MVI.svg'
+        # path_save='./output/old_results/10MVIout/output_17_yesmental/age17_10MVI.svg'
+        path_save='./output/old_results/10MVIout/output_18_yesmental/age18_10MVI.svg'
     )
 
     # plot_rfe_line_from_metric_dict(
