@@ -48,4 +48,4 @@ if __name__ == '__main__':
                 raw_data.loc[index, 'y12to18_Dep_YN_216m'] = np.NaN
 
     raw_data.to_csv(
-        f'../../output/preprocessed_data_without_temporal_12to18.csv')
+        f'../../output/preprocessed_data_without_temporal_12to18.csv', index=False)
