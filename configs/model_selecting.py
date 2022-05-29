@@ -18,6 +18,9 @@ class DefaultConfig:
         PATH_ROOT + "/output/preprocessed_data_without_temporal_12to18.csv")
 
     # PATH_DATA_INPUT_FILE = (
+    #    PATH_ROOT + "/output/preprocessed_data_without_temporal.txt")
+
+    # PATH_DATA_INPUT_FILE = (
     #    PATH_ROOT + "/output/has_alldep_preprocessed_data_without_temporal.csv")
 
     # PATH_DATA_INPUT_FILE = (
