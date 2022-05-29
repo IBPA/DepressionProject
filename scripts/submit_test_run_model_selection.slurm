@@ -8,7 +8,7 @@
 #SBATCH --partition=dev
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=32
+#SBATCH --cpus-per-task=16
 #SBATCH --mem=250G
 #SBATCH --time=3:00:00
 
