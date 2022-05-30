@@ -11,6 +11,7 @@ import pandas as pd
 import numpy as np
 import logging
 
+
 class Cleaner:
     """Class of data clearer object.
 
@@ -71,9 +72,7 @@ class Cleaner:
         data_new_df = data_df[mvr_df[mvr_df < self.thres_mis].index]
         return data_new_df
 
-    
-
-    def remove_later_variables(self, data_df, age_cutoff = 18):
+    def remove_later_variables(self, data_df, age_cutoff=18):
         """Remove variables that are later or at the same time as output
         variable
 
@@ -91,32 +90,37 @@ class Cleaner:
 
         # softcoded
         def sort_features_by_age_and_drop_less_than_or_equal_to_age(
-            df_renamed: pd.DataFrame,
-            age_cutoff: int,
-            before_birth_representation: str = 'g',
-            before_birth_week_representation: str = 'wg',
-            before_birth_month_representation: str = 'mg',
-            before_birth_day_representation: str = 'dg',
-            month_representation: str = 'm',
-            year_representation: str = 'y',
-            week_representation: str = 'w',
-            day_representation: str = 'd') -> pd.DataFrame:
+                df_renamed: pd.DataFrame,
+                age_cutoff: int,
+                before_birth_representation: str = 'g',
+                before_birth_week_representation: str = 'wg',
+                before_birth_month_representation: str = 'mg',
+                before_birth_day_representation: str = 'dg',
+                month_representation: str = 'm',
+                year_representation: str = 'y',
+                week_representation: str = 'w',
+                day_representation: str = 'd') -> pd.DataFrame:
             """
             """
             ages = list(set([x.split('_')[-1] for x in list(df_renamed)]))
-            ages_before_birth = [x for x in ages if x.endswith(before_birth_representation)]
-            ages_after_birth = [x for x in ages if not x.endswith(before_birth_representation)]
+            ages_before_birth = [x for x in ages if x.endswith(
+                before_birth_representation)]
+            ages_after_birth = [x for x in ages if not x.endswith(
+                before_birth_representation)]
 
             # before birth
             def _to_years_before_birth(age):
                 if before_birth_month_representation in age:
-                    age_in_years = int(age.replace(before_birth_month_representation, ''))
+                    age_in_years = int(age.replace(
+                        before_birth_month_representation, ''))
                     age_in_years /= 12
                 elif before_birth_week_representation in age:
-                    age_in_years = int(age.replace(before_birth_week_representation, ''))
+                    age_in_years = int(age.replace(
+                        before_birth_week_representation, ''))
                     age_in_years /= 52
                 elif before_birth_day_representation in age:
-                    age_in_years = int(age.replace(before_birth_day_representation, ''))
+                    age_in_years = int(age.replace(
+                        before_birth_day_representation, ''))
                     age_in_years /= 365
                 else:
                     raise ValueError('Invalid age format!')
@@ -125,7 +129,8 @@ class Cleaner:
 
             def _sort_before_birth(input_list):
                 np_input = np.array(input_list)
-                np_input_in_years = np.array([_to_years_before_birth(x) for x in input_list])
+                np_input_in_years = np.array(
+                    [_to_years_before_birth(x) for x in input_list])
                 index_array = np.argsort(np_input_in_years)
                 return np_input[index_array]
 
@@ -150,7 +155,7 @@ class Cleaner:
                 return age_in_years
 
             def _remove_older_entries(age_sorted, age_cutoff):
-                removed_older = np.array([x for x in age_sorted 
+                removed_older = np.array([x for x in age_sorted
                                           if _to_years(x) < age_cutoff])
                 return removed_older
 
@@ -187,7 +192,7 @@ class Cleaner:
             data_df, age_cutoff)
         return data_new_df
 
-    def remove_later_variables_exclusive(self, data_df, age_cutoff = 18):
+    def remove_later_variables_exclusive(self, data_df, age_cutoff=18):
         """Remove variables that are later or at the same time as output
         variable
 
@@ -203,32 +208,37 @@ class Cleaner:
 
         # softcoded
         def sort_features_by_age_and_drop_less_than_age(
-            df_renamed: pd.DataFrame,
-            age_cutoff: int,
-            before_birth_representation: str = 'g',
-            before_birth_week_representation: str = 'wg',
-            before_birth_month_representation: str = 'mg',
-            before_birth_day_representation: str = 'dg',
-            month_representation: str = 'm',
-            year_representation: str = 'y',
-            week_representation: str = 'w',
-            day_representation: str = 'd') -> pd.DataFrame:
+                df_renamed: pd.DataFrame,
+                age_cutoff: int,
+                before_birth_representation: str = 'g',
+                before_birth_week_representation: str = 'wg',
+                before_birth_month_representation: str = 'mg',
+                before_birth_day_representation: str = 'dg',
+                month_representation: str = 'm',
+                year_representation: str = 'y',
+                week_representation: str = 'w',
+                day_representation: str = 'd') -> pd.DataFrame:
             """
             """
             ages = list(set([x.split('_')[-1] for x in list(df_renamed)]))
-            ages_before_birth = [x for x in ages if x.endswith(before_birth_representation)]
-            ages_after_birth = [x for x in ages if not x.endswith(before_birth_representation)]
+            ages_before_birth = [x for x in ages if x.endswith(
+                before_birth_representation)]
+            ages_after_birth = [x for x in ages if not x.endswith(
+                before_birth_representation)]
 
             # before birth
             def _to_years_before_birth(age):
                 if before_birth_month_representation in age:
-                    age_in_years = int(age.replace(before_birth_month_representation, ''))
+                    age_in_years = int(age.replace(
+                        before_birth_month_representation, ''))
                     age_in_years /= 12
                 elif before_birth_week_representation in age:
-                    age_in_years = int(age.replace(before_birth_week_representation, ''))
+                    age_in_years = int(age.replace(
+                        before_birth_week_representation, ''))
                     age_in_years /= 52
                 elif before_birth_day_representation in age:
-                    age_in_years = int(age.replace(before_birth_day_representation, ''))
+                    age_in_years = int(age.replace(
+                        before_birth_day_representation, ''))
                     age_in_years /= 365
                 else:
                     raise ValueError('Invalid age format!')
@@ -237,7 +247,8 @@ class Cleaner:
 
             def _sort_before_birth(input_list):
                 np_input = np.array(input_list)
-                np_input_in_years = np.array([_to_years_before_birth(x) for x in input_list])
+                np_input_in_years = np.array(
+                    [_to_years_before_birth(x) for x in input_list])
                 index_array = np.argsort(np_input_in_years)
                 return np_input[index_array]
 
@@ -262,7 +273,7 @@ class Cleaner:
                 return age_in_years
 
             def _remove_older_entries(age_sorted, age_cutoff):
-                removed_older = np.array([x for x in age_sorted 
+                removed_older = np.array([x for x in age_sorted
                                           if _to_years(x) <= age_cutoff])
                 return removed_older
 
@@ -299,7 +310,7 @@ class Cleaner:
             data_df, age_cutoff)
         return data_new_df
 
-    def clean(self, data_df, age_cutoff = 18):
+    def clean(self, data_df, age_cutoff=18):
         """Clean input data by removing ignored variables, heavily missing
         variables, and constant variables.
 
@@ -316,7 +327,8 @@ class Cleaner:
         data_new_df = self.remove_ignored_variables(data_df)
         logging.info(f"Remove ignored variables shape: {data_new_df.shape}")
         data_new_df = self.remove_overly_missing_variables(data_new_df)
-        logging.info(f"Remove overly missing variables shape: {data_new_df.shape}")
+        logging.info(
+            f"Remove overly missing variables shape: {data_new_df.shape}")
         data_new_df = self.remove_constant_variables(data_new_df)
         logging.info(f"Remove constant shape: {data_new_df.shape}")
         data_new_df = self.remove_later_variables(data_new_df, age_cutoff)
