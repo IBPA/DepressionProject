@@ -12,13 +12,21 @@ import logging
 import numpy as np
 import pandas as pd
 import click
+from typing import Union
 from sklearn.metrics import precision_score
+import sklearn
 
 from msap.modeling.model_evaluation.statistics import (
     get_embedded_data,
     get_selected_features,
     get_curve_metrics,
+    get_curve_metrics_test,
     get_training_statistics,
+    get_baseline_training_statistics,
+    get_validation_statistics,
+    get_baseline_validation_statistics,
+    get_testing_statistics,
+    get_baseline_testing_statistics,
     get_similarity_matrix)
 from msap.explanatory_analysis import get_pairwise_correlation
 from msap.utils import (
@@ -29,6 +37,7 @@ from msap.utils.plot import (
     plot_heatmap,
     plot_embedded_scatter,
     plot_rfe_line,
+    plot_rfe_line_detailed,
     plot_curves,
     plot_confusion_matrix)
 
@@ -47,6 +56,137 @@ CLASSIFIER_MODES = [
     'adaboostclassifier',
     'randomforestclassifier',
     'mlpclassifier']
+
+
+def plot_all_curves(
+        clf: sklearn.base.BaseEstimator,
+        X_train: pd.DataFrame,
+        y_train: pd.Series,
+        X_test: pd.DataFrame,
+        y_test: pd.Series,
+        path_output_dir: str,
+        use_smote_first: bool,  # name includes smote if smote first
+        use_rfe: bool,
+        splits: Union[int, list[list, list]] = None):
+    # raise NotImplementedError
+    # for baseline precision, predict all positive/depressed
+    y_pred_allpos = pd.Series(np.ones(len(y_train)))
+    p_base = precision_score(y_train, y_pred_allpos)
+
+    # Calculate and plot curves
+    for method in METHODS_CURVE:
+        try:
+            curve_metrics = get_curve_metrics(
+                clf, X_train, y_train, method, splits)
+        except Exception as e:
+            logger.info(
+                f"{method} skipped due to data inbalance. Error Type: "
+                f"{type(e)}. Error message: {e}")
+            continue
+
+        if use_smote_first and use_rfe:
+            filename = f"{method}_smote_rfe_val.svg"
+        elif use_smote_first and not use_rfe:
+            filename = f"{method}_smote_val.svg"
+        elif not use_smote_first and use_rfe:
+            filename = f"{method}_rfe_val.svg"
+        else:
+            filename = f"{method}_val.svg"
+        plot_curves(
+            curve_metrics,
+            method=method,
+            pr_base=p_base,
+            path_save=f"{path_output_dir}/{filename}")
+
+    # Calculate and plot curves for test data
+    for method in METHODS_CURVE:
+        try:
+            curve_metrics = get_curve_metrics_test(
+                clf, X_train, y_train, X_test, y_test, method, splits)
+        except Exception as e:
+            logger.info(
+                f"{method} skipped due to data inbalance. Error Type: "
+                f"{type(e)}. Error message: {e}")
+            continue
+
+        if use_smote_first and use_rfe:
+            filename = f"{method}_smote_rfe_test.svg"
+        elif use_smote_first and not use_rfe:
+            filename = f"{method}_smote_test.svg"
+        elif not use_smote_first and use_rfe:
+            filename = f"{method}_rfe_test.svg"
+        else:
+            filename = f"{method}_test.svg"
+        plot_curves(
+            curve_metrics,
+            method=method,
+            pr_base=p_base,
+            path_save=f"{path_output_dir}/{filename}")
+
+
+def plot_all_confusion_matrices(
+        clf: sklearn.base.BaseEstimator,
+        X_train: pd.DataFrame,
+        y_train: pd.Series,
+        X_test: pd.DataFrame,
+        y_test: pd.Series,
+        path_output_dir: str,
+        use_smote_first: bool,
+        use_rfe: bool,
+        splits: Union[int, list[list, list]] = None):
+    # raise NotImplementedError
+    if use_smote_first and use_rfe:
+        fileprefix = "cm_smote_rfe"
+    elif use_smote_first and not use_rfe:
+        fileprefix = "cm_smote"
+    elif not use_smote_first and use_rfe:
+        fileprefix = "cm_rfe"
+    else:
+        fileprefix = "cm"
+
+    best_cv_result = get_validation_statistics(clf, X_train, y_train, splits)
+    plot_confusion_matrix(
+        cv_result=best_cv_result,
+        axis_labels=['Depressed', 'Not Depressed'],
+        path_save=f"{path_output_dir}/{fileprefix}_val.svg")
+
+    best_cv_result_val_baseline = get_baseline_validation_statistics(
+        clf, X_train, y_train, splits)
+    plot_confusion_matrix(
+        cv_result=best_cv_result_val_baseline,
+        axis_labels=['Depressed', 'Not Depressed'],
+        path_save=f"{path_output_dir}/{fileprefix}_val_baseline.svg")
+
+    # Plot confusion matrix with various metrics for training.
+    best_cv_result_train = get_training_statistics(
+        clf, X_train, y_train, splits)
+    plot_confusion_matrix(
+        cv_result=best_cv_result_train,
+        axis_labels=['Depressed', 'Not Depressed'],
+        path_save=f"{path_output_dir}/{fileprefix}_train.svg")
+
+    best_cv_result_train_baseline = get_baseline_training_statistics(
+        clf, X_train, y_train, splits)
+    plot_confusion_matrix(
+        cv_result=best_cv_result_train_baseline,
+        axis_labels=['Depressed', 'Not Depressed'],
+        path_save=f"{path_output_dir}/{fileprefix}_train_baseline.svg")
+
+    # Plot confusion matrix with various metrics for testing.
+    best_cv_result_test = get_testing_statistics(
+        clf, X_train, y_train, X_test, y_test, splits)
+    plot_confusion_matrix(
+        cv_result=best_cv_result_test,
+        axis_labels=['Depressed', 'Not Depressed'],
+        path_save=f"{path_output_dir}/{fileprefix}_test.svg")
+
+    # Plot confusion matrix with various metrics for baseline testing.
+    cv_result_test_baseline = get_baseline_testing_statistics(
+        clf, X_train, y_train, X_test, y_test, splits)
+    plot_confusion_matrix(
+        cv_result=cv_result_test_baseline,
+        axis_labels=['Depressed', 'Not Depressed'],
+        path_save=f"{path_output_dir}/{fileprefix}_baseline_test.svg")
 
 
 def parse_model_selection_result(ms_result: tuple) -> list:
@@ -102,6 +242,9 @@ def parse_model_selection_result(ms_result: tuple) -> list:
     'feature-label',
     type=str)
 @click.option(
+    '--use-smote-first/--no-use-smote-first',
+    default=False)
+@click.option(
     '--feature-kfold',
     type=str,
     default=None)
@@ -115,6 +258,7 @@ def main(
         path_input_data_raw,
         path_output_dir,
         feature_label,
+        use_smote_first,
         feature_kfold,
         random_state):
     """
@@ -132,15 +276,16 @@ def main(
     _, best_combination, best_cv_result = best_candidate[0]
     best_scale_mode, best_impute_mode, best_outlier_mode, best_clf \
         = best_combination
+    # print(best_combination)
     pd.DataFrame(best_candidate_per_clf).to_csv(
         f"{path_output_dir}/best_clfs.csv")
 
     # X_raw, _ = load_X_and_y(path_input_data_raw, col_y=feature_label)
 
-    X, y = load_X_and_y(
-        f"{path_input_preprocessed_data_dir}/"
-        f"{best_scale_mode}_{best_impute_mode}_{best_outlier_mode}.csv",
-        col_y=feature_label)
+    # X, y = load_X_and_y(
+    #     f"{path_input_preprocessed_data_dir}/"
+    #     f"{best_scale_mode}_{best_impute_mode}_{best_outlier_mode}.csv",
+    #     col_y=feature_label)
     # idxes_outlier = np.loadtxt(
     #     f"{path_input_preprocessed_data_dir}/"
     #     f"{best_scale_mode}_{best_impute_mode}_{best_outlier_mode}"
@@ -148,23 +293,20 @@ def main(
     #     delimiter='\n',
     #     dtype=int)
 
-    splits = KFold_by_feature(
-        X=X,
-        n_splits=5,
-        feature=feature_kfold,
-        random_state=random_state)
-    if feature_kfold is not None:
-        X = X.drop([feature_kfold], axis=1)
+    X_train, y_train = load_X_and_y(
+        f"{path_input_preprocessed_data_dir}/"
+        f"{best_scale_mode}_{best_impute_mode}_{best_outlier_mode}_train.csv",
+        col_y=feature_label)
+    X_test, y_test = load_X_and_y(
+        f"{path_input_preprocessed_data_dir}/"
+        f"{best_scale_mode}_{best_impute_mode}_{best_outlier_mode}_test.csv",
+        col_y=feature_label)
 
-    clf = ClassifierHandler(
-        classifier_mode=best_clf,
-        params=best_cv_result['param'],
-        random_state=random_state).clf
-
+    # visualize train data
     # Plot pairwise correlation heatmaps.
     for method in METHODS_PC:
         corr, pval = get_pairwise_correlation(
-            X, y, method=method)
+            X_train, y_train, method=method)
         y_corr = corr[feature_label].drop([feature_label])
         y_pval = pval[feature_label].drop([feature_label])
         idxes_rank = y_corr.abs().argsort().tolist()[::-1]
@@ -173,65 +315,415 @@ def main(
             [y_corr[idxes_rank], y_pval[idxes_rank]],
             axis=1)
         rank.columns = ['corr', 'p-value']
-        rank.to_csv(f"{path_output_dir}/pc_rank_{method}.csv")
+        rank.to_csv(f"{path_output_dir}/pc_rank_{method}_train.csv")
 
         plot_heatmap(
             corr,
             title=f"Pairwise {method.capitalize()} Correlation",
-            path_save=f"{path_output_dir}/pc_{method}.svg")
+            path_save=f"{path_output_dir}/pc_{method}_train.svg")
 
     # Plot similarity matrix for the data points heatmap.
-    sm = get_similarity_matrix(X, y)
+    sm = get_similarity_matrix(X_train, y_train)
     plot_heatmap(
         sm,
         title=f"Similarity Matrix",
         cmap='Greys',
-        path_save=f"{path_output_dir}/sim.svg")
+        path_save=f"{path_output_dir}/sim_train.svg")
 
     # Plot embedded data points.
-    y_scatter = y.map({1.0: 'Depressed', 0.0: 'Not Depressed'})
+    y_scatter = y_train.map({1.0: 'Depressed', 0.0: 'Not Depressed'})
     y_scatter.name = 'Translation'
     for method in METHODS_EMBEDDING:
         X_embedded = pd.DataFrame(
             get_embedded_data(
-                X,
+                X_train,
                 method=method, random_state=random_state))
         X_embedded.columns = ['First Dimension', 'Second Dimension']
         plot_embedded_scatter(
             X_embedded,
             y_scatter,
             title=f"{method.upper()}",
-            path_save=f"{path_output_dir}/embed_{method}.svg")
+            path_save=f"{path_output_dir}/embed_{method}_train.svg")
+
+    if use_smote_first:
+        X_smote_train, y_smote_train = load_X_and_y(
+            f"{path_input_preprocessed_data_dir}/"
+            f"{best_scale_mode}_{best_impute_mode}_{best_outlier_mode}_smote_train.csv",
+            col_y=feature_label)
+
+        splits = KFold_by_feature(
+            X=X_smote_train,
+            n_splits=5,
+            feature=feature_kfold,
+            random_state=random_state)
+        if feature_kfold is not None:
+            X_smote_train = X_smote_train.drop([feature_kfold], axis=1)
+            X_test = X_test.drop([feature_kfold], axis=1)
+
+        clf = ClassifierHandler(
+            classifier_mode=best_clf,
+            params=best_cv_result['param'],
+            use_smote=False).clf
+
+        # data visualization for train data after smote
+        # Plot pairwise correlation heatmaps.
+        for method in METHODS_PC:
+            corr, pval = get_pairwise_correlation(
+                X_smote_train, y_smote_train, method=method)
+            y_corr = corr[feature_label].drop([feature_label])
+            y_pval = pval[feature_label].drop([feature_label])
+            idxes_rank = y_corr.abs().argsort().tolist()[::-1]
+
+            rank = pd.concat(
+                [y_corr[idxes_rank], y_pval[idxes_rank]],
+                axis=1)
+            rank.columns = ['corr', 'p-value']
+            rank.to_csv(f"{path_output_dir}/pc_rank_{method}_smote_train.csv")
+
+            plot_heatmap(
+                corr,
+                title=f"Pairwise {method.capitalize()} Correlation",
+                path_save=f"{path_output_dir}/pc_{method}_smote_train.svg")
+
+        sm = get_similarity_matrix(X_smote_train, y_smote_train)
+        plot_heatmap(
+            sm,
+            title=f"Similarity Matrix",
+            cmap='Greys',
+            path_save=f"{path_output_dir}/sim_smote_train.svg")
+
+        # Plot embedded data points.
+        y_scatter = y_smote_train.map({1.0: 'Depressed', 0.0: 'Not Depressed'})
+        y_scatter.name = 'Translation'
+        for method in METHODS_EMBEDDING:
+            X_embedded = pd.DataFrame(
+                get_embedded_data(
+                    X_smote_train,
+                    method=method, random_state=random_state))
+            X_embedded.columns = ['First Dimension', 'Second Dimension']
+            plot_embedded_scatter(
+                X_embedded,
+                y_scatter,
+                title=f"{method.upper()}",
+                path_save=f"{path_output_dir}/embed_{method}_smote_train.svg")
+
+        # RFE/SFS
+        # Calculate and plot feature selection for the best model.
+        sfs = get_selected_features(clf, X_smote_train, y_smote_train, splits)
+        plot_rfe_line(
+            sfs,
+            title="Recursive Feature Elimination",
+            path_save=f"{path_output_dir}/rfe_smote.svg")
+        plot_rfe_line_detailed(
+            sfs,
+            title="Recursive Feature Elimination",
+            path_save=f"{path_output_dir}/rfe_smote_detailed.svg")
+        pd.DataFrame(sfs.get_metric_dict()).transpose().reset_index().to_csv(
+            f"{path_output_dir}/rfe_smote_result.csv", index=False)
+        if len(sfs.k_feature_idx_) < 3:
+            logging.warning(
+                f"Number of features from rfe is few: {sfs.k_feature_idx_}")
+        else:
+            logging.info(f"Features from rfe: {sfs.k_feature_idx_}")
+
+        # TODO - use rfe results to plot curves, CM's, etc
+        X_rfe_train = X_smote_train.iloc[:, list(sfs.k_feature_idx_)]
+        X_rfe_test = X_test.iloc[:, list(sfs.k_feature_idx_)]
+        plot_all_curves(clf, X_rfe_train, y_smote_train, X_rfe_test, y_test,
+                        path_output_dir, use_smote_first=True, use_rfe=True, splits=splits)
+        plot_all_confusion_matrices(clf, X_rfe_train, y_smote_train,
+                                    X_rfe_test, y_test, path_output_dir, use_smote_first=True, use_rfe=True, splits=splits)
+
+        # for baseline precision, predict all positive/depressed
+        plot_all_curves(clf, X_smote_train, y_smote_train, X_test, y_test,
+                        path_output_dir, use_smote_first=True, use_rfe=False, splits=splits)
+        # y_pred_allpos = pd.Series(np.ones(len(y_smote_train)))
+        # p_base = precision_score(y_smote_train, y_pred_allpos)
+
+        # # Calculate and plot curves
+        # for method in METHODS_CURVE:
+        #     try:
+        #         curve_metrics = get_curve_metrics(
+        #             clf, X_smote_train, y_smote_train, method, splits)
+        #     except Exception as e:
+        #         logger.info(
+        #             f"{method} skipped due to data inbalance. Error Type: "
+        #             f"{type(e)}. Error message: {e}")
+        #         continue
+
+        #     plot_curves(
+        #         curve_metrics,
+        #         method=method,
+        #         pr_base=p_base,
+        #         path_save=f"{path_output_dir}/{method}_smote_val.svg")
+
+        # # Calculate and plot curves for test data
+        # for method in METHODS_CURVE:
+        #     try:
+        #         curve_metrics = get_curve_metrics_test(
+        #             clf, X_smote_train, y_smote_train, X_test, y_test, method, splits)
+        #     except Exception as e:
+        #         logger.info(
+        #             f"{method} skipped due to data inbalance. Error Type: "
+        #             f"{type(e)}. Error message: {e}")
+        #         continue
+
+        #     plot_curves(
+        #         curve_metrics,
+        #         method=method,
+        #         pr_base=p_base,
+        #         path_save=f"{path_output_dir}/{method}_smote_test.svg")
+
+        # Plot confusion matrix with various metrics for validation.
+        del best_cv_result['param']
+
+        plot_all_confusion_matrices(clf, X_smote_train, y_smote_train,
+                                    X_test, y_test, path_output_dir, use_smote_first=True, use_rfe=False, splits=splits)
+
+        # plot_confusion_matrix(
+        #     cv_result=best_cv_result,
+        #     axis_labels=['Depressed', 'Not Depressed'],
+        #     path_save=f"{path_output_dir}/cm_smote_val.svg")
+
+        # best_cv_result_val_baseline = get_baseline_validation_statistics(
+        #     clf, X_smote_train, y_smote_train, splits)
+        # plot_confusion_matrix(
+        #     cv_result=best_cv_result_val_baseline,
+        #     axis_labels=['Depressed', 'Not Depressed'],
+        #     path_save=f"{path_output_dir}/cm_smote_val_baseline.svg")
+
+        # # Plot confusion matrix with various metrics for training.
+        # best_cv_result_train = get_training_statistics(
+        #     clf, X_smote_train, y_smote_train, splits)
+        # plot_confusion_matrix(
+        #     cv_result=best_cv_result_train,
+        #     axis_labels=['Depressed', 'Not Depressed'],
+        #     path_save=f"{path_output_dir}/cm_smote_train.svg")
+
+        # best_cv_result_train_baseline = get_baseline_training_statistics(
+        #     clf, X_smote_train, y_smote_train, splits)
+        # plot_confusion_matrix(
+        #     cv_result=best_cv_result_train_baseline,
+        #     axis_labels=['Depressed', 'Not Depressed'],
+        #     path_save=f"{path_output_dir}/cm_smote_train_baseline.svg")
+
+        # # Plot confusion matrix with various metrics for testing.
+        # best_cv_result_test = get_testing_statistics(
+        #     clf, X_smote_train, y_smote_train, X_test, y_test, splits)
+        # plot_confusion_matrix(
+        #     cv_result=best_cv_result_test,
+        #     axis_labels=['Depressed', 'Not Depressed'],
+        #     path_save=f"{path_output_dir}/cm_smote_test.svg")
+
+        # # Plot confusion matrix with various metrics for baseline testing.
+        # cv_result_test_baseline = get_baseline_testing_statistics(
+        #     clf, X_smote_train, y_smote_train, X_test, y_test, splits)
+        # plot_confusion_matrix(
+        #     cv_result=cv_result_test_baseline,
+        #     axis_labels=['Depressed', 'Not Depressed'],
+        #     path_save=f"{path_output_dir}/cm_smote_baseline_test.svg")
+
+    else:
+        splits = KFold_by_feature(
+            X=X_train,
+            n_splits=5,
+            feature=feature_kfold,
+            random_state=random_state)
+        if feature_kfold is not None:
+            X_train = X_train.drop([feature_kfold], axis=1)
+            X_test = X_test.drop([feature_kfold], axis=1)
+
+        clf = ClassifierHandler(
+            classifier_mode=best_clf,
+            params=best_cv_result['param'],
+            random_state=random_state).clf
+
+        # RFE/SFS
+        # Calculate and plot feature selection for the best model.
+        sfs = get_selected_features(clf, X_train, y_train, splits)
+        plot_rfe_line(
+            sfs,
+            title="Recursive Feature Elimination",
+            path_save=f"{path_output_dir}/rfe_val.svg")
+        plot_rfe_line_detailed(
+            sfs,
+            title="Recursive Feature Elimination",
+            path_save=f"{path_output_dir}/rfe_val_detailed.svg")
+        pd.DataFrame(sfs.get_metric_dict()).transpose().reset_index().to_csv(
+            f"{path_output_dir}/rfe_result_val.csv", index=False)
+        if len(sfs.k_feature_idx_) < 3:
+            logging.warning(
+                f"Number of features from rfe is few: {sfs.k_feature_idx_}")
+        else:
+            logging.info(f"Features from rfe: {sfs.k_feature_idx_}")
+
+        # TODO - use rfe results to plot curves, CM's, etc
+        X_rfe_train = X_train.iloc[:, list(sfs.k_feature_idx_)]
+        X_rfe_test = X_test.iloc[:, list(sfs.k_feature_idx_)]
+        plot_all_curves(clf, X_rfe_train, y_train, X_rfe_test, y_test,
+                        path_output_dir, use_smote_first=False, use_rfe=True, splits=splits)
+        plot_all_confusion_matrices(clf, X_rfe_train, y_train,
+                                    X_rfe_test, y_test, path_output_dir, use_smote_first=False, use_rfe=True, splits=splits)
+
+        # for baseline precision, predict all positive/depressed
+        plot_all_curves(clf, X_train, y_train, X_test, y_test,
+                        path_output_dir, use_smote_first=False, use_rfe=False, splits=splits)
+        # y_pred_allpos = pd.Series(np.ones(len(y_train)))
+        # p_base = precision_score(y_train, y_pred_allpos)
+
+        # # Calculate and plot curves
+        # for method in METHODS_CURVE:
+        #     try:
+        #         curve_metrics = get_curve_metrics(
+        #             clf, X_train, y_train, method, splits)
+        #     except Exception as e:
+        #         logger.info(
+        #             f"{method} skipped due to data inbalance. Error Type: "
+        #             f"{type(e)}. Error message: {e}")
+        #         continue
+
+        #     plot_curves(
+        #         curve_metrics,
+        #         method=method,
+        #         pr_base=p_base,
+        #         path_save=f"{path_output_dir}/{method}_val.svg")
+
+        # # Calculate and plot curves for test data
+        # for method in METHODS_CURVE:
+        #     try:
+        #         curve_metrics = get_curve_metrics_test(
+        #             clf, X_train, y_train, X_test, y_test, method, splits)
+        #     except Exception as e:
+        #         logger.info(
+        #             f"{method} skipped due to data inbalance. Error Type: "
+        #             f"{type(e)}. Error message: {e}")
+        #         continue
+
+        #     plot_curves(
+        #         curve_metrics,
+        #         method=method,
+        #         pr_base=p_base,
+        #         path_save=f"{path_output_dir}/{method}_test.svg")
+
+        # Plot confusion matrix with various metrics for validation.
+        del best_cv_result['param']
+        plot_all_confusion_matrices(clf, X_train, y_train,
+                                    X_test, y_test, path_output_dir, use_smote_first=False, use_rfe=False, splits=splits)
+        # plot_confusion_matrix(
+        #     cv_result=best_cv_result,
+        #     axis_labels=['Depressed', 'Not Depressed'],
+        #     path_save=f"{path_output_dir}/cm_val.svg")
+
+        # best_cv_result_val_baseline = get_baseline_validation_statistics(
+        #     clf, X_train, y_train, splits)
+        # plot_confusion_matrix(
+        #     cv_result=best_cv_result_val_baseline,
+        #     axis_labels=['Depressed', 'Not Depressed'],
+        #     path_save=f"{path_output_dir}/cm_val_baseline.svg")
+
+        # # Plot confusion matrix with various metrics for training.
+        # best_cv_result_train = get_training_statistics(
+        #     clf, X_train, y_train, splits)
+        # plot_confusion_matrix(
+        #     cv_result=best_cv_result_train,
+        #     axis_labels=['Depressed', 'Not Depressed'],
+        #     path_save=f"{path_output_dir}/cm_train.svg")
+
+        # best_cv_result_train_baseline = get_baseline_training_statistics(
+        #     clf, X_train, y_train, splits)
+        # plot_confusion_matrix(
+        #     cv_result=best_cv_result_train_baseline,
+        #     axis_labels=['Depressed', 'Not Depressed'],
+        #     path_save=f"{path_output_dir}/cm_train_baseline.svg")
+
+        # # Plot confusion matrix with various metrics for testing.
+        # best_cv_result_test = get_testing_statistics(
+        #     clf, X_train, y_train, X_test, y_test, splits)
+        # plot_confusion_matrix(
+        #     cv_result=best_cv_result_test,
+        #     axis_labels=['Depressed', 'Not Depressed'],
+        #     path_save=f"{path_output_dir}/cm_test.svg")
+
+        # # Plot confusion matrix with various metrics for baseline testing.
+        # cv_result_test_baseline = get_baseline_testing_statistics(
+        #     clf, X_train, y_train, X_test, y_test, splits)
+        # plot_confusion_matrix(
+        #     cv_result=cv_result_test_baseline,
+        #     axis_labels=['Depressed', 'Not Depressed'],
+        #     path_save=f"{path_output_dir}/cm_baseline_test.svg")
+
+    # # Plot pairwise correlation heatmaps.
+    # for method in METHODS_PC:
+    #     corr, pval = get_pairwise_correlation(
+    #         X, y, method=method)
+    #     y_corr = corr[feature_label].drop([feature_label])
+    #     y_pval = pval[feature_label].drop([feature_label])
+    #     idxes_rank = y_corr.abs().argsort().tolist()[::-1]
+
+    #     rank = pd.concat(
+    #         [y_corr[idxes_rank], y_pval[idxes_rank]],
+    #         axis=1)
+    #     rank.columns = ['corr', 'p-value']
+    #     rank.to_csv(f"{path_output_dir}/pc_rank_{method}.csv")
+
+    #     plot_heatmap(
+    #         corr,
+    #         title=f"Pairwise {method.capitalize()} Correlation",
+    #         path_save=f"{path_output_dir}/pc_{method}.svg")
+
+    # # Plot similarity matrix for the data points heatmap.
+    # sm = get_similarity_matrix(X, y)
+    # plot_heatmap(
+    #     sm,
+    #     title=f"Similarity Matrix",
+    #     cmap='Greys',
+    #     path_save=f"{path_output_dir}/sim.svg")
+
+    # # Plot embedded data points.
+    # y_scatter = y.map({1.0: 'Depressed', 0.0: 'Not Depressed'})
+    # y_scatter.name = 'Translation'
+    # for method in METHODS_EMBEDDING:
+    #     X_embedded = pd.DataFrame(
+    #         get_embedded_data(
+    #             X,
+    #             method=method, random_state=random_state))
+    #     X_embedded.columns = ['First Dimension', 'Second Dimension']
+    #     plot_embedded_scatter(
+    #         X_embedded,
+    #         y_scatter,
+    #         title=f"{method.upper()}",
+    #         path_save=f"{path_output_dir}/embed_{method}.svg")
 
     # Calculate and plot feature selection for the best model.
-    sfs = get_selected_features(clf, X, y, splits)
-    plot_rfe_line(
-        sfs,
-        title="Recursive Feature Elimination",
-        path_save=f"{path_output_dir}/rfe.svg")
-    pd.DataFrame(sfs.get_metric_dict()).transpose().reset_index().to_csv(
-        f"{path_output_dir}/rfe_result.csv", index=False)
+    # sfs = get_selected_features(clf, X, y, splits)
+    # plot_rfe_line(
+    #     sfs,
+    #     title="Recursive Feature Elimination",
+    #     path_save=f"{path_output_dir}/rfe.svg")
+    # pd.DataFrame(sfs.get_metric_dict()).transpose().reset_index().to_csv(
+    #     f"{path_output_dir}/rfe_result.csv", index=False)
 
-    # for baseline precision, predict all positive/depressed
-    y_pred_allpos = pd.Series(np.ones(len(y)))
-    p_base = precision_score(y, y_pred_allpos)
+    # # change to test set? save as part of curve metrics?
+    # # for baseline precision, predict all positive/depressed
+    # y_pred_allpos = pd.Series(np.ones(len(y)))
+    # p_base = precision_score(y, y_pred_allpos)
 
-    # Calculate and plot curves, all classifiers and the best model.
-    for method in METHODS_CURVE:
-        try:
-            curve_metrics = get_curve_metrics(
-                clf, X, y, method, splits)
-        except Exception as e:
-            logger.info(
-                f"{method} skipped due to data inbalance. Error Type: "
-                f"{type(e)}. Error message: {e}")
-            continue
+    # # Calculate and plot curves, all classifiers and the best model.
+    # for method in METHODS_CURVE:
+    #     try:
+    #         curve_metrics = get_curve_metrics(
+    #             clf, X, y, method, splits)
+    #     except Exception as e:
+    #         logger.info(
+    #             f"{method} skipped due to data inbalance. Error Type: "
+    #             f"{type(e)}. Error message: {e}")
+    #         continue
 
-        plot_curves(
-            curve_metrics,
-            method=method,
-            pr_base=p_base,
-            path_save=f"{path_output_dir}/{method}.svg")
+    #     plot_curves(
+    #         curve_metrics,
+    #         method=method,
+    #         pr_base=p_base,
+    #         path_save=f"{path_output_dir}/{method}.svg")
 
     # # Plot outliers.
     # y_in_out = ['Inlier' for _ in range(len(X_raw))]
@@ -252,20 +744,22 @@ def main(
     #         title=f"Outlier Detection with {method.upper()}",
     #         path_save=f"{path_output_dir}/outliers_{method}.png")
 
-    # Plot confusion matrix with various metrics for validation.
-    del best_cv_result['param']
-    plot_confusion_matrix(
-        cv_result=best_cv_result,
-        axis_labels=['Depressed', 'Not Depressed'],
-        path_save=f"{path_output_dir}/cm.svg")
+    # # Plot confusion matrix with various metrics for validation.
+    # del best_cv_result['param']
+    # plot_confusion_matrix(
+    #     cv_result=best_cv_result,
+    #     axis_labels=['Depressed', 'Not Depressed'],
+    #     path_save=f"{path_output_dir}/cm_val.svg")
 
-    # Plot confusion matrix with various metrics for validation.
-    best_cv_result_train = get_training_statistics(
-        clf, X, y, splits)
-    plot_confusion_matrix(
-        cv_result=best_cv_result_train,
-        axis_labels=['Depressed', 'Not Depressed'],
-        path_save=f"{path_output_dir}/cm_train.svg")
+    # # Plot confusion matrix with various metrics for training.
+    # best_cv_result_train = get_training_statistics(
+    #     clf, X, y, splits)
+    # plot_confusion_matrix(
+    #     cv_result=best_cv_result_train,
+    #     axis_labels=['Depressed', 'Not Depressed'],
+    #     path_save=f"{path_output_dir}/cm_train.svg")
+
+    # Plot confusiong matrix with metrics for testing
 
 
 if __name__ == '__main__':

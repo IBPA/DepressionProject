@@ -33,7 +33,7 @@ from msap.modeling.configs import (
 from msap.modeling.model_selection.train import train_grid_search_cv, train_cv
 from msap.modeling.model_selection.preprocessing import Preprocessor
 from msap.modeling.model_evaluation.statistics import (
-    get_baseline_testing_statistics,
+    get_baseline_validation_statistics,
     get_curve_metrics)
 from msap.utils import (
     ClassifierHandler,
@@ -62,6 +62,7 @@ CLASSIFIER_MODES = [
     'adaboostclassifier',
     'randomforestclassifier',
     'mlpclassifier']
+
 
 def parse_model_selection_result(ms_result: tuple) -> list:
     """Parse the model selection result tuple and get the best models.
@@ -145,7 +146,7 @@ def main(
         random_state):
     """
     """
-    
+
     cfg_model = ModelSelectionConfig
 
     # Loading best model data from all ages
@@ -171,21 +172,20 @@ def main(
         random_state=random_state)
     if feature_kfold is not None:
         X_12 = X_12.drop([feature_kfold], axis=1)
-    
+
     # replot pr curve but with correct baseline
     clf = ClassifierHandler(
         classifier_mode=best_clf_12,
         params=best_cv_result_12['param'],
         random_state=random_state).clf
-    
+
     # Plot confusion matrix for baseline
-    baseline_12 = get_baseline_testing_statistics(
+    baseline_12 = get_baseline_validation_statistics(
         clf, X_12, y_12, splits)
     plot_confusion_matrix(
         cv_result=baseline_12,
         axis_labels=['Depressed', 'Not Depressed'],
         path_save=f"{path_data_dir_12}/cm_baseline.png")
-
 
     # age 16
     model_selection_result_16 = None
@@ -201,7 +201,7 @@ def main(
         f"{path_data_dir_16}/preprocessed/"
         f"{best_scale_mode_16}_{best_impute_mode_16}_{best_outlier_mode_16}.csv",
         col_y=feature_label_16)
-    
+
     splits = KFold_by_feature(
         X=X_16,
         n_splits=5,
@@ -209,21 +209,20 @@ def main(
         random_state=random_state)
     if feature_kfold is not None:
         X_16 = X_16.drop([feature_kfold], axis=1)
-    
+
     # replot pr curve but with correct baseline
     clf = ClassifierHandler(
         classifier_mode=best_clf_16,
         params=best_cv_result_16['param'],
         random_state=random_state).clf
-    
+
     # Plot confusion matrix for baseline
-    baseline_16 = get_baseline_testing_statistics(
+    baseline_16 = get_baseline_validation_statistics(
         clf, X_16, y_16, splits)
     plot_confusion_matrix(
         cv_result=baseline_16,
         axis_labels=['Depressed', 'Not Depressed'],
         path_save=f"{path_data_dir_16}/cm_baseline.png")
-    
 
     # age 17
     model_selection_result_17 = None
@@ -253,15 +252,14 @@ def main(
         classifier_mode=best_clf_17,
         params=best_cv_result_17['param'],
         random_state=random_state).clf
-    
+
     # Plot confusion matrix for baseline
-    baseline_17 = get_baseline_testing_statistics(
+    baseline_17 = get_baseline_validation_statistics(
         clf, X_17, y_17, splits)
     plot_confusion_matrix(
         cv_result=baseline_17,
         axis_labels=['Depressed', 'Not Depressed'],
         path_save=f"{path_data_dir_17}/cm_baseline.png")
-    
 
     # age 18
     model_selection_result_18 = None
@@ -277,7 +275,7 @@ def main(
         f"{path_data_dir_18}/preprocessed/"
         f"{best_scale_mode_18}_{best_impute_mode_18}_{best_outlier_mode_18}.csv",
         col_y=feature_label_18)
-    
+
     splits = KFold_by_feature(
         X=X_18,
         n_splits=5,
@@ -285,34 +283,34 @@ def main(
         random_state=random_state)
     if feature_kfold is not None:
         X_18 = X_18.drop([feature_kfold], axis=1)
-    
+
     clf = ClassifierHandler(
         classifier_mode=best_clf_18,
         params=best_cv_result_18['param'],
         random_state=random_state).clf
-    
+
     # Plot confusion matrix for baseline
-    baseline_18 = get_baseline_testing_statistics(
+    baseline_18 = get_baseline_validation_statistics(
         clf, X_18, y_18, splits)
     print(baseline_18)
     plot_confusion_matrix(
         cv_result=baseline_18,
         axis_labels=['Depressed', 'Not Depressed'],
         path_save=f"{path_data_dir_18}/cm_baseline.png")
-    
 
-    #filename_data_prep = cfg_model.get_filename_preprocessed_data(
+    # filename_data_prep = cfg_model.get_filename_preprocessed_data(
     #    scale_mode, impute_mode, outlier_mode)
     #data = pd.read_csv(f"{path_data_preprocessed_dir}/preprocessed/{filename_data_prep}")
     #X_prep = data.drop([feature_label], axis=1)
     #y_prep = data[feature_label]
-    
-    #plot_tsne( # removed outliers
+
+    # plot_tsne( # removed outliers
     #    X = X_prep,
     #    y = y_prep,
     #    random_state = random_state,
     #    path_save = f"{path_data_preprocessed_dir}/"
     #    f"{filename_tsne}")
+
 
 if __name__ == '__main__':
     main()

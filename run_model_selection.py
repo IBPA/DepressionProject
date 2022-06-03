@@ -19,6 +19,8 @@ import pandas as pd
 from tqdm import tqdm
 from multiprocessing import Pool
 import click
+from sklearn.model_selection import train_test_split
+from imblearn.over_sampling import SMOTE
 
 from msap.modeling.configs import (
     GridSearchConfig,
@@ -130,19 +132,19 @@ def change_type_to_cat(
     'feature-label',
     type=str)
 @click.option(
+    '--use-smote-first/--no-use-smote-first',
+    default=False)
+@click.option(
     '--feature-kfold',
     default=None)
 @click.option(
-    '--load-data-preprocessed',
-    type=bool,
+    '--load-data-preprocessed/--no-load-data-preprocessed',
     default=False)
 @click.option(
-    '--use-categorical',
-    type=bool,
+    '--use-categorical/--no-use-categorical',
     default=True)
 @click.option(
-    '--use-multiprocess-missforest',
-    type=bool,
+    '--use-multiprocess-missforest/--no-use-multiprocess-missforest',
     default=True)
 @click.option(
     '--random-state',
@@ -153,6 +155,7 @@ def main(
         path_output,
         path_data_preprocessed_dir,
         feature_label,
+        use_smote_first,
         feature_kfold,
         load_data_preprocessed,
         use_categorical,
@@ -186,18 +189,20 @@ def main(
         y = data[feature_label].astype("category")
 
         # test - TODO remove
-        #X = X[:60]
-        #y = y[:60]
+        # X = X[:60]
+        # y = y[:60]
 
         preprocess_inputs = []
         missforest_preprocess = []
 
         if use_categorical:
-            #raise NotImplementedError
+            # raise NotImplementedError
             # get full list of categorical variables
             vars_cat_prefs = PreprocessingConfig.columns_categorical
             cat_indices = get_all_categorical(vars_cat_prefs, X)
             X = change_type_to_cat(cat_indices, X)
+            if len(cat_indices) == 0:
+                cat_indices = None
         else:
             cat_indices = None
 
@@ -345,51 +350,129 @@ def main(
                      e)]
             continue
 
-        # Create KFold based on the specified index. Use default row id if
-        #   None.
-        splits = KFold_by_feature(X, 5, feature_kfold, random_state)
-        if feature_kfold is not None:
-            X = X.drop([feature_kfold], axis=1)
+        # Test set hold out and save to output file for loading for analysis
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, y, test_size=0.2, random_state=random_state)
 
-        for j, classifier_mode in enumerate(tqdm(
-                cfg_model.get_all_classifier_modes(),
-                desc="Classifiers")):
+        train_filename = cfg_model.get_filename_preprocessed_train_data(
+            scale_mode, impute_mode, outlier_mode)
+        dump_X_and_y(X=X_train, y=y_train,
+                     path_output_data=f"{path_data_preprocessed_dir}/{train_filename}")
 
-            clf = ClassifierHandler(
-                classifier_mode, random_state=cfg_model.RNG_SMOTE).clf
-            try:
-                # Perform grid search and 5-fold CV if hyperparamer tuning is
-                #   available.
-                if classifier_mode in GridSearchConfig.CLASSIFIER_MODES:
-                    result = train_grid_search_cv(
-                        clf=clf,
-                        X=X,
-                        y=y,
-                        param_grid=GridSearchConfig.get_config(
-                            classifier_mode).get_param_grid(random_state),
-                        splits=splits)
-                # Perform only 5-fold CV if hyperparamer tuning is not
-                #   available.
-                else:
-                    result = train_cv(
-                        clf=clf,
-                        X=X,
-                        y=y,
-                        splits=splits)
+        test_filename = cfg_model.get_filename_preprocessed_test_data(
+            scale_mode, impute_mode, outlier_mode)
+        dump_X_and_y(X=X_test, y=y_test,
+                     path_output_data=f"{path_data_preprocessed_dir}/{test_filename}")
 
-                results += [
-                    (i * len(cfg_model.get_all_classifier_modes()) + j,
-                     (scale_mode, impute_mode, outlier_mode, classifier_mode),
-                     result)]
+        if use_smote_first:
+            # TODO - toggle for classifier smote options?
+            smote = SMOTE(
+                sampling_strategy='minority',
+                n_jobs=1,
+                random_state=cfg_model.RNG_SMOTE)
+            X_train_smote, y_train_smote = smote.fit_resample(X_train, y_train)
+            # dump smote data to filename
+            smote_train_filename = cfg_model.get_filename_smote_train_data(
+                scale_mode, impute_mode, outlier_mode)
+            dump_X_and_y(X=X_train_smote, y=y_train_smote,
+                         path_output_data=f"{path_data_preprocessed_dir}/{smote_train_filename}")
+            # Create KFold based on the specified index. Use default row id if
+            #   None.
+            splits = KFold_by_feature(
+                X_train_smote, 5, feature_kfold, random_state)
+            if feature_kfold is not None:
+                X_train_smote = X_train_smote.drop([feature_kfold], axis=1)
+                X_test = X_test.drop([feature_kfold], axis=1)
 
-            except Exception as e:
-                failures += [
-                    (i * len(cfg_model.get_all_classifier_modes()) + j,
-                     (scale_mode, impute_mode, outlier_mode, classifier_mode),
-                     e)]
+            for j, classifier_mode in enumerate(tqdm(
+                    cfg_model.get_all_classifier_modes(),
+                    desc="Classifiers")):
 
-            # test - TODO remove
-            # break
+                clf = ClassifierHandler(
+                    classifier_mode, use_smote=False).clf
+
+                try:
+                    # TODO - include test results somehow?
+                    # Perform grid search and 5-fold CV if hyperparamer tuning is
+                    #   available.
+                    if classifier_mode in GridSearchConfig.CLASSIFIER_MODES:
+                        result = train_grid_search_cv(
+                            clf=clf,
+                            X=X_train_smote,
+                            y=y_train_smote,
+                            param_grid=GridSearchConfig.get_config(
+                                classifier_mode).get_param_grid(random_state),
+                            splits=splits)
+                    # Perform only 5-fold CV if hyperparamer tuning is not
+                    #   available.
+                    else:
+                        result = train_cv(
+                            clf=clf,
+                            X=X_train_smote,
+                            y=y_train_smote,
+                            splits=splits)
+                    results += [
+                        (i * len(cfg_model.get_all_classifier_modes()) + j,
+                            (scale_mode, impute_mode,
+                             outlier_mode, classifier_mode),
+                            result)]
+
+                except Exception as e:
+                    failures += [
+                        (i * len(cfg_model.get_all_classifier_modes()) + j,
+                            (scale_mode, impute_mode,
+                             outlier_mode, classifier_mode),
+                            e)]
+
+            # raise NotImplementedError
+        else:
+            # Create KFold based on the specified index. Use default row id if
+            #   None.
+            splits = KFold_by_feature(X_train, 5, feature_kfold, random_state)
+            if feature_kfold is not None:
+                X_train = X_train.drop([feature_kfold], axis=1)
+                X_test = X_test.drop([feature_kfold], axis=1)
+
+            for j, classifier_mode in enumerate(tqdm(
+                    cfg_model.get_all_classifier_modes(),
+                    desc="Classifiers")):
+
+                clf = ClassifierHandler(
+                    classifier_mode, random_state=cfg_model.RNG_SMOTE).clf
+                try:
+                    # TODO - include test results somehow?
+                    # Perform grid search and 5-fold CV if hyperparamer tuning is
+                    #   available.
+                    if classifier_mode in GridSearchConfig.CLASSIFIER_MODES:
+                        result = train_grid_search_cv(
+                            clf=clf,
+                            X=X_train,
+                            y=y_train,
+                            param_grid=GridSearchConfig.get_config(
+                                classifier_mode).get_param_grid(random_state),
+                            splits=splits)
+                    # Perform only 5-fold CV if hyperparamer tuning is not
+                    #   available.
+                    else:
+                        result = train_cv(
+                            clf=clf,
+                            X=X_train,
+                            y=y_train,
+                            splits=splits)
+
+                    results += [
+                        (i * len(cfg_model.get_all_classifier_modes()) + j,
+                         (scale_mode, impute_mode, outlier_mode, classifier_mode),
+                         result)]
+
+                except Exception as e:
+                    failures += [
+                        (i * len(cfg_model.get_all_classifier_modes()) + j,
+                         (scale_mode, impute_mode, outlier_mode, classifier_mode),
+                         e)]
+
+        # test - TODO remove
+        # break
 
     with open(path_output, 'wb') as f:
         pickle.dump((results, failures), f)
