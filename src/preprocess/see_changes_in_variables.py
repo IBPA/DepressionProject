@@ -42,44 +42,50 @@ if __name__ == '__main__':
     old_raw_data = pd.read_csv(f"../../data/Dataset012322.csv", dtype='str')
     old_raw_data = old_raw_data.applymap(lambda x: x.strip() if isinstance(
         x, str) else x)
+    print(f"Old Raw Data Shape: {old_raw_data.shape}")
     old_raw_cols = old_raw_data.columns.tolist()
 
     raw_data = pd.read_csv(f"../../data/Dataset052122.csv", dtype='str')
     raw_data = raw_data.applymap(lambda x: x.strip() if isinstance(
         x, str) else x)
+    print(f"New Raw Data Shape: {raw_data.shape}")
     raw_cols = raw_data.columns.tolist()
     # print(raw_data)
-
-    preprocessed_data = pd.read_csv(
-        f"../../output/preprocessed_data_without_temporal_12to18.csv", dtype='str')
-    preprocessed_data = preprocessed_data.applymap(lambda x: x.strip() if isinstance(
-        x, str) else x)
-    preprocessed_cols = preprocessed_data.columns.tolist()
-    preprocessed_cols_no_timestamp = [
-        x.rsplit('_', 1)[0] for x in preprocessed_cols]
 
     old_preprocessed_data = pd.read_csv(
         f"../../output/old_results/preprocessed_data_without_temporal_partialfix.txt", dtype='str')
     old_preprocessed_data = old_preprocessed_data.applymap(lambda x: x.strip() if isinstance(
         x, str) else x)
+    print(f"Old Preprocessed Data Shape: {old_preprocessed_data.shape}")
     old_preprocessed_cols = old_preprocessed_data.columns.tolist()
     old_preprocessed_cols_no_timestamp = [
         x.rsplit('_', 1)[0] for x in old_preprocessed_cols]
 
-    variables_df = pd.read_csv(
-        f"../../data/Variables052122.csv",
-        encoding='utf-8-sig')
-    variables_df = variables_df.applymap(lambda x: x.strip() if isinstance(
+    preprocessed_data = pd.read_csv(
+        f"../../output/preprocessed_data_without_temporal_12to18.csv", dtype='str')
+    preprocessed_data = preprocessed_data.applymap(lambda x: x.strip() if isinstance(
         x, str) else x)
-    data_cols = variables_df['VariableName'].tolist()
-    # print(variables_df)
+    print(f"Preprocessed Data Shape: {preprocessed_data.shape}")
+    preprocessed_cols = preprocessed_data.columns.tolist()
+    preprocessed_cols_no_timestamp = [
+        x.rsplit('_', 1)[0] for x in preprocessed_cols]
 
     old_data_df = pd.read_csv(
         f"../../data/Variables013122new.csv",
         encoding='unicode-escape')
     old_data_df = old_data_df.applymap(lambda x: x.strip() if isinstance(
         x, str) else x)
+    print(f"Old Variables Data Shape: {old_data_df.shape}")
     old_data_cols = old_data_df['VariableName'].tolist()
+
+    variables_df = pd.read_csv(
+        f"../../data/Variables052122.csv",
+        encoding='utf-8-sig')
+    variables_df = variables_df.applymap(lambda x: x.strip() if isinstance(
+        x, str) else x)
+    print(f"New Variables Data Shape: {variables_df.shape}")
+    data_cols = variables_df['VariableName'].tolist()
+    # print(variables_df)
 
     # ok_cols = []
     # var_error = []
