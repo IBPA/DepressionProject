@@ -15,14 +15,14 @@
 cd ../..
 python -u -m DepressionProjectNew.run_model_selection \
     ./DepressionProjectNew/output/10MVIout/data_cleaned_encoded_12to18_yesmental.csv \
-    ./DepressionProjectNew/output/10MVIout/output_12to18_yesmental/results.pkl \
-    ./DepressionProjectNew/output/10MVIout/output_12to18_yesmental/preprocessed \
+    ./DepressionProjectNew/output/10MVIout/output_12to18_yesmental_smotefirst/results.pkl \
+    ./DepressionProjectNew/output/10MVIout/output_12to18_yesmental_smotefirst/preprocessed \
     y12to18_Dep_YN_216m \
     --use-smote-first
 python -u -m DepressionProjectNew.run_analysis \
-    ./DepressionProjectNew/output/10MVIout/output_12to18_yesmental/results.pkl \
-    ./DepressionProjectNew/output/10MVIout/output_12to18_yesmental/preprocessed \
+    ./DepressionProjectNew/output/10MVIout/output_12to18_yesmental_smotefirst/results.pkl \
+    ./DepressionProjectNew/output/10MVIout/output_12to18_yesmental_smotefirst/preprocessed \
     ./DepressionProjectNew/output/10MVIout/data_cleaned_encoded_12to18_yesmental.csv \
-    ./DepressionProjectNew/output/10MVIout/output_12to18_yesmental/ \
+    ./DepressionProjectNew/output/10MVIout/output_12to18_yesmental_smotefirst/ \
     y12to18_Dep_YN_216m \
     --use-smote-first
