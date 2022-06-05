@@ -53,7 +53,7 @@ if __name__ == '__main__':
     # print(raw_data)
 
     old_preprocessed_data = pd.read_csv(
-        f"../../output/old_results/preprocessed_data_without_temporal_partialfix.txt", dtype='str')
+        f"../../output/preprocessed_data_without_temporal_partialfix.txt", dtype='str')
     old_preprocessed_data = old_preprocessed_data.applymap(lambda x: x.strip() if isinstance(
         x, str) else x)
     print(f"Old Preprocessed Data Shape: {old_preprocessed_data.shape}")
