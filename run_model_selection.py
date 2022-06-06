@@ -440,7 +440,6 @@ def main(
                 clf = ClassifierHandler(
                     classifier_mode, random_state=cfg_model.RNG_SMOTE).clf
                 try:
-                    # TODO - include test results somehow?
                     # Perform grid search and 5-fold CV if hyperparamer tuning is
                     #   available.
                     if classifier_mode in GridSearchConfig.CLASSIFIER_MODES:
