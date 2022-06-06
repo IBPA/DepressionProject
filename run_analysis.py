@@ -98,6 +98,8 @@ def plot_all_curves(
             pr_base=p_base,
             path_save=f"{path_output_dir}/{filename}")
 
+    y_pred_allpos = pd.Series(np.ones(len(y_test)))
+    p_base = precision_score(y_test, y_pred_allpos)
     # Calculate and plot curves for test data
     for method in METHODS_CURVE:
         try:
