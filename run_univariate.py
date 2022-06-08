@@ -10,7 +10,7 @@ python -u -m DepressionProjectNew.run_univariate \
     ./DepressionProjectNew/output/10MVIout/output_18_yesmental/results.pkl \
     ./DepressionProjectNew/output/10MVIout/output_18_yesmental/preprocessed \
     ./DepressionProjectNew/output/10MVIout/data_cleaned_encoded_18_yesmental.csv \
-    ./DepressionProjectNew/output/10MVIout/output_18_yesmental/ \
+    ./DepressionProjectNew/output/10MVIout/output_18_yesmental \
     y18CH_Dep_YN_216m
 
 """
@@ -143,7 +143,7 @@ def main(
     _, best_combination, best_cv_result = best_candidate[0]
     best_scale_mode, best_impute_mode, best_outlier_mode, best_clf \
         = best_combination
-    #pd.DataFrame(best_candidate_per_clf).to_csv(
+    # pd.DataFrame(best_candidate_per_clf).to_csv(
     #    f"{path_output_dir}/best_clfs.csv")
 
     # X_raw, _ = load_X_and_y(path_input_data_raw, col_y=feature_label)
@@ -182,45 +182,45 @@ def main(
     #     f"{path_output_dir}/rfe_result.csv", index=False)
 
     # perform univariate feature selection
-    fts_scores = get_univariate_features_all(X,y)
+    fts_scores = get_univariate_features_all(X, y)
     # get only fts
     fts_univariate = [item[0] for item in fts_scores]
-    #logging.info(fts_univariate)
+    # logging.info(fts_univariate)
 
-    rfe = pd.read_csv(f"{path_output_dir}/rfe_result.csv")
-    #logging.info(rfe)
+    rfe = pd.read_csv(f"{path_output_dir}/rfe_result_val.csv")
+    # logging.info(rfe)
     # reverse list of rfe features
     rfe_fts = rfe["feature_names"][::-1].reset_index(drop=True)
     # read as list
     rfe_fts = rfe_fts.apply(lambda x: literal_eval(str(x)))
     # get into same format as fts_scores
-    rfe_fts_ordered = [] # most important is first
+    rfe_fts_ordered = []  # most important is first
     rfe_fts_ordered += list(rfe_fts[0])
     # loop through results and grab next unique value
     for i in range(len(rfe_fts) - 1):
         rfe_fts_ordered += [x for x in rfe_fts[i+1] if x not in rfe_fts[i]]
-    #logging.info(rfe_fts_ordered)
+    # logging.info(rfe_fts_ordered)
     df_fs = pd.DataFrame(list(zip(fts_univariate, rfe_fts_ordered)),
-        columns = ['Univariate', 'RFE'])
+                         columns=['Univariate', 'RFE'])
     df_fs.to_csv(f"{path_output_dir}/feature_selection_ordered.csv",
-        index = False)
+                 index=False)
 
     # print what top 10 match
     top10match = [x for x in fts_univariate[:10] if x in rfe_fts_ordered[:10]]
-    logging.info("Top 10 matching: "\
-        f"{top10match}")
-    
+    logging.info("Top 10 matching: "
+                 f"{top10match}")
+
     # organize into table
     # row is column, column rank in RFE, column rank in univariate
-    indices_rfe = [rfe_fts_ordered.index(x) for x in rfe_fts_ordered] # should just be 0 to end
+    # should just be 0 to end
+    indices_rfe = [rfe_fts_ordered.index(x) for x in rfe_fts_ordered]
     indices_univariate = [fts_univariate.index(x) for x in rfe_fts_ordered]
-    #print(indices_rfe)
-    #print(indices_univariate)
+    # print(indices_rfe)
+    # print(indices_univariate)
     df = pd.DataFrame(list(zip(rfe_fts_ordered, indices_rfe, indices_univariate)),
-        columns = ['Variable','RFE Index', 'Univariate Index'])
+                      columns=['Variable', 'RFE Index', 'Univariate Index'])
     df.to_csv(f"{path_output_dir}/feature_selection_indices.csv",
-        index = False)
-
+              index=False)
 
 
 if __name__ == '__main__':
