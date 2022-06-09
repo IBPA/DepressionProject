@@ -14,8 +14,8 @@
 
 cd ../..
 python -u -m DepressionProjectNew.run_analysis \
-    ./DepressionProjectNew/output/10MVIout/output_18_yesmental/results.pkl \
-    ./DepressionProjectNew/output/10MVIout/output_18_yesmental/preprocessed \
-    ./DepressionProjectNew/output/10MVIout/data_cleaned_encoded_18_yesmental.csv \
-    ./DepressionProjectNew/output/10MVIout/output_18_yesmental/ \
-    y18CH_Dep_YN_216m
+    ./DepressionProjectNew/output/10MVIout/output_12to18_yesmental/results.pkl \
+    ./DepressionProjectNew/output/10MVIout/output_12to18_yesmental/preprocessed \
+    ./DepressionProjectNew/output/10MVIout/data_cleaned_encoded_12to18_yesmental.csv \
+    ./DepressionProjectNew/output/10MVIout/output_12to18_yesmental/ \
+    y12to18_Dep_YN_216m
