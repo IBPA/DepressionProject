@@ -15,7 +15,7 @@ from sklearn.metrics import (confusion_matrix,
                              average_precision_score,
                              roc_curve,
                              roc_auc_score)
-from sklearn.model_selection import KFold
+from sklearn.model_selection import StratifiedKFold
 from joblib import Parallel, delayed
 import numpy as np
 import pandas as pd
@@ -23,6 +23,7 @@ import datetime
 import logging
 
 from .visualization import *
+
 
 def analyze_pearson_correlation(
         X: pd.DataFrame,
@@ -71,6 +72,7 @@ def analyze_pearson_correlation(
 
     return res_df
 
+
 def analyze_spearman_correlation(
         X: pd.DataFrame,
         y: pd.Series,
@@ -117,8 +119,8 @@ def analyze_spearman_correlation(
                 scores[indices[f]],
                 pvalues[indices[f]])
 
-
     return res_df
+
 
 """
 def perform_pca(X, y, path_save = None):
@@ -154,6 +156,7 @@ def perform_tsne(X, y, path_save = None):
     return X_tsne, y
 """
 
+
 def analyze_normal_distribution(X, path_save):
     # TODO - doesn't work
     df = pd.DataFrame()
@@ -173,11 +176,14 @@ def analyze_normal_distribution(X, path_save):
         df.to_csv(path_save)
     return df
 
-def analyze_pca(X, y, pearson_df = None, spearman_df = None, path_dir=None, rfe_seed=None):
+
+def analyze_pca(X, y, pearson_df=None, spearman_df=None, path_dir=None, rfe_seed=None):
     num_rows = 20
     if pearson_df is not None:
-        pearson_df.sort_values(by = 'Correlation', ascending=False, ignore_index=True, key=abs)
-        pearson_df = pearson_df[(pearson_df['P-value'] <= 0.05) & (pearson_df['P-value'] != 0)]
+        pearson_df.sort_values(
+            by='Correlation', ascending=False, ignore_index=True, key=abs)
+        pearson_df = pearson_df[(pearson_df['P-value'] <= 0.05)
+                                & (pearson_df['P-value'] != 0)]
         if num_rows <= len(pearson_df):
             top_pearson = pearson_df.head(num_rows)
         else:
@@ -193,9 +199,9 @@ def analyze_pca(X, y, pearson_df = None, spearman_df = None, path_dir=None, rfe_
                     + "/pca_top20pearson" + str(ct) + ".png")
                 data = pd.concat([X_pca, y], axis=1)
                 data.to_csv(path_dir
-                    + "/../analyses/pca_top20pearson" + str(ct) + ".csv")
+                            + "/../analyses/pca_top20pearson" + str(ct) + ".csv")
                 analyze_normal_distribution(X[X_tp], path_dir
-                    + "/../analyses/shapiro_top20pearson" + str(ct) + ".csv")
+                                            + "/../analyses/shapiro_top20pearson" + str(ct) + ".csv")
             else:
                 X_pca, y = plot_pca(
                     X[X_tp],
@@ -205,19 +211,22 @@ def analyze_pca(X, y, pearson_df = None, spearman_df = None, path_dir=None, rfe_
                     + str(ct) + ".png")
                 data = pd.concat([X_pca, y], axis=1)
                 data.to_csv(path_dir
-                    + "/../analyses/pca_top20pearson_rfeseed_" + str(rfe_seed)
-                    + "_" + str(ct) + ".csv")
+                            + "/../analyses/pca_top20pearson_rfeseed_" +
+                            str(rfe_seed)
+                            + "_" + str(ct) + ".csv")
                 analyze_normal_distribution(X[X_tp], path_dir
-                    + "/../analyses/shapiro_top20pearson_rfeseed_"
-                    + str(rfe_seed) + "_" + str(ct) + ".csv")
+                                            + "/../analyses/shapiro_top20pearson_rfeseed_"
+                                            + str(rfe_seed) + "_" + str(ct) + ".csv")
         else:
             plot_pca(
                 X[X_tp],
                 y)
 
     if spearman_df is not None:
-        spearman_df.sort_values(by = 'Correlation', ascending=False, ignore_index=True, key=abs)
-        spearman_df = spearman_df[(spearman_df['P-value'] <= 0.05) & (spearman_df['P-value'] != 0)]
+        spearman_df.sort_values(
+            by='Correlation', ascending=False, ignore_index=True, key=abs)
+        spearman_df = spearman_df[(
+            spearman_df['P-value'] <= 0.05) & (spearman_df['P-value'] != 0)]
         if num_rows <= len(spearman_df):
             top_spearman = spearman_df.head(num_rows)
         else:
@@ -233,9 +242,9 @@ def analyze_pca(X, y, pearson_df = None, spearman_df = None, path_dir=None, rfe_
                     + "/pca_top20spearman" + str(ct) + ".png")
                 data = pd.concat([X_pca, y], axis=1)
                 data.to_csv(path_dir
-                    + "/../analyses/pca_top20spearman" + str(ct) + ".csv")
+                            + "/../analyses/pca_top20spearman" + str(ct) + ".csv")
                 analyze_normal_distribution(X[X_ts], path_dir
-                    + "/../analyses/shapiro_top20spearman" + str(ct) + ".csv")
+                                            + "/../analyses/shapiro_top20spearman" + str(ct) + ".csv")
             else:
                 X_pca, y = plot_pca(
                     X[X_ts],
@@ -245,16 +254,16 @@ def analyze_pca(X, y, pearson_df = None, spearman_df = None, path_dir=None, rfe_
                     + str(ct) + ".png")
                 data = pd.concat([X_pca, y], axis=1)
                 data.to_csv(path_dir
-                    + "/../analyses/pca_top20spearman_rfeseed_" + str(rfe_seed)
-                    + "_" + str(ct) + ".csv")
+                            + "/../analyses/pca_top20spearman_rfeseed_" +
+                            str(rfe_seed)
+                            + "_" + str(ct) + ".csv")
                 analyze_normal_distribution(X[X_ts], path_dir
-                    + "/../analyses/shapiro_top20spearman_rfeseed_"
-                    + str(rfe_seed) + "_" + str(ct) + ".csv")
+                                            + "/../analyses/shapiro_top20spearman_rfeseed_"
+                                            + str(rfe_seed) + "_" + str(ct) + ".csv")
         else:
             plot_pca(
                 X[X_ts],
                 y)
-
 
     if path_dir is not None:
         ct = datetime.datetime.now()
@@ -266,7 +275,7 @@ def analyze_pca(X, y, pearson_df = None, spearman_df = None, path_dir=None, rfe_
                 + "/pca_all" + str(ct) + ".png")
             data = pd.concat([X_pca, y], axis=1)
             data.to_csv(path_dir
-                + "/../analyses/pca_all" + str(ct) + ".csv")
+                        + "/../analyses/pca_all" + str(ct) + ".csv")
         else:
             X_pca, y = plot_pca(
                 X,
@@ -276,8 +285,8 @@ def analyze_pca(X, y, pearson_df = None, spearman_df = None, path_dir=None, rfe_
                 + "_" + str(ct) + ".png")
             data = pd.concat([X_pca, y], axis=1)
             data.to_csv(path_dir
-                + "/../analyses/pca_all_rfeseed_" + str(rfe_seed)
-                + "_" + str(ct) + ".csv")
+                        + "/../analyses/pca_all_rfeseed_" + str(rfe_seed)
+                        + "_" + str(ct) + ".csv")
 
     else:
         plot_pca(
@@ -285,11 +294,14 @@ def analyze_pca(X, y, pearson_df = None, spearman_df = None, path_dir=None, rfe_
             y)
     return
 
-def analyze_tsne(X, y, pearson_df = None, spearman_df = None, path_dir=None, rfe_seed=None):
+
+def analyze_tsne(X, y, pearson_df=None, spearman_df=None, path_dir=None, rfe_seed=None):
     num_rows = 20
     if pearson_df is not None:
-        pearson_df.sort_values(by = 'Correlation', ascending=False, ignore_index=True, key=abs)
-        pearson_df = pearson_df[(pearson_df['P-value'] <= 0.05) & (pearson_df['P-value'] != 0)]
+        pearson_df.sort_values(
+            by='Correlation', ascending=False, ignore_index=True, key=abs)
+        pearson_df = pearson_df[(pearson_df['P-value'] <= 0.05)
+                                & (pearson_df['P-value'] != 0)]
         if num_rows <= len(pearson_df):
             top_pearson = pearson_df.head(num_rows)
         else:
@@ -306,9 +318,9 @@ def analyze_tsne(X, y, pearson_df = None, spearman_df = None, path_dir=None, rfe
                     + "/tsne_top20pearson" + str(ct) + ".png")
                 data = pd.concat([X_tsne, y], axis=1)
                 data.to_csv(path_dir
-                    + "/../analyses/tsne_top20pearson" + str(ct) + ".csv")
+                            + "/../analyses/tsne_top20pearson" + str(ct) + ".csv")
                 analyze_normal_distribution(X[X_tp], path_dir
-                    + "/../analyses/shapiro_top20pearson" + str(ct) + ".csv")
+                                            + "/../analyses/shapiro_top20pearson" + str(ct) + ".csv")
             else:
                 X_tsne, y = plot_tsne(
                     X[X_tp],
@@ -318,19 +330,23 @@ def analyze_tsne(X, y, pearson_df = None, spearman_df = None, path_dir=None, rfe
                     + "_" + str(ct) + ".png")
                 data = pd.concat([X_tsne, y], axis=1)
                 data.to_csv(path_dir
-                    + "/../analyses/tsne_top20pearson_rfeseed_" + str(rfe_seed)
-                    + "_" + str(ct) + ".csv")
+                            + "/../analyses/tsne_top20pearson_rfeseed_" +
+                            str(rfe_seed)
+                            + "_" + str(ct) + ".csv")
                 analyze_normal_distribution(X[X_tp], path_dir
-                    + "/../analyses/shapiro_top20pearson_rfeseed_" + str(rfe_seed)
-                    + "_" + str(ct) + ".csv")
+                                            + "/../analyses/shapiro_top20pearson_rfeseed_" +
+                                            str(rfe_seed)
+                                            + "_" + str(ct) + ".csv")
         else:
             plot_tsne(
                 X[X_tp],
                 y)
 
     if spearman_df is not None:
-        spearman_df.sort_values(by = 'Correlation', ascending=False, ignore_index=True, key=abs)
-        spearman_df = spearman_df[(spearman_df['P-value'] <= 0.05) & (spearman_df['P-value'] != 0)]
+        spearman_df.sort_values(
+            by='Correlation', ascending=False, ignore_index=True, key=abs)
+        spearman_df = spearman_df[(
+            spearman_df['P-value'] <= 0.05) & (spearman_df['P-value'] != 0)]
         if num_rows <= len(spearman_df):
             top_spearman = spearman_df.head(num_rows)
         else:
@@ -346,9 +362,9 @@ def analyze_tsne(X, y, pearson_df = None, spearman_df = None, path_dir=None, rfe
                     + "/tsne_top20spearman" + str(ct) + ".png")
                 data = pd.concat([X_tsne, y], axis=1)
                 data.to_csv(path_dir
-                    + "/../analyses/tsne_top20spearman" + str(ct) + ".csv")
+                            + "/../analyses/tsne_top20spearman" + str(ct) + ".csv")
                 analyze_normal_distribution(X[X_ts], path_dir
-                    + "/../analyses/shapiro_top20spearman" + str(ct) + ".csv")
+                                            + "/../analyses/shapiro_top20spearman" + str(ct) + ".csv")
             else:
                 X_tsne, y = plot_tsne(
                     X[X_ts],
@@ -358,13 +374,13 @@ def analyze_tsne(X, y, pearson_df = None, spearman_df = None, path_dir=None, rfe
                     + "_" + str(ct) + ".png")
                 data = pd.concat([X_tsne, y], axis=1)
                 data.to_csv(path_dir
-                    + "/../analyses/tsne_top20spearman_rfeseed_"
-                    + str(rfe_seed)
-                    + "_" + str(ct) + ".csv")
+                            + "/../analyses/tsne_top20spearman_rfeseed_"
+                            + str(rfe_seed)
+                            + "_" + str(ct) + ".csv")
                 analyze_normal_distribution(X[X_ts], path_dir
-                    + "/../analyses/shapiro_top20spearman_rfeseed_"
-                    + str(rfe_seed)
-                    + "_" + str(ct) + ".csv")
+                                            + "/../analyses/shapiro_top20spearman_rfeseed_"
+                                            + str(rfe_seed)
+                                            + "_" + str(ct) + ".csv")
         else:
             plot_tsne(
                 X[X_ts],
@@ -380,7 +396,7 @@ def analyze_tsne(X, y, pearson_df = None, spearman_df = None, path_dir=None, rfe
                 + "/tsne_all" + str(ct) + ".png")
             data = pd.concat([X_tsne, y], axis=1)
             data.to_csv(path_dir
-                + "/../analyses/tsne_all" + str(ct) + ".csv")
+                        + "/../analyses/tsne_all" + str(ct) + ".csv")
         else:
             X_tsne, y = plot_tsne(
                 X,
@@ -390,8 +406,8 @@ def analyze_tsne(X, y, pearson_df = None, spearman_df = None, path_dir=None, rfe
                 + str(rfe_seed) + "_" + str(ct) + ".png")
             data = pd.concat([X_tsne, y], axis=1)
             data.to_csv(path_dir
-                + "/../analyses/tsne_all_rfeseed_"
-                + str(rfe_seed) + "_" + str(ct) + ".csv")
+                        + "/../analyses/tsne_all_rfeseed_"
+                        + str(rfe_seed) + "_" + str(ct) + ".csv")
     else:
         plot_tsne(
             X,
@@ -399,20 +415,26 @@ def analyze_tsne(X, y, pearson_df = None, spearman_df = None, path_dir=None, rfe
 
     return
 
+
 def analyze_elbox_method():
     return
+
 
 def analyze_bic():
     return
 
+
 def analyze_aic():
     return
+
 
 def analyze_gap_statistic():
     return
 
+
 def analyze_kendall_tau():
     return
+
 
 def get_evaluation_curves(clf, X, y, curves=['pr', 'roc'], random_state=None):
     """
@@ -420,7 +442,8 @@ def get_evaluation_curves(clf, X, y, curves=['pr', 'roc'], random_state=None):
     res = {}
     y_test_all = []
     y_pred_proba_all = []
-    kfold = KFold(n_splits=5, shuffle=True, random_state=random_state)
+    kfold = StratifiedKFold(n_splits=5, shuffle=True,
+                            random_state=random_state)
 
     for i_train, i_test in kfold.split(X):
         X_train, X_test = X.iloc[i_train].to_numpy(), X.iloc[i_test].to_numpy()
@@ -502,7 +525,8 @@ def get_cv_evaluation_values(
             'y_pred_proba': y_pred_proba}
 
     # Parallelize CV to get evaluation metric values.
-    kfold = KFold(n_splits=5, shuffle=True, random_state=random_state)
+    kfold = StratifiedKFold(n_splits=5, shuffle=True,
+                            random_state=random_state)
     cv_results = pd.DataFrame(Parallel(n_jobs=-1)(
         delayed(run_one_fold)(clf, X, y, i_train, i_test)
         for i_train, i_test in kfold.split(X)))
