@@ -11,12 +11,12 @@ DEFAULT_PREPROCESSED = '../../output/preprocessed_data_without_temporal_12to18.c
 # OUT_PPC = '../../output/output_18_yesmental/pc_rank_pearson_readable.csv'
 # OUT_SC = '../../output/output_18_yesmental/pc_rank_spearman_readable.csv'
 # OUT_K = '../../output/output_18_yesmental/pc_rank_kendall_readable.csv'
-DEFAULT_PPC = '../../output/10MVIout/output_12to18_yesmental/pc_rank_pearson_train.csv'
-DEFAULT_SC = '../../output/10MVIout/output_12to18_yesmental/pc_rank_spearman_train.csv'
-DEFAULT_K = '../../output/10MVIout/output_12to18_yesmental/pc_rank_kendall_train.csv'
-OUT_PPC = '../../output/10MVIout/output_12to18_yesmental/pc_rank_pearson_train_readable.csv'
-OUT_SC = '../../output/10MVIout/output_12to18_yesmental/pc_rank_spearman_train_readable.csv'
-OUT_K = '../../output/10MVIout/output_12to18_yesmental/pc_rank_kendall_train_readable.csv'
+DEFAULT_PPC = '../../output/10MVIout/output_12to18_yesmental_smotefirst/pc_rank_pearson_smote_train.csv'
+DEFAULT_SC = '../../output/10MVIout/output_12to18_yesmental_smotefirst/pc_rank_spearman_smote_train.csv'
+DEFAULT_K = '../../output/10MVIout/output_12to18_yesmental_smotefirst/pc_rank_kendall_smote_train.csv'
+OUT_PPC = '../../output/10MVIout/output_12to18_yesmental_smotefirst/pc_rank_pearson_smote_train_readable.csv'
+OUT_SC = '../../output/10MVIout/output_12to18_yesmental_smotefirst/pc_rank_spearman_smote_train_readable.csv'
+OUT_K = '../../output/10MVIout/output_12to18_yesmental_smotefirst/pc_rank_kendall_smote_train_readable.csv'
 
 df_variable_info = pd.read_csv(
     DEFAULT_VARIABLE_INFO, dtype='str', encoding='unicode_escape')

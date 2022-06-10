@@ -9,6 +9,7 @@ Todo:
     * skip some combinations.
 
 """
+from operator import index
 import os
 import sys
 import pickle
@@ -34,6 +35,8 @@ logging.getLogger(__file__)
 logging.basicConfig(
     stream=sys.stdout,
     level=logging.DEBUG)
+
+PVAL = 0.05
 
 
 def load_X_and_y(
@@ -137,7 +140,7 @@ def main():
         ("Initiating model selection...\n"
          f"Target variable: {ModelSelectingConfig.COLUMN_DEPENDENT}"))
 
-    #test_data_clean_path = os.path.abspath(os.path.dirname(__file__)) + \
+    # test_data_clean_path = os.path.abspath(os.path.dirname(__file__)) + \
     #    "/output/test_data_clean.csv"
     test_data_clean_path = ModelSelectingConfig.PATH_DATA_CLEANED
     try:  # Load cleaned data if exists.
@@ -161,6 +164,40 @@ def main():
             cols_ignored=CleaningConfig.COLUMNS_IGNORED,
             thres_mis=CleaningConfig.THRESHOLD_DROP_MISSING_RATIO)
         X = cleaner.clean(X, ModelSelectingConfig.AGE_CUTOFF)
+
+        # read in correlation file and drop columns that do not have
+        # pearson pval < 0.05
+        correlation_df = pd.read_csv(
+            CleaningConfig.CORRELATION_FILE, index_col=0)
+        correlation_df = correlation_df.set_index('Unnamed: 0')
+
+        missing_cols_corr = [
+            col for col in X.columns if col not in correlation_df.index]
+        logging.info(
+            f"{len(missing_cols_corr)} columns in found in data but not found in correlation_df")
+        logging.info(
+            f"Columns: {missing_cols_corr}")
+
+        missing_cols_data = [
+            col for col in correlation_df.index if col not in X.columns]
+        logging.info(
+            f"{len(missing_cols_data)} columns found in correlation_df but not found in data")
+
+        high_pval_cols = correlation_df[correlation_df["pearson_p_val"]
+                                        >= PVAL].index
+
+        logging.info(f"{len(high_pval_cols)} have p-value >= {PVAL}")
+
+        high_pval_cols = [col for col in high_pval_cols if col in X.columns]
+
+        logging.info(
+            f"{len(high_pval_cols)} columns with high p-value are present in data")
+
+        X = X.drop(columns=high_pval_cols)
+
+        logging.info(
+            f"Dropped columns with p_val >= 0.05, new data shape: {X.shape}")
+
         logging.info(f"Cleaned training data shape: {X.shape}")
 
         logging.info(
@@ -185,7 +222,8 @@ def main():
     data = pd.read_csv(ModelSelectingConfig.PATH_DATA_INPUT_FILE)
     plot_missing_value_ratio_histogram(data, missing_value_path)
     # code from visualization to get data info for chart
-    ratio_missing = data.isnull().sum() / len(data) # find ratio missing to put in csv
+    # find ratio missing to put in csv
+    ratio_missing = data.isnull().sum() / len(data)
     ax = ratio_missing.plot.hist(
         bins=10,
         alpha=0.5,
@@ -196,16 +234,17 @@ def main():
     logging.info(f"Heights from histogram raw: {heights}")
     # code to put missing values info of data that is uncleaned but did
     # drop data without dependent variable
-    ratio_missing_drop_dep = (original_data.isnull().sum()/len(original_data)).to_frame().reset_index()
-    #logging.info(f"{ratio_missing_drop_dep}")
-    ratio_missing_drop_dep = ratio_missing_drop_dep.set_axis(["Variable_Name", "Missing"], axis=1)
+    ratio_missing_drop_dep = (original_data.isnull(
+    ).sum()/len(original_data)).to_frame().reset_index()
+    # logging.info(f"{ratio_missing_drop_dep}")
+    ratio_missing_drop_dep = ratio_missing_drop_dep.set_axis(
+        ["Variable_Name", "Missing"], axis=1)
     missing_value_path = os.path.abspath(os.path.dirname(__file__)) + \
         "/output/missing_value_original_drop_dependent.csv"
     # sort by second column
     ratio_missing_drop_dep = ratio_missing_drop_dep.sort_values(
         ratio_missing_drop_dep.columns[1], ascending=False)
     ratio_missing_drop_dep.to_csv(missing_value_path, index=False)
-
 
 
 if __name__ == '__main__':

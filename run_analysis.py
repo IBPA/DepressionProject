@@ -406,50 +406,14 @@ def main(
     # Plot pairwise correlation heatmaps.
     plot_all_correlations(X_train=X_train, y_train=y_train, feature_label=feature_label,
                           path_output_dir=path_output_dir, use_smote_first=False, use_rfe=False)
-    # for method in METHODS_PC:
-    #     corr, pval = get_pairwise_correlation(
-    #         X_train, y_train, method=method)
-    #     y_corr = corr[feature_label].drop([feature_label])
-    #     y_pval = pval[feature_label].drop([feature_label])
-    #     idxes_rank = y_corr.abs().argsort().tolist()[::-1]
-
-    #     rank = pd.concat(
-    #         [y_corr[idxes_rank], y_pval[idxes_rank]],
-    #         axis=1)
-    #     rank.columns = ['corr', 'p-value']
-    #     rank.to_csv(f"{path_output_dir}/pc_rank_{method}_train.csv")
-
-    #     plot_heatmap(
-    #         corr,
-    #         title=f"Pairwise {method.capitalize()} Correlation",
-    #         path_save=f"{path_output_dir}/pc_{method}_train.svg")
 
     # Plot similarity matrix for the data points heatmap.
     plot_similarity_matrix(X_train=X_train, y_train=y_train,
                            path_output_dir=path_output_dir, use_smote_first=False, use_rfe=False)
-    # sm = get_similarity_matrix(X_train, y_train)
-    # plot_heatmap(
-    #     sm,
-    #     title=f"Similarity Matrix",
-    #     cmap='Greys',
-    #     path_save=f"{path_output_dir}/sim_train.svg")
 
     # Plot embedded data points.
     plot_all_embeddings(X_train=X_train, y_train=y_train, path_output_dir=path_output_dir,
                         random_state=random_state, use_smote_first=False, use_rfe=False)
-    # y_scatter = y_train.map({1.0: 'Depressed', 0.0: 'Not Depressed'})
-    # y_scatter.name = 'Translation'
-    # for method in METHODS_EMBEDDING:
-    #     X_embedded = pd.DataFrame(
-    #         get_embedded_data(
-    #             X_train,
-    #             method=method, random_state=random_state))
-    #     X_embedded.columns = ['First Dimension', 'Second Dimension']
-    #     plot_embedded_scatter(
-    #         X_embedded,
-    #         y_scatter,
-    #         title=f"{method.upper()}",
-    #         path_save=f"{path_output_dir}/embed_{method}_train.svg")
 
     if use_smote_first:
         X_smote_train, y_smote_train = load_X_and_y(
@@ -475,50 +439,14 @@ def main(
         # Plot pairwise correlation heatmaps.
         plot_all_correlations(X_train=X_smote_train, y_train=y_smote_train, feature_label=feature_label,
                               path_output_dir=path_output_dir, use_smote_first=True, use_rfe=False)
-        # for method in METHODS_PC:
-        #     corr, pval = get_pairwise_correlation(
-        #         X_smote_train, y_smote_train, method=method)
-        #     y_corr = corr[feature_label].drop([feature_label])
-        #     y_pval = pval[feature_label].drop([feature_label])
-        #     idxes_rank = y_corr.abs().argsort().tolist()[::-1]
-
-        #     rank = pd.concat(
-        #         [y_corr[idxes_rank], y_pval[idxes_rank]],
-        #         axis=1)
-        #     rank.columns = ['corr', 'p-value']
-        #     rank.to_csv(f"{path_output_dir}/pc_rank_{method}_smote_train.csv")
-
-        #     plot_heatmap(
-        #         corr,
-        #         title=f"Pairwise {method.capitalize()} Correlation",
-        #         path_save=f"{path_output_dir}/pc_{method}_smote_train.svg")
 
         # Plot similarity matrix
         plot_similarity_matrix(X_train=X_smote_train, y_train=y_smote_train,
                                path_output_dir=path_output_dir, use_smote_first=True, use_rfe=False)
-        # sm = get_similarity_matrix(X_smote_train, y_smote_train)
-        # plot_heatmap(
-        #     sm,
-        #     title=f"Similarity Matrix",
-        #     cmap='Greys',
-        #     path_save=f"{path_output_dir}/sim_smote_train.svg")
 
         # Plot embedded data points.
         plot_all_embeddings(X_train=X_smote_train, y_train=y_smote_train, path_output_dir=path_output_dir,
                             random_state=random_state, use_smote_first=True, use_rfe=False)
-        # y_scatter = y_smote_train.map({1.0: 'Depressed', 0.0: 'Not Depressed'})
-        # y_scatter.name = 'Translation'
-        # for method in METHODS_EMBEDDING:
-        #     X_embedded = pd.DataFrame(
-        #         get_embedded_data(
-        #             X_smote_train,
-        #             method=method, random_state=random_state))
-        #     X_embedded.columns = ['First Dimension', 'Second Dimension']
-        #     plot_embedded_scatter(
-        #         X_embedded,
-        #         y_scatter,
-        #         title=f"{method.upper()}",
-        #         path_save=f"{path_output_dir}/embed_{method}_smote_train.svg")
 
         # RFE/SFS
         # Calculate and plot feature selection for the best model.
