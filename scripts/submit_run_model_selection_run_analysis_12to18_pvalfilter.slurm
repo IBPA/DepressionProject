@@ -10,7 +10,7 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=24G
-#SBATCH --time=72:00:00
+#SBATCH --time=100:00:00
 
 cd ../..
 python -u -m DepressionProjectNew.run_model_selection \
