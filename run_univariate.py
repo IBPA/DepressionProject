@@ -161,6 +161,7 @@ def main(
 
     splits = KFold_by_feature(
         X=X,
+        y=y,
         n_splits=5,
         feature=feature_kfold,
         random_state=random_state)

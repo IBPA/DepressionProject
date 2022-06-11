@@ -167,6 +167,7 @@ def main(
 
     splits = KFold_by_feature(
         X=X_12,
+        y=y_12,
         n_splits=5,
         feature=feature_kfold,
         random_state=random_state)
@@ -204,6 +205,7 @@ def main(
 
     splits = KFold_by_feature(
         X=X_16,
+        y=y_16,
         n_splits=5,
         feature=feature_kfold,
         random_state=random_state)
@@ -241,6 +243,7 @@ def main(
 
     splits = KFold_by_feature(
         X=X_17,
+        y=y_17,
         n_splits=5,
         feature=feature_kfold,
         random_state=random_state)
@@ -278,6 +281,7 @@ def main(
 
     splits = KFold_by_feature(
         X=X_18,
+        y=y_18,
         n_splits=5,
         feature=feature_kfold,
         random_state=random_state)

@@ -423,6 +423,7 @@ def main(
 
         splits = KFold_by_feature(
             X=X_smote_train,
+            y=y_smote_train,
             n_splits=5,
             feature=feature_kfold,
             random_state=random_state)
@@ -497,6 +498,7 @@ def main(
     else:
         splits = KFold_by_feature(
             X=X_train,
+            y=y_train,
             n_splits=5,
             feature=feature_kfold,
             random_state=random_state)

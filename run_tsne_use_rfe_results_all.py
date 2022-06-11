@@ -62,6 +62,7 @@ CLASSIFIER_MODES = [
     'randomforestclassifier',
     'mlpclassifier']
 
+
 def parse_model_selection_result(ms_result: tuple) -> list:
     """Parse the model selection result tuple and get the best models.
 
@@ -144,19 +145,21 @@ def main(
         random_state):
     """
     """
-    rfe12 = ['a521r_8wg', 'd801_12wg', \
-            'd602ar_12wg', 'Adaptability_24m', \
-            'Avg_FinDiff_61m', 'f9ms012_96m', 'f9ms018_108m', \
-            'fddp130_120m', 'fdms012_120m', 'fdms026_120m', \
-            'Avg_neighb_122m', 'kz021_0m_1.0_0_2.0_1', \
-            'married8wg_8wg_0.0_0_1.0_1', 'divorced8wg_8wg_0.0_0_1.0_1', \
-            'separated8wg_8wg_0.0_0_1.0_1', 'c800_32wg_3.0', \
-            'c800_32wg_6.0', 'c800_32wg_7.0', 'c800_32wg_9.0', \
-            'c801_32wg_1.0', 'c801_32wg_7.0', 'c801_32wg_8.0', \
-            'c801_32wg_9.0']
+    rfe12 = ['a521r_8wg', 'd801_12wg',
+             'd602ar_12wg', 'Adaptability_24m',
+             'Avg_FinDiff_61m', 'f9ms012_96m', 'f9ms018_108m',
+             'fddp130_120m', 'fdms012_120m', 'fdms026_120m',
+             'Avg_neighb_122m', 'kz021_0m_1.0_0_2.0_1',
+             'married8wg_8wg_0.0_0_1.0_1', 'divorced8wg_8wg_0.0_0_1.0_1',
+             'separated8wg_8wg_0.0_0_1.0_1', 'c800_32wg_3.0',
+             'c800_32wg_6.0', 'c800_32wg_7.0', 'c800_32wg_9.0',
+             'c801_32wg_1.0', 'c801_32wg_7.0', 'c801_32wg_8.0',
+             'c801_32wg_9.0']
     rfe16 = ['kz021_0m_1.0_0_2.0_1']
-    rfe17 = ['d781_12wg', 'Avg_sc_m_47m', 'Avg_neighb_m_122m', 'kz021_0m_1.0_0_2.0_1']
-    rfe18 = ['Max_ed_32wg', 'Avg_FinDiff_61m', 'kz021_0m_1.0_0_2.0_1', 'f020a_8m_1.0_0_2.0_1']
+    rfe17 = ['d781_12wg', 'Avg_sc_m_47m',
+             'Avg_neighb_m_122m', 'kz021_0m_1.0_0_2.0_1']
+    rfe18 = ['Max_ed_32wg', 'Avg_FinDiff_61m',
+             'kz021_0m_1.0_0_2.0_1', 'f020a_8m_1.0_0_2.0_1']
 
     cfg_model = ModelSelectionConfig
 
@@ -177,13 +180,13 @@ def main(
         col_y=feature_label_12)
 
     # tsne for best rfe results
-    plot_tsne( # removed outliers
-        X = X_12[rfe12],
-        y = y_12,
-        random_state = random_state,
-        path_save = f"{path_data_dir_12}/"
+    plot_tsne(  # removed outliers
+        X=X_12[rfe12],
+        y=y_12,
+        random_state=random_state,
+        path_save=f"{path_data_dir_12}/"
         "tsne_from_rfe.png")
-    
+
     dump_X_and_y(
         X=X_12[rfe12]
         if feature_kfold is None else X_12[rfe12].reset_index(),
@@ -195,12 +198,13 @@ def main(
 
     splits = KFold_by_feature(
         X=X_12,
+        y=y_12,
         n_splits=5,
         feature=feature_kfold,
         random_state=random_state)
     if feature_kfold is not None:
         X_12 = X_12.drop([feature_kfold], axis=1)
-    
+
     # replot pr curve but with correct baseline
     clf = ClassifierHandler(
         classifier_mode=best_clf_12,
@@ -220,11 +224,8 @@ def main(
     plot_curves(
         curve_metrics,
         method=method,
-        pr_base = p_base,
+        pr_base=p_base,
         path_save=f"{path_data_dir_12}/{method}_fixed.png")
-    
-
-    
 
     # age 16
     model_selection_result_16 = None
@@ -241,13 +242,13 @@ def main(
         f"{best_scale_mode_16}_{best_impute_mode_16}_{best_outlier_mode_16}.csv",
         col_y=feature_label_16)
     # tsne for best rfe results
-    plot_tsne( # removed outliers
-        X = X_16[rfe16],
-        y = y_16,
-        random_state = random_state,
-        path_save = f"{path_data_dir_16}/"
+    plot_tsne(  # removed outliers
+        X=X_16[rfe16],
+        y=y_16,
+        random_state=random_state,
+        path_save=f"{path_data_dir_16}/"
         "tsne_from_rfe.png")
-    
+
     dump_X_and_y(
         X=X_16[rfe16]
         if feature_kfold is None else X_16[rfe16].reset_index(),
@@ -256,15 +257,16 @@ def main(
             drop=True),
         path_output_data=f"{path_data_dir_16}/"
         "rfe_xy.csv")
-    
+
     splits = KFold_by_feature(
         X=X_16,
+        y=y_16,
         n_splits=5,
         feature=feature_kfold,
         random_state=random_state)
     if feature_kfold is not None:
         X_16 = X_16.drop([feature_kfold], axis=1)
-    
+
     # replot pr curve but with correct baseline
     clf = ClassifierHandler(
         classifier_mode=best_clf_16,
@@ -284,9 +286,8 @@ def main(
     plot_curves(
         curve_metrics,
         method=method,
-        pr_base = p_base,
+        pr_base=p_base,
         path_save=f"{path_data_dir_16}/{method}_fixed.png")
-    
 
     # age 17
     model_selection_result_17 = None
@@ -303,13 +304,13 @@ def main(
         f"{best_scale_mode_17}_{best_impute_mode_17}_{best_outlier_mode_17}.csv",
         col_y=feature_label_17)
     # tsne for best rfe results
-    plot_tsne( # removed outliers
-        X = X_17[rfe17],
-        y = y_17,
-        random_state = random_state,
-        path_save = f"{path_data_dir_17}/"
+    plot_tsne(  # removed outliers
+        X=X_17[rfe17],
+        y=y_17,
+        random_state=random_state,
+        path_save=f"{path_data_dir_17}/"
         "tsne_from_rfe.png")
-    
+
     dump_X_and_y(
         X=X_17[rfe17]
         if feature_kfold is None else X_17[rfe17].reset_index(),
@@ -321,6 +322,7 @@ def main(
 
     splits = KFold_by_feature(
         X=X_17,
+        y=y_17,
         n_splits=5,
         feature=feature_kfold,
         random_state=random_state)
@@ -346,7 +348,7 @@ def main(
     plot_curves(
         curve_metrics,
         method=method,
-        pr_base = p_base,
+        pr_base=p_base,
         path_save=f"{path_data_dir_17}/{method}_fixed.png")
 
     # age 18
@@ -364,13 +366,13 @@ def main(
         f"{best_scale_mode_18}_{best_impute_mode_18}_{best_outlier_mode_18}.csv",
         col_y=feature_label_18)
     # tsne for best rfe results
-    plot_tsne( # removed outliers
-        X = X_18[rfe18],
-        y = y_18,
-        random_state = random_state,
-        path_save = f"{path_data_dir_18}/"
+    plot_tsne(  # removed outliers
+        X=X_18[rfe18],
+        y=y_18,
+        random_state=random_state,
+        path_save=f"{path_data_dir_18}/"
         "tsne_from_rfe.png")
-    
+
     dump_X_and_y(
         X=X_18[rfe18]
         if feature_kfold is None else X_18[rfe18].reset_index(),
@@ -379,15 +381,16 @@ def main(
             drop=True),
         path_output_data=f"{path_data_dir_18}/"
         "rfe_xy.csv")
-    
+
     splits = KFold_by_feature(
         X=X_18,
+        y=y_18,
         n_splits=5,
         feature=feature_kfold,
         random_state=random_state)
     if feature_kfold is not None:
         X_18 = X_18.drop([feature_kfold], axis=1)
-    
+
     # replot pr curve but with correct baseline
     clf = ClassifierHandler(
         classifier_mode=best_clf_18,
@@ -407,23 +410,20 @@ def main(
     plot_curves(
         curve_metrics,
         method=method,
-        pr_base = p_base,
+        pr_base=p_base,
         path_save=f"{path_data_dir_18}/{method}_fixed.png")
-    
-    
 
-    #filename_data_prep = cfg_model.get_filename_preprocessed_data(
+    # filename_data_prep = cfg_model.get_filename_preprocessed_data(
     #    scale_mode, impute_mode, outlier_mode)
     #data = pd.read_csv(f"{path_data_preprocessed_dir}/preprocessed/{filename_data_prep}")
     #X_prep = data.drop([feature_label], axis=1)
     #y_prep = data[feature_label]
-    
-    #plot_tsne( # removed outliers
+
+    # plot_tsne( # removed outliers
     #    X = X_prep,
     #    y = y_prep,
     #    random_state = random_state,
     #    path_save = f"{path_data_preprocessed_dir}/"
     #    f"{filename_tsne}")
-
 if __name__ == '__main__':
     main()

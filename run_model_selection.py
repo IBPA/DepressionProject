@@ -379,7 +379,7 @@ def main(
             # Create KFold based on the specified index. Use default row id if
             #   None.
             splits = KFold_by_feature(
-                X_train_smote, 5, feature_kfold, random_state)
+                X_train_smote, y_train_smote, 5, feature_kfold, random_state)
             if feature_kfold is not None:
                 X_train_smote = X_train_smote.drop([feature_kfold], axis=1)
                 X_test = X_test.drop([feature_kfold], axis=1)
@@ -428,7 +428,8 @@ def main(
         else:
             # Create KFold based on the specified index. Use default row id if
             #   None.
-            splits = KFold_by_feature(X_train, 5, feature_kfold, random_state)
+            splits = KFold_by_feature(
+                X_train, y_train, 5, feature_kfold, random_state)
             if feature_kfold is not None:
                 X_train = X_train.drop([feature_kfold], axis=1)
                 X_test = X_test.drop([feature_kfold], axis=1)

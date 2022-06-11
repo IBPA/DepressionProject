@@ -149,15 +149,16 @@ def main(
     #     "_outlier_indices.txt",
     #     delimiter='\n',
     #     dtype=int)
-    
+
     splits = KFold_by_feature(
         X=X,
+        y=y,
         n_splits=5,
         feature=feature_kfold,
         random_state=random_state)
     if feature_kfold is not None:
         X = X.drop([feature_kfold], axis=1)
-    
+
     clf = ClassifierHandler(
         classifier_mode=best_clf,
         params=best_cv_result['param'],
@@ -188,8 +189,8 @@ def main(
 
         y_smote_female = y_smote.loc[X_smote_female.index.tolist()]
         y_smote_male = y_smote.loc[X_smote_male.index.tolist()]
-        #print(y_smote_female.value_counts())
-        #print(y_smote_male.value_counts())
+        # print(y_smote_female.value_counts())
+        # print(y_smote_male.value_counts())
         dep_female = len(y_smote_female[y_smote_female == 1])
         nodep_female = len(y_smote_female[y_smote_female == 0])
         dep_male = len(y_smote_male[y_smote_male == 1])
@@ -218,7 +219,7 @@ def main(
             logging.info(f"F1 Male All Dep: {F1_male_alldep}")
         else:
             logging.info(f"F1 Female All Dep: {F1_female_alldep}")
-        
+
         X_test = X.iloc[test]
         y_test = y.iloc[test]
         X_test_female = X_test[X_test[sex] == 0]
@@ -261,12 +262,12 @@ def main(
         # within gender, which depressed/not depressed
         # calculate F1_male and F1_female (need precision and recall)
 
-        #print(X_train[sex])
+        # print(X_train[sex])
         # X_test = X.iloc[test]
         # y_test = y.iloc[test]
         #logging.info(f"Test Depressed info: \n{y_test.value_counts()}")
         #logging.info(f"Test Sex info: \n{X_test[sex].value_counts()}")
-        #print(X_test[sex])
+        # print(X_test[sex])
         # calculate which F1 based on which is better
     logging.info(f"Ave F1 test: {sum(F1_validation)/len(F1_validation)}")
 
