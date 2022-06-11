@@ -18,6 +18,7 @@ python -u -m DepressionProjectNew.run_model_selection \
     ./DepressionProjectNew/output/pval_filter_60_MVI/output_12to18_yesmental/results.pkl \
     ./DepressionProjectNew/output/pval_filter_60_MVI/output_12to18_yesmental/preprocessed \
     y12to18_Dep_YN_216m
+    --load-data-preprocessed
 python -u -m DepressionProjectNew.run_analysis \
     ./DepressionProjectNew/output/pval_filter_60_MVI/output_12to18_yesmental/results.pkl \
     ./DepressionProjectNew/output/pval_filter_60_MVI/output_12to18_yesmental/preprocessed \
