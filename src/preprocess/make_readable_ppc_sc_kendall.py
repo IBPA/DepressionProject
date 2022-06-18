@@ -11,12 +11,12 @@ DEFAULT_PREPROCESSED = '../../output/preprocessed_data_without_temporal_12to18.c
 # OUT_PPC = '../../output/output_18_yesmental/pc_rank_pearson_readable.csv'
 # OUT_SC = '../../output/output_18_yesmental/pc_rank_spearman_readable.csv'
 # OUT_K = '../../output/output_18_yesmental/pc_rank_kendall_readable.csv'
-DEFAULT_PPC = '../../output/10MVIout/output_12to18_yesmental_smotefirst/pc_rank_pearson_smote_train.csv'
-DEFAULT_SC = '../../output/10MVIout/output_12to18_yesmental_smotefirst/pc_rank_spearman_smote_train.csv'
-DEFAULT_K = '../../output/10MVIout/output_12to18_yesmental_smotefirst/pc_rank_kendall_smote_train.csv'
-OUT_PPC = '../../output/10MVIout/output_12to18_yesmental_smotefirst/pc_rank_pearson_smote_train_readable.csv'
-OUT_SC = '../../output/10MVIout/output_12to18_yesmental_smotefirst/pc_rank_spearman_smote_train_readable.csv'
-OUT_K = '../../output/10MVIout/output_12to18_yesmental_smotefirst/pc_rank_kendall_smote_train_readable.csv'
+DEFAULT_PPC = '../../output/pval_filter_60_MVI/output_12to18_yesmental/pc_rank_pearson_train.csv'
+DEFAULT_SC = '../../output/pval_filter_60_MVI/output_12to18_yesmental/pc_rank_spearman_train.csv'
+DEFAULT_K = '../../output/pval_filter_60_MVI/output_12to18_yesmental/pc_rank_kendall_train.csv'
+OUT_PPC = '../../output/pval_filter_60_MVI/output_12to18_yesmental/pc_rank_pearson_train_readable.csv'
+OUT_SC = '../../output/pval_filter_60_MVI/output_12to18_yesmental/pc_rank_spearman_train_readable.csv'
+OUT_K = '../../output/pval_filter_60_MVI/output_12to18_yesmental/pc_rank_kendall_train_readable.csv'
 
 df_variable_info = pd.read_csv(
     DEFAULT_VARIABLE_INFO, dtype='str', encoding='unicode_escape')
@@ -32,12 +32,13 @@ unfound = []
 
 # make variable description
 descriptions = ["{} ({})".format(a_, b_) for a_, b_ in zip(list(
-    df_variable_info['Variable Label']), list(df_variable_info['Coding_details']))]
+    df_variable_info['Variable Label'].str.strip()), list(df_variable_info['Coding_details'].str.strip()))]
 
 mapper = dict(zip(
-    list(df_variable_info['RelabeledName']),
+    list(df_variable_info['RelabeledName'].str.strip()),
     descriptions
 ))
+#print('y10CH_Dep_127m' in list(df_variable_info['RelabeledName']))
 
 for name in ppc['Unnamed: 0']:
     if len(name.split("_")) > 2:
@@ -46,16 +47,21 @@ for name in ppc['Unnamed: 0']:
         var_desc = list(var_map)[0]
         if var_desc == None:
             print(
-                f"Len of name is 3 but not found in mapper if sliced: {name}")
+                f"Len of name is >=3 but not found in mapper if sliced: {name}")
             unfound.append(name)
             continue
         relabeled.append(name)
         variable_description.append(" ".join([var_desc, name]))
     else:
-        relabeled.append(name)
         label_in_variable_info = name
         var_map = map(mapper.get, [label_in_variable_info])
         var_desc = list(var_map)[0]
+        # if var_desc == None:
+        #     print(
+        #         f"Len of name is <=2 but not found in mapper if sliced: {name}")
+        #     unfound.append(name)
+        #     continue
+        relabeled.append(name)
         variable_description.append(" ".join([var_desc, name]))
 
 for name in unfound:  # assume these are in info somewhere
