@@ -11,16 +11,16 @@ df_variable_info = pd.read_csv(
 
 # if categorical, get new name
 #categorical = df_variable_info.loc[df_variable_info['Categorical'] == '1', 'RelabeledName'].tolist()
-want_readable = ['Avg_FinDiff_61m',
-                 'Avg_neighb_122m',
-                 'c601_32wg',
-                 'Avg_neighb_m_122m',
-                 'Avg_fcamsis_m_47m',
-                 'Avg_income_97m',
-                 'e372a_8w',
-                 'Avg_sc_m_47m',
-                 'e391_8w',
-                 'kz021_0m_1.0_0_2.0_1'
+want_readable = ['Adaptability_24m',
+                 'fddp130_120m',
+                 'ke804b_24m',
+                 'kz021_0m_1.0_0_2.0_1',
+                 'c645_32wg',
+                 'Avg_camsis_p_97m',
+                 'j607a_47m_1.0_0_2.0_1',
+                 'pc095_8w',
+                 'sa042b_90m_1.0_0_2.0_1',
+                 'pe283_21m'
                  ]
 relabeled = []
 variable_description = []
@@ -28,10 +28,10 @@ unfound = []
 
 # make variable description
 descriptions = ["{} ({})".format(a_, b_) for a_, b_ in zip(list(
-    df_variable_info['Variable Label']), list(df_variable_info['Coding_details']))]
+    df_variable_info['Variable Label'].str.strip()), list(df_variable_info['Coding_details'].str.strip()))]
 
 mapper = dict(zip(
-    list(df_variable_info['RelabeledName']),
+    list(df_variable_info['RelabeledName'].str.strip()),
     descriptions
 ))
 
@@ -48,10 +48,15 @@ for name in want_readable:
         relabeled.append(name)
         variable_description.append(" ".join([var_desc, name]))
     else:
-        relabeled.append(name)
         label_in_variable_info = name
         var_map = map(mapper.get, [label_in_variable_info])
         var_desc = list(var_map)[0]
+        # if var_desc == None:
+        #     print(
+        #         f"Len of name is <=2 but not found in mapper if sliced: {name}")
+        #     unfound.append(name)
+        #     continue
+        relabeled.append(name)
         variable_description.append(" ".join([var_desc, name]))
 
 for name in unfound:  # assume these are in info somewhere
