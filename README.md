@@ -28,6 +28,12 @@ python get_config_info.py
 - Change preprocessing.py config categorical variables if needed (probably not)
 - Change cleaning.py with columns_ignored to add mental health variables (don't do for now because our predictions are bad already)
 
+## Run depression-predictor run_eda.py and feature_analysis_correlations_iterativeimpute.ipynb
+```
+python -u -m depression-predictor.depp.run_eda
+```
+- Then run python notebook feature_analysis_correlations_iterativeimpute.ipynb
+
 ## Run run_cleaner.py
 ```
 python -u -m DepressionProjectNew.run_cleaner

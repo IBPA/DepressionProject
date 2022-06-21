@@ -169,7 +169,7 @@ def main():
         # pearson pval < 0.05
         correlation_df = pd.read_csv(
             CleaningConfig.CORRELATION_FILE, index_col=0)
-        correlation_df = correlation_df.set_index('Unnamed: 0')
+        correlation_df = correlation_df.set_index('VariableName')
 
         missing_cols_corr = [
             col for col in X.columns if col not in correlation_df.index]
