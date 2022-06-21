@@ -40,6 +40,8 @@ from msap.utils.plot import (
     plot_rfe_line_detailed,
     plot_curves,
     plot_confusion_matrix)
+from msap.modeling.configs import (
+    ModelSelectionConfig)
 
 logger = logging.getLogger(__file__)
 logging.basicConfig(
@@ -509,7 +511,7 @@ def main(
         clf = ClassifierHandler(
             classifier_mode=best_clf,
             params=best_cv_result['param'],
-            random_state=random_state).clf
+            random_state=ModelSelectionConfig.RNG_SMOTE).clf
 
         # RFE/SFS
         # Calculate and plot feature selection for the best model.
