@@ -34,7 +34,7 @@ from .utils.analysis import *
 logging.getLogger(__file__)
 logging.basicConfig(
     stream=sys.stdout,
-    level=logging.DEBUG)
+    level=logging.INFO)
 
 PVAL = 0.05
 
