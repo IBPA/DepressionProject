@@ -365,7 +365,7 @@ def main(
                      path_output_data=f"{path_data_preprocessed_dir}/{test_filename}")
 
         if use_smote_first:
-            # TODO - toggle for classifier smote options?
+            # TODO - toggle for no smote?
             smote = SMOTE(
                 sampling_strategy='minority',
                 n_jobs=1,
