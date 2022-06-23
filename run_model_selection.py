@@ -166,7 +166,7 @@ def main(
 
     cfg_model = ModelSelectionConfig
 
-    if load_data_preprocessed is True:
+    if load_data_preprocessed:
         logging.info(
             "Loading preprocessed data at "
             f"{path_data_preprocessed_dir}")
