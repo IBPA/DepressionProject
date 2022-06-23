@@ -17,6 +17,12 @@ pip install -r requirements.txt
 python reformat_ml.py
 ```
 
+## Make 12to18 data if want to change meaning to be 1 anywhere even if missing data to be 1
+```
+python make_12to18.py
+```
+- Change config to use the new dataset
+
 ## Change configs
 - Cleaning.py for % missing value imputation and make sure columns_ignored is empty
 - Model_selecting.py for age_cutoff and column_dependent

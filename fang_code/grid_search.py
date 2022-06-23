@@ -13,7 +13,7 @@ from imblearn.over_sampling import SMOTE
 import numpy as np
 import pandas as pd
 
-from ..utils.metrics import get_metrics
+from .metrics import get_metrics
 
 METRICS = [
     'accuracy',
@@ -56,7 +56,7 @@ def parse_grid_search_cv_results(cv_results):
 
 if __name__ == '__main__':
     data = pd.read_csv(
-        "data/standard_iterative_none.csv"
+        "./output/pval_filter_60_MVI/output_12to18_yesmental/preprocessed/standard_iterative_none.csv"
     )
     print(data.shape)
     print(data['y12to18_Dep_YN_216m'].value_counts())
@@ -74,6 +74,7 @@ if __name__ == '__main__':
     param_grid = {
         'n_estimators': [100, 200, 300],
         'criterion': ['gini', 'entropy', 'logloss'],
+        # 'criterion': ['logloss'],
         'max_depth': [1, 2, 3, 4, 5, 6, 7, None],
         'min_samples_split': [5, 10, 20, 40],
         'max_features': ['sqrt', 'log2'],
@@ -101,10 +102,10 @@ if __name__ == '__main__':
     gs_no_smote.fit(X, y)
 
     cv_results_no_smote = gs_no_smote.cv_results_
-    with open("depp/tests/outputs/grid_search/no_smote.pkl", 'wb') as f:
+    with open("./fang_code/outputs/grid_search/no_smote.pkl", 'wb') as f:
         pickle.dump(cv_results_no_smote, f)
     parse_grid_search_cv_results(cv_results_no_smote).to_csv(
-        "depp/tests/outputs/grid_search/no_smote.csv"
+        "./fang_code/outputs/grid_search/no_smote.csv"
     )
 
     # With SMOTE.
@@ -124,9 +125,9 @@ if __name__ == '__main__':
     )
     gs_smote.fit(X, y)
     cv_results_smote = gs_smote.cv_results_
-    with open("depp/tests/outputs/grid_search/smote.pkl", 'wb') as f:
+    with open("./fang_code/outputs/grid_search/smote.pkl", 'wb') as f:
         pickle.dump(cv_results_smote, f)
     parse_grid_search_cv_results(cv_results_smote).to_csv(
-        "depp/tests/outputs/grid_search/smote.csv"
+        "./fang_code/outputs/grid_search/smote.csv"
     )
     print(time() - st)
