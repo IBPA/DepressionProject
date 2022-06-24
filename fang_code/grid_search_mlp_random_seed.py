@@ -120,25 +120,25 @@ if __name__ == '__main__':
     )
 
     # With SMOTE.
-    sm = SMOTE(random_state=46843, n_jobs=1)
-    pipeline = Pipeline(
-        steps=[('smote', sm), ('clf', MLPClassifier())]
-    )
-    gs_smote = GridSearchCV(
-        estimator=pipeline,
-        param_grid={f"clf__{k}": v for k, v in param_grid.items()},
-        scoring=get_metrics_scorer,
-        refit=False,
-        n_jobs=-1,
-        cv=splits,
-        return_train_score=True,
-        verbose=2
-    )
-    gs_smote.fit(X, y)
-    cv_results_smote = gs_smote.cv_results_
-    with open("./fang_code/outputs/grid_search/smote.pkl", 'wb') as f:
-        pickle.dump(cv_results_smote, f)
-    parse_grid_search_cv_results(cv_results_smote).to_csv(
-        "./fang_code/outputs/grid_search/smote.csv"
-    )
-    print(time() - st)
+    # sm = SMOTE(random_state=46843, n_jobs=1)
+    # pipeline = Pipeline(
+    #     steps=[('smote', sm), ('clf', MLPClassifier())]
+    # )
+    # gs_smote = GridSearchCV(
+    #     estimator=pipeline,
+    #     param_grid={f"clf__{k}": v for k, v in param_grid.items()},
+    #     scoring=get_metrics_scorer,
+    #     refit=False,
+    #     n_jobs=-1,
+    #     cv=splits,
+    #     return_train_score=True,
+    #     verbose=2
+    # )
+    # gs_smote.fit(X, y)
+    # cv_results_smote = gs_smote.cv_results_
+    # with open("./fang_code/outputs/grid_search/smote.pkl", 'wb') as f:
+    #     pickle.dump(cv_results_smote, f)
+    # parse_grid_search_cv_results(cv_results_smote).to_csv(
+    #     "./fang_code/outputs/grid_search/smote.csv"
+    # )
+    # print(time() - st)
