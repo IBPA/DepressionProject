@@ -80,7 +80,7 @@ if __name__ == '__main__':
     # C too high? 10 max?
     param_grid = {
         'probability': [True],
-        'C': np.logspace(-3, 0, 10).tolist(),
+        'C': np.logspace(-3, -0.35, 10).tolist(),
         'max_iter': list(
             range(num_max_iter_start, num_max_iter_end,
                   num_max_iter_increment)),
