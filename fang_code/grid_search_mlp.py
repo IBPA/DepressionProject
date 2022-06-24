@@ -71,6 +71,9 @@ if __name__ == '__main__':
         ).split(X, y)
     )
 
+    # num_alpha_start =
+    # num_alpha_end =
+    # num_alpha_increment =
     num_max_iter_start = 100
     num_max_iter_end = 1001
     num_max_iter_increment = 100
@@ -81,6 +84,7 @@ if __name__ == '__main__':
     num_hidden_neurons_end = 101
     num_hidden_neurons_increment = 10
     param_grid = {
+        'alpha':  np.logspace(-1, 2, 5).to_list(),
         'max_iter': list(
             range(num_max_iter_start, num_max_iter_end,
                   num_max_iter_increment)),
