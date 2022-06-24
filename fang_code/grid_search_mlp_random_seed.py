@@ -6,7 +6,7 @@ from time import time
 import pickle
 
 from sklearn.metrics import confusion_matrix
-from sklearn.svm import SVC  # TODO
+from sklearn.neural_network import MLPClassifier
 from sklearn.model_selection import StratifiedKFold, GridSearchCV
 from imblearn.pipeline import Pipeline
 from imblearn.over_sampling import SMOTE
