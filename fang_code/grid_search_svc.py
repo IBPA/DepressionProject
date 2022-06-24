@@ -77,9 +77,10 @@ if __name__ == '__main__':
     num_max_iter_start = 100
     num_max_iter_end = 1001
     num_max_iter_increment = 200
+    # C too high? 10 max?
     param_grid = {
         'probability': [True],
-        'C': np.logspace(-3, 3, 4).tolist(),
+        'C': np.logspace(-3, 0, 10).tolist(),
         'max_iter': list(
             range(num_max_iter_start, num_max_iter_end,
                   num_max_iter_increment)),
