@@ -71,9 +71,9 @@ if __name__ == '__main__':
         ).split(X, y)
     )
 
-    num_max_iter_start = 1000
-    num_max_iter_end = 3001
-    num_max_iter_increment = 1000
+    num_max_iter_start = 100
+    num_max_iter_end = 1001
+    num_max_iter_increment = 100
     num_hidden_layers_start = 1
     num_hidden_layers_end = 6
     num_hidden_layers_increment = 1
