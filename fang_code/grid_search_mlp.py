@@ -71,6 +71,9 @@ if __name__ == '__main__':
         ).split(X, y)
     )
 
+    num_max_iter_start = 1000
+    num_max_iter_end = 3001
+    num_max_iter_increment = 1000
     num_hidden_layers_start = 1
     num_hidden_layers_end = 6
     num_hidden_layers_increment = 1
@@ -78,7 +81,9 @@ if __name__ == '__main__':
     num_hidden_neurons_end = 101
     num_hidden_neurons_increment = 10
     param_grid = {
-        'max_iter': [3000],
+        'max_iter': list(
+            range(num_max_iter_start, num_max_iter_end,
+                  num_max_iter_increment)),
         'hidden_layer_sizes':
             [(nn,) * nl
                 for nn in range(num_hidden_neurons_start,
