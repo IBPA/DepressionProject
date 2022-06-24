@@ -136,7 +136,8 @@ def plot_all_confusion_matrices(
         path_output_dir: str,
         use_smote_first: bool,
         use_rfe: bool,
-        splits: Union[int, list[list, list]] = None):
+        splits: Union[int, list[list, list]] = None,
+        classifier: str = None):
     # for baseline, predict all positive/depressed
     if use_smote_first and use_rfe:
         fileprefix = "cm_smote_rfe"
@@ -146,6 +147,8 @@ def plot_all_confusion_matrices(
         fileprefix = "cm_rfe"
     else:
         fileprefix = "cm"
+    if classifier is not None:
+        fileprefix = "_".join([classifier, fileprefix])
 
     best_cv_result = get_validation_statistics(clf, X_train, y_train, splits)
     plot_confusion_matrix(
@@ -347,6 +350,9 @@ def parse_model_selection_result(ms_result: tuple) -> list:
     '--use-smote-first/--no-use-smote-first',
     default=False)
 @click.option(
+    '--all-best-confusion-matrices-test/--no-all-best-confusion-matrices-test',
+    default=False)
+@click.option(
     '--feature-kfold',
     type=str,
     default=None)
@@ -361,6 +367,7 @@ def main(
         path_output_dir,
         feature_label,
         use_smote_first,
+        all_best_confusion_matrices_test,
         feature_kfold,
         random_state):
     """
@@ -374,6 +381,54 @@ def main(
 
     best_candidate_per_clf = parse_model_selection_result(
         model_selection_result)
+    if all_best_confusion_matrices_test:
+        pd.DataFrame(best_candidate_per_clf).to_csv(
+            f"{path_output_dir}/best_clfs.csv")
+        for (_, best_combination, best_cv_result), f1_mean in best_candidate_per_clf:
+            best_scale_mode, best_impute_mode, best_outlier_mode, best_clf \
+                = best_combination
+            X_train, y_train = load_X_and_y(
+                f"{path_input_preprocessed_data_dir}/"
+                f"{best_scale_mode}_{best_impute_mode}_{best_outlier_mode}_train.csv",
+                col_y=feature_label)
+            X_test, y_test = load_X_and_y(
+                f"{path_input_preprocessed_data_dir}/"
+                f"{best_scale_mode}_{best_impute_mode}_{best_outlier_mode}_test.csv",
+                col_y=feature_label)
+            if use_smote_first:
+                clf = ClassifierHandler(
+                    classifier_mode=best_clf,
+                    params=best_cv_result['param'],
+                    use_smote=False).clf
+                X_smote_train, y_smote_train = load_X_and_y(
+                    f"{path_input_preprocessed_data_dir}/"
+                    f"{best_scale_mode}_{best_impute_mode}_{best_outlier_mode}_smote_train.csv",
+                    col_y=feature_label)
+                splits = KFold_by_feature(
+                    X=X_smote_train,
+                    y=y_smote_train,
+                    n_splits=5,
+                    feature=feature_kfold,
+                    random_state=random_state)
+                del best_cv_result['param']
+                plot_all_confusion_matrices(clf, X_smote_train, y_smote_train, X_test, y_test,
+                                            path_output_dir, use_smote_first=True, use_rfe=False, splits=splits, classifier=best_clf)
+            else:
+                clf = ClassifierHandler(
+                    classifier_mode=best_clf,
+                    params=best_cv_result['param'],
+                    random_state=ModelSelectionConfig.RNG_SMOTE).clf
+                splits = KFold_by_feature(
+                    X=X_train,
+                    y=y_train,
+                    n_splits=5,
+                    feature=feature_kfold,
+                    random_state=random_state)
+                del best_cv_result['param']
+                plot_all_confusion_matrices(clf, X_train, y_train, X_test, y_test,
+                                            path_output_dir, use_smote_first=False, use_rfe=False, splits=splits, classifier=best_clf)
+        return
+
     best_candidate = max(best_candidate_per_clf, key=lambda x: x[1])
     _, best_combination, best_cv_result = best_candidate[0]
     best_scale_mode, best_impute_mode, best_outlier_mode, best_clf \
