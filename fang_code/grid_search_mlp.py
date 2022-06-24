@@ -78,7 +78,7 @@ if __name__ == '__main__':
     num_max_iter_end = 1001
     num_max_iter_increment = 200
     num_hidden_layers_start = 1
-    num_hidden_layers_end = 6
+    num_hidden_layers_end = 3
     num_hidden_layers_increment = 1
     num_hidden_neurons_start = 10
     num_hidden_neurons_end = 101
