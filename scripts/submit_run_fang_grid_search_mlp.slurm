@@ -3,8 +3,8 @@
 #SBATCH --job-name=grid_search_mlp
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=asmyoo@ucdavis.edu
-#SBATCH --output=/share/taglab/Arielle/DepressionProjectNew/fang_code/outputs/logs/%j.out
-#SBATCH --error=/share/taglab/Arielle/DepressionProjectNew/fang_code/outputs/logs/%j.err
+#SBATCH --output=/home/asmyoo/DepressionProjectNew/fang_code/outputs/logs/%j.out
+#SBATCH --error=/home/asmyoo/DepressionProjectNew/fang_code/outputs/logs/%j.err
 #SBATCH --partition=compute
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
