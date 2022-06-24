@@ -91,7 +91,9 @@ if __name__ == '__main__':
         'max_iter': [100],
         'hidden_layer_sizes':
             [(70,)],
-        'random_state': [42]
+        'random_state': list(
+            range(num_random_state_start, num_random_state_end,
+                  num_random_state_increment))
     }
 
     # param_grid = {
