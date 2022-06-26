@@ -185,7 +185,7 @@ def main(
     else:
         if path_data_preprocessed_dir is None:
             path_data_preprocessed_dir \
-                = cfg_model.get_default_path_data_preprocessed_dir()
+                = cfg_model.get_default_path_preprocessed_data_dir()
 
         logging.info(
             "Generating preprocessed data at "
@@ -284,3 +284,7 @@ def main(
                        y,
                        cat_indices,
                        cfg_model)
+
+
+if __name__ == '__main__':
+    main()
