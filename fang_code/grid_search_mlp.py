@@ -56,7 +56,7 @@ def parse_grid_search_cv_results(cv_results):
 
 if __name__ == '__main__':
     data = pd.read_csv(
-        "./output/pval_filter_60_MVI/output_12to18_yesmental/preprocessed/robust_knn_none.csv"
+        "./output/pval_filter_60_MVI/output_12to18_yesmental/preprocessed/standard_iterative_none.csv"
     )
     print(data.shape)
     print(data['y12to18_Dep_YN_216m'].value_counts())
