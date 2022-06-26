@@ -131,6 +131,15 @@ def change_type_to_cat(
 @click.argument(
     'feature-label',
     type=str)
+@click.argument(
+    'scale-mode',
+    type=str)
+@click.argument(
+    'impute-mode',
+    type=str)
+@click.argument(
+    'outlier-mode',
+    type=str)
 @click.option(
     '--use-smote-first/--no-use-smote-first',
     default=False)
@@ -155,6 +164,9 @@ def main(
         path_output,
         path_data_preprocessed_dir,
         feature_label,
+        scale_mode,
+        impute_mode,
+        outlier_mode,
         use_smote_first,
         feature_kfold,
         load_data_preprocessed,
@@ -206,42 +218,40 @@ def main(
         else:
             cat_indices = None
 
-        for scale_mode, impute_mode, outlier_mode \
-                in cfg_model.get_all_preprocessing_combinations():
-            if impute_mode == 'missforest':
-                # print(cat_indices)
-                missforest_preprocess += [[
-                    scale_mode,
-                    impute_mode,
-                    outlier_mode,
-                    random_state,
-                    feature_kfold,
-                    path_data_preprocessed_dir,
-                    X,
-                    y,
-                    cat_indices,
-                    cfg_model]]
-            else:
-                preprocess_inputs += [[
-                    scale_mode,
-                    impute_mode,
-                    outlier_mode,
-                    random_state,
-                    feature_kfold,
-                    path_data_preprocessed_dir,
-                    X,
-                    y,
-                    cat_indices,
-                    cfg_model]]
+        if impute_mode == 'missforest':
+            # print(cat_indices)
+            missforest_preprocess += [[
+                scale_mode,
+                impute_mode,
+                outlier_mode,
+                random_state,
+                feature_kfold,
+                path_data_preprocessed_dir,
+                X,
+                y,
+                cat_indices,
+                cfg_model]]
+        else:
+            preprocess_inputs += [[
+                scale_mode,
+                impute_mode,
+                outlier_mode,
+                random_state,
+                feature_kfold,
+                path_data_preprocessed_dir,
+                X,
+                y,
+                cat_indices,
+                cfg_model]]
 
         # print(len(preprocess_inputs))
         # Preprocess using multiprocessing for missforest
         logging.info("Starting Preprocessing MissForest")
-        if use_multiprocess_missforest:
+        if use_multiprocess_missforest and len(missforest_preprocess) > 0:
             with Pool() as p:  # tqdm might not be working
                 p.starmap(preprocess, tqdm(missforest_preprocess,
                           total=len(missforest_preprocess)))
-        else:
+        elif len(missforest_preprocess) > 0:
             for scale_mode, impute_mode, outlier_mode, random_state, \
                     feature_kfold, path_data_preprocessed_dir, X, y, \
                     cat_indices, cfg_model in tqdm(missforest_preprocess):
