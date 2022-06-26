@@ -15,7 +15,7 @@ class DefaultConfig:
     PATH_ROOT = os.path.abspath(os.path.dirname(__file__)) + "/.."
 
     PATH_DATA_INPUT_FILE = (
-        PATH_ROOT + "/output/preprocessed_data_without_temporal_12to18.csv")
+        PATH_ROOT + "/output/preprocessed_data_without_temporal_12to18ave.csv")
 
     # PATH_DATA_INPUT_FILE = (
     #    PATH_ROOT + "/output/preprocessed_data_without_temporal.txt")

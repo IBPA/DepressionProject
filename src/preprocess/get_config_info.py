@@ -8,7 +8,7 @@ import pickle
 DEFAULT_VARIABLE_INFO = '../../data/Variables052122.csv'
 #DEFAULT_CLEANED = '../../output/data_cleaned.pkl'
 #DEFAULT_CLEANED = '../../output/data_cleaned.csv'
-DEFAULT_CLEANED = '../../output/preprocessed_data_without_temporal.txt'
+DEFAULT_CLEANED = '../../output/preprocessed_data_without_temporal_12to18ave.csv'
 
 #cleaned_data = pickle.load(open(DEFAULT_CLEANED, 'rb'))
 cleaned_data = pd.read_csv(

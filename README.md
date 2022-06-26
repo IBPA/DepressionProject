@@ -17,20 +17,28 @@ pip install -r requirements.txt
 python reformat_ml.py
 ```
 
-## Make 12to18 data if want to change meaning to be 1 anywhere even if missing data to be 1
+## Make 12to18 data if want to change meaning to be 1 anywhere even if missing data to be 1 within src/preprocess
 ```
 python make_12to18.py
 ```
-- Change config to use the new dataset
+- Change model_selecting.py config to use the new dataset preprocessed_data_without_temporal_12to18.csv
+
+## Make 12to18 average depression score within src/preprocess
+```
+python make_12to18ave.py
+```
+- Change model_selecting.py config to use the new dataset preprocessed_data_without_temporal_12to18ave.csv
 
 ## Change configs
-- Cleaning.py for % missing value imputation and make sure columns_ignored is empty
+- Cleaning.py for % missing value imputation and make sure columns_ignored contains child id variable name
 - Model_selecting.py for age_cutoff and column_dependent
 
 ## Run get_config_info.py within src/preprocess
 ```
 python get_config_info.py
 ```
+- Make sure within get_config_info the default preprocessed data filename is correct
+- Prediction label is 0/1 so does not need to be marked as categorical unless mistake is made
 - Change preprocessing.py config categorical variables if needed (probably not)
 - Change cleaning.py with columns_ignored to add mental health variables (don't do for now because our predictions are bad already)
 
@@ -38,6 +46,10 @@ python get_config_info.py
 ```
 python -u -m depression-predictor.depp.run_eda
 ```
+- Copy the Variables excel file and preprocessed data into the depression-predictor data folder
+- Check filename for data in depression-predictor utils/dataset.py
+- Takes approx 1 hr
+- Copy vars_sorted.csv to DepressionProjectNew/output
 - Then run python notebook feature_analysis_correlations_iterativeimpute.ipynb
 
 ## Run run_cleaner.py
