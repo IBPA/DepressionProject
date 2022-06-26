@@ -118,10 +118,10 @@ if __name__ == '__main__':
     gs_no_smote.fit(X, y)
 
     cv_results_no_smote = gs_no_smote.cv_results_
-    with open("./fang_code/outputs/grid_search/no_smote.pkl", 'wb') as f:
+    with open("./fang_code/outputs/grid_search/mlp/no_smote.pkl", 'wb') as f:
         pickle.dump(cv_results_no_smote, f)
     parse_grid_search_cv_results(cv_results_no_smote).to_csv(
-        "./fang_code/outputs/grid_search/no_smote.csv"
+        "./fang_code/outputs/grid_search/mlp/no_smote.csv"
     )
 
     # With SMOTE.
@@ -141,9 +141,9 @@ if __name__ == '__main__':
     )
     gs_smote.fit(X, y)
     cv_results_smote = gs_smote.cv_results_
-    with open("./fang_code/outputs/grid_search/smote.pkl", 'wb') as f:
+    with open("./fang_code/outputs/grid_search/mlp/smote.pkl", 'wb') as f:
         pickle.dump(cv_results_smote, f)
     parse_grid_search_cv_results(cv_results_smote).to_csv(
-        "./fang_code/outputs/grid_search/smote.csv"
+        "./fang_code/outputs/grid_search/mlp/smote.csv"
     )
     print(time() - st)
