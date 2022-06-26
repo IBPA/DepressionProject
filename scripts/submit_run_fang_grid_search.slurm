@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#SBATCH --job-name=grid_search_svc
+#SBATCH --job-name=grid_search
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=asmyoo@ucdavis.edu
 #SBATCH --output=/home/asmyoo/DepressionProjectNew/fang_code/outputs/logs/%j.out
@@ -13,4 +13,4 @@
 #SBATCH --time=24:00:00
 
 cd ..
-python -u -m fang_code.grid_search_svc
+python -u -m fang_code.grid_search
