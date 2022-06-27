@@ -72,11 +72,11 @@ if __name__ == '__main__':
     )
 
     param_grid = {
-        'n_estimators': [100, 200, 300],
+        'n_estimators': [100, 200, 300, 400],
         'criterion': ['gini', 'entropy', 'logloss'],
         # 'criterion': ['logloss'],
-        'max_depth': [1, 2, 3, 4, 5, 6, 7, None],
-        'min_samples_split': [5, 10, 20, 40],
+        'max_depth': [1, 2, 3, 4, None],
+        'min_samples_split': [5, 10, 20, 40, 50],
         'max_features': ['sqrt', 'log2'],
         'class_weight': ['balanced', None],
         'random_state': [42],

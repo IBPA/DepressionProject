@@ -81,10 +81,10 @@ if __name__ == '__main__':
     num_hidden_layers_end = 3
     num_hidden_layers_increment = 1
     num_hidden_neurons_start = 10
-    num_hidden_neurons_end = 101
+    num_hidden_neurons_end = 81
     num_hidden_neurons_increment = 20
     param_grid = {
-        'alpha':  np.logspace(-1, 2, 5).tolist(),
+        'alpha':  np.logspace(1, 2, 5).tolist(),
         'max_iter': list(
             range(num_max_iter_start, num_max_iter_end,
                   num_max_iter_increment)),
