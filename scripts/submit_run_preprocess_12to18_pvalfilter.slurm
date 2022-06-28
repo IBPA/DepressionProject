@@ -13,15 +13,9 @@
 #SBATCH --time=100:00:00
 
 cd ../..
-python -u -m DepressionProjectNew.run_model_selection \
+python -u -m DepressionProjectNew.run_preprocess \
     ./DepressionProjectNew/output/pval_filter_60_MVI/data_cleaned_encoded.csv \
     ./DepressionProjectNew/output/pval_filter_60_MVI/output_12to18_yesmental/results.pkl \
     ./DepressionProjectNew/output/pval_filter_60_MVI/output_12to18_yesmental/preprocessed \
     y12to18_Dep_YN_216m \
     --load-data-preprocessed
-python -u -m DepressionProjectNew.run_analysis \
-    ./DepressionProjectNew/output/pval_filter_60_MVI/output_12to18_yesmental/results.pkl \
-    ./DepressionProjectNew/output/pval_filter_60_MVI/output_12to18_yesmental/preprocessed \
-    ./DepressionProjectNew/output/pval_filter_60_MVI/data_cleaned_encoded.csv \
-    ./DepressionProjectNew/output/pval_filter_60_MVI/output_12to18_yesmental/ \
-    y12to18_Dep_YN_216m
