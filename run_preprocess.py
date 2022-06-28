@@ -274,3 +274,7 @@ def main(
                        y,
                        cat_indices,
                        cfg_model)
+
+
+if __name__ == '__main__':
+    main()
