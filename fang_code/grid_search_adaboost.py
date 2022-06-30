@@ -6,7 +6,7 @@ from time import time
 import pickle
 
 from sklearn.metrics import confusion_matrix
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import AdaBoostClassifier
 from sklearn.model_selection import StratifiedKFold, GridSearchCV
 from imblearn.pipeline import Pipeline
 from imblearn.over_sampling import SMOTE
@@ -71,26 +71,29 @@ if __name__ == '__main__':
         ).split(X, y)
     )
 
+    CLASSIFIER_MODE = 'adaboostclassifier'
+    ALGORITHM_MODES = ['SAMME', 'SAMME.R']
+    N_ESTIMATORS_START = 25
+    N_ESTIMATORS_END = 501
+    N_ESTIMATORS_INCREMENT = 25
+    LEARNING_RATE_START = 0.1
+    LEARNING_RATE_END = 2.1
+    LEARNING_RATE_INCREMENT = 0.2
     param_grid = {
-        'n_estimators': [100, 200, 300, 400],
-        'criterion': ['gini', 'entropy', 'logloss'],
-        # 'criterion': ['logloss'],
-        'max_depth': [1, 2, 3, 4],
-        'min_samples_split': [5, 10, 20, 40, 50],
-        'max_features': ['sqrt', 'log2'],
-        'class_weight': ['balanced', None],
-        'random_state': [42],
-        'n_jobs': [1],
+        'n_estimators': list(
+            range(N_ESTIMATORS_START, N_ESTIMATORS_END,
+                  N_ESTIMATORS_INCREMENT)),
+        'learning_rate': [x / 10 for x in list(
+            range(int(LEARNING_RATE_START * 10),
+                  int(LEARNING_RATE_END * 10),
+                  int(LEARNING_RATE_INCREMENT * 10)))],
+        'algorithm': ALGORITHM_MODES,
+        'random_state': [42]
     }
 
-    # param_grid = {
-    #     'max_depth': [1, 2],
-    #     'random_state': [42],
-    #     'n_jobs': [1],
-    # }
     st = time()
     gs_no_smote = GridSearchCV(
-        estimator=RandomForestClassifier(),
+        estimator=AdaBoostClassifier(),
         param_grid=param_grid,
         scoring=get_metrics_scorer,
         refit=False,
@@ -102,16 +105,16 @@ if __name__ == '__main__':
     gs_no_smote.fit(X, y)
 
     cv_results_no_smote = gs_no_smote.cv_results_
-    with open("./fang_code/outputs/grid_search/randomforest/no_smote.pkl", 'wb') as f:
+    with open("./fang_code/outputs/grid_search/adaboost/no_smote.pkl", 'wb') as f:
         pickle.dump(cv_results_no_smote, f)
     parse_grid_search_cv_results(cv_results_no_smote).to_csv(
-        "./fang_code/outputs/grid_search/randomforest/no_smote.csv"
+        "./fang_code/outputs/grid_search/adaboost/no_smote.csv"
     )
 
     # With SMOTE.
     sm = SMOTE(random_state=46843, n_jobs=1)
     pipeline = Pipeline(
-        steps=[('smote', sm), ('clf', RandomForestClassifier())]
+        steps=[('smote', sm), ('clf', AdaBoostClassifier())]
     )
     gs_smote = GridSearchCV(
         estimator=pipeline,
@@ -125,9 +128,9 @@ if __name__ == '__main__':
     )
     gs_smote.fit(X, y)
     cv_results_smote = gs_smote.cv_results_
-    with open("./fang_code/outputs/grid_search/randomforest/smote.pkl", 'wb') as f:
+    with open("./fang_code/outputs/grid_search/adaboost/smote.pkl", 'wb') as f:
         pickle.dump(cv_results_smote, f)
     parse_grid_search_cv_results(cv_results_smote).to_csv(
-        "./fang_code/outputs/grid_search/randomforest/smote.csv"
+        "./fang_code/outputs/grid_search/adaboost/smote.csv"
     )
     print(time() - st)
