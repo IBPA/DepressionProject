@@ -132,6 +132,9 @@ def change_type_to_cat(
     'feature-label',
     type=str)
 @click.option(
+    '--run-test/--no-run-test',
+    default=False)
+@click.option(
     '--use-smote/--no-use-smote',
     default=True)
 @click.option(
@@ -158,6 +161,7 @@ def main(
         path_output,
         path_data_preprocessed_dir,
         feature_label,
+        run_test,
         use_smote,
         use_smote_first,
         feature_kfold,
@@ -192,9 +196,9 @@ def main(
         X = data.drop([feature_label], axis=1)
         y = data[feature_label].astype("category")
 
-        # test - TODO remove
-        # X = X[:60]
-        # y = y[:60]
+        if run_test:
+            X = X[:60]
+            y = y[:60]
 
         preprocess_inputs = []
         missforest_preprocess = []
