@@ -455,30 +455,47 @@ def main(
                 f"{path_input_preprocessed_data_dir}/"
                 f"{best_scale_mode}_{best_impute_mode}_{best_outlier_mode}_test.csv",
                 col_y=feature_label)
-            if use_smote_first:
-                clf = ClassifierHandler(
-                    classifier_mode=best_clf,
-                    params=best_cv_result['param'],
-                    use_smote=False).clf
-                X_smote_train, y_smote_train = load_X_and_y(
-                    f"{path_input_preprocessed_data_dir}/"
-                    f"{best_scale_mode}_{best_impute_mode}_{best_outlier_mode}_smote_train.csv",
-                    col_y=feature_label)
-                splits = KFold_by_feature(
-                    X=X_smote_train,
-                    y=y_smote_train,
-                    n_splits=5,
-                    feature=feature_kfold,
-                    random_state=random_state)
-                del best_cv_result['param']
-                plot_all_confusion_matrices(clf, X_smote_train, y_smote_train, X_test, y_test,
-                                            path_output_dir, use_smote_first=True, use_rfe=False,
-                                            use_f1=use_f1, splits=splits, classifier=best_clf)
+            if use_smote:
+                if use_smote_first:
+                    clf = ClassifierHandler(
+                        classifier_mode=best_clf,
+                        params=best_cv_result['param'],
+                        use_smote=False).clf
+                    X_smote_train, y_smote_train = load_X_and_y(
+                        f"{path_input_preprocessed_data_dir}/"
+                        f"{best_scale_mode}_{best_impute_mode}_{best_outlier_mode}_smote_train.csv",
+                        col_y=feature_label)
+                    splits = KFold_by_feature(
+                        X=X_smote_train,
+                        y=y_smote_train,
+                        n_splits=5,
+                        feature=feature_kfold,
+                        random_state=random_state)
+                    del best_cv_result['param']
+                    plot_all_confusion_matrices(clf, X_smote_train, y_smote_train, X_test, y_test,
+                                                path_output_dir, use_smote_first=True, use_rfe=False,
+                                                use_f1=use_f1, splits=splits, classifier=best_clf)
+                else:
+                    clf = ClassifierHandler(
+                        classifier_mode=best_clf,
+                        params=best_cv_result['param'],
+                        random_state=ModelSelectionConfig.RNG_SMOTE).clf
+                    splits = KFold_by_feature(
+                        X=X_train,
+                        y=y_train,
+                        n_splits=5,
+                        feature=feature_kfold,
+                        random_state=random_state)
+                    del best_cv_result['param']
+                    plot_all_confusion_matrices(clf, X_train, y_train, X_test, y_test,
+                                                path_output_dir, use_smote_first=False,
+                                                use_rfe=False, use_f1=use_f1, splits=splits,
+                                                classifier=best_clf)
             else:
                 clf = ClassifierHandler(
                     classifier_mode=best_clf,
                     params=best_cv_result['param'],
-                    random_state=ModelSelectionConfig.RNG_SMOTE).clf
+                    use_smote=False).clf
                 splits = KFold_by_feature(
                     X=X_train,
                     y=y_train,
@@ -490,6 +507,7 @@ def main(
                                             path_output_dir, use_smote_first=False,
                                             use_rfe=False, use_f1=use_f1, splits=splits,
                                             classifier=best_clf)
+
         return
 
     best_candidate = max(best_candidate_per_clf, key=lambda x: x[1])
@@ -534,96 +552,164 @@ def main(
     # Plot embedded data points.
     plot_all_embeddings(X_train=X_train, y_train=y_train, path_output_dir=path_output_dir,
                         random_state=random_state, use_smote_first=False, use_rfe=False)
+    if use_smote:
+        if use_smote_first:
+            X_smote_train, y_smote_train = load_X_and_y(
+                f"{path_input_preprocessed_data_dir}/"
+                f"{best_scale_mode}_{best_impute_mode}_{best_outlier_mode}_smote_train.csv",
+                col_y=feature_label)
 
-    if use_smote_first:
-        X_smote_train, y_smote_train = load_X_and_y(
-            f"{path_input_preprocessed_data_dir}/"
-            f"{best_scale_mode}_{best_impute_mode}_{best_outlier_mode}_smote_train.csv",
-            col_y=feature_label)
+            splits = KFold_by_feature(
+                X=X_smote_train,
+                y=y_smote_train,
+                n_splits=5,
+                feature=feature_kfold,
+                random_state=random_state)
+            if feature_kfold is not None:
+                X_smote_train = X_smote_train.drop([feature_kfold], axis=1)
+                X_test = X_test.drop([feature_kfold], axis=1)
 
-        splits = KFold_by_feature(
-            X=X_smote_train,
-            y=y_smote_train,
-            n_splits=5,
-            feature=feature_kfold,
-            random_state=random_state)
-        if feature_kfold is not None:
-            X_smote_train = X_smote_train.drop([feature_kfold], axis=1)
-            X_test = X_test.drop([feature_kfold], axis=1)
+            clf = ClassifierHandler(
+                classifier_mode=best_clf,
+                params=best_cv_result['param'],
+                use_smote=False).clf
 
-        clf = ClassifierHandler(
-            classifier_mode=best_clf,
-            params=best_cv_result['param'],
-            use_smote=False).clf
+            # data visualization for train data after smote
+            # Plot pairwise correlation heatmaps.
+            plot_all_correlations(X_train=X_smote_train, y_train=y_smote_train, feature_label=feature_label,
+                                  path_output_dir=path_output_dir, use_smote_first=True, use_rfe=False)
 
-        # data visualization for train data after smote
-        # Plot pairwise correlation heatmaps.
-        plot_all_correlations(X_train=X_smote_train, y_train=y_smote_train, feature_label=feature_label,
-                              path_output_dir=path_output_dir, use_smote_first=True, use_rfe=False)
+            # Plot similarity matrix
+            plot_similarity_matrix(X_train=X_smote_train, y_train=y_smote_train,
+                                   path_output_dir=path_output_dir, use_smote_first=True, use_rfe=False)
 
-        # Plot similarity matrix
-        plot_similarity_matrix(X_train=X_smote_train, y_train=y_smote_train,
-                               path_output_dir=path_output_dir, use_smote_first=True, use_rfe=False)
+            # Plot embedded data points.
+            plot_all_embeddings(X_train=X_smote_train, y_train=y_smote_train, path_output_dir=path_output_dir,
+                                random_state=random_state, use_smote_first=True, use_rfe=False)
 
-        # Plot embedded data points.
-        plot_all_embeddings(X_train=X_smote_train, y_train=y_smote_train, path_output_dir=path_output_dir,
-                            random_state=random_state, use_smote_first=True, use_rfe=False)
+            # RFE/SFS
+            # Calculate and plot feature selection for the best model.
+            if use_f1:
+                mode = "f1"
+            else:
+                mode = "balanced_accuracy"
+            sfs = get_selected_features(
+                clf, X_smote_train, y_smote_train, mode, splits)
+            plot_rfe_line(
+                sfs,
+                title="Recursive Feature Elimination",
+                path_save=f"{path_output_dir}/rfe_smote.svg")
+            plot_rfe_line_detailed(
+                sfs,
+                title="Recursive Feature Elimination",
+                path_save=f"{path_output_dir}/rfe_smote_detailed.svg")
+            pd.DataFrame(sfs.get_metric_dict()).transpose().reset_index().to_csv(
+                f"{path_output_dir}/rfe_smote_result.csv", index=False)
+            if len(sfs.k_feature_idx_) < 3:
+                logging.warning(
+                    f"Number of features from rfe is few: {sfs.k_feature_idx_}")
+            else:
+                logging.info(f"Features from rfe: {sfs.k_feature_idx_}")
 
-        # RFE/SFS
-        # Calculate and plot feature selection for the best model.
-        if use_f1:
-            mode = "f1"
+            # use rfe results to plot curves, CM's, etc
+            X_rfe_train = X_smote_train.iloc[:, list(sfs.k_feature_idx_)]
+            X_rfe_test = X_test.iloc[:, list(sfs.k_feature_idx_)]
+            plot_all_curves(clf, X_rfe_train, y_smote_train, X_rfe_test, y_test,
+                            path_output_dir, use_smote_first=True, use_rfe=True, splits=splits)
+            plot_all_confusion_matrices(clf, X_rfe_train, y_smote_train,
+                                        X_rfe_test, y_test, path_output_dir,
+                                        use_smote_first=True, use_rfe=True,
+                                        use_f1=use_f1, splits=splits)
+            # Plot embedded data points.
+            plot_all_embeddings(X_train=X_rfe_train, y_train=y_smote_train, path_output_dir=path_output_dir,
+                                random_state=random_state, use_smote_first=True, use_rfe=True)
+            # Plot correlations for rfe
+            plot_all_correlations(X_train=X_rfe_train, y_train=y_smote_train, feature_label=feature_label,
+                                  path_output_dir=path_output_dir, use_smote_first=True, use_rfe=True)
+            # Plot similarity matrix for rfe
+            plot_similarity_matrix(X_train=X_rfe_train, y_train=y_smote_train,
+                                   path_output_dir=path_output_dir, use_smote_first=True, use_rfe=True)
+
+            # curves for best model no rfe
+            plot_all_curves(clf, X_smote_train, y_smote_train, X_test, y_test,
+                            path_output_dir, use_smote_first=True, use_rfe=False, splits=splits)
+
+            # Plot confusion matrix with various metrics for validation.
+            del best_cv_result['param']
+
+            plot_all_confusion_matrices(clf, X_smote_train, y_smote_train,
+                                        X_test, y_test, path_output_dir,
+                                        use_smote_first=True, use_rfe=False,
+                                        use_f1=use_f1, splits=splits)
+
         else:
-            mode = "balanced_accuracy"
-        sfs = get_selected_features(
-            clf, X_smote_train, y_smote_train, mode, splits)
-        plot_rfe_line(
-            sfs,
-            title="Recursive Feature Elimination",
-            path_save=f"{path_output_dir}/rfe_smote.svg")
-        plot_rfe_line_detailed(
-            sfs,
-            title="Recursive Feature Elimination",
-            path_save=f"{path_output_dir}/rfe_smote_detailed.svg")
-        pd.DataFrame(sfs.get_metric_dict()).transpose().reset_index().to_csv(
-            f"{path_output_dir}/rfe_smote_result.csv", index=False)
-        if len(sfs.k_feature_idx_) < 3:
-            logging.warning(
-                f"Number of features from rfe is few: {sfs.k_feature_idx_}")
-        else:
-            logging.info(f"Features from rfe: {sfs.k_feature_idx_}")
+            splits = KFold_by_feature(
+                X=X_train,
+                y=y_train,
+                n_splits=5,
+                feature=feature_kfold,
+                random_state=random_state)
+            if feature_kfold is not None:
+                X_train = X_train.drop([feature_kfold], axis=1)
+                X_test = X_test.drop([feature_kfold], axis=1)
 
-        # use rfe results to plot curves, CM's, etc
-        X_rfe_train = X_smote_train.iloc[:, list(sfs.k_feature_idx_)]
-        X_rfe_test = X_test.iloc[:, list(sfs.k_feature_idx_)]
-        plot_all_curves(clf, X_rfe_train, y_smote_train, X_rfe_test, y_test,
-                        path_output_dir, use_smote_first=True, use_rfe=True, splits=splits)
-        plot_all_confusion_matrices(clf, X_rfe_train, y_smote_train,
-                                    X_rfe_test, y_test, path_output_dir,
-                                    use_smote_first=True, use_rfe=True,
-                                    use_f1=use_f1, splits=splits)
-        # Plot embedded data points.
-        plot_all_embeddings(X_train=X_rfe_train, y_train=y_smote_train, path_output_dir=path_output_dir,
-                            random_state=random_state, use_smote_first=True, use_rfe=True)
-        # Plot correlations for rfe
-        plot_all_correlations(X_train=X_rfe_train, y_train=y_smote_train, feature_label=feature_label,
-                              path_output_dir=path_output_dir, use_smote_first=True, use_rfe=True)
-        # Plot similarity matrix for rfe
-        plot_similarity_matrix(X_train=X_rfe_train, y_train=y_smote_train,
-                               path_output_dir=path_output_dir, use_smote_first=True, use_rfe=True)
+            clf = ClassifierHandler(
+                classifier_mode=best_clf,
+                params=best_cv_result['param'],
+                random_state=ModelSelectionConfig.RNG_SMOTE).clf
 
-        # curves for best model no rfe
-        plot_all_curves(clf, X_smote_train, y_smote_train, X_test, y_test,
-                        path_output_dir, use_smote_first=True, use_rfe=False, splits=splits)
+            # RFE/SFS
+            # Calculate and plot feature selection for the best model.
+            if use_f1:
+                mode = "f1"
+            else:
+                mode = "balanced_accuracy"
+            sfs = get_selected_features(clf, X_train, y_train, mode, splits)
+            plot_rfe_line(
+                sfs,
+                title="Recursive Feature Elimination",
+                path_save=f"{path_output_dir}/rfe_val.svg")
+            plot_rfe_line_detailed(
+                sfs,
+                title="Recursive Feature Elimination",
+                path_save=f"{path_output_dir}/rfe_val_detailed.svg")
+            pd.DataFrame(sfs.get_metric_dict()).transpose().reset_index().to_csv(
+                f"{path_output_dir}/rfe_result_val.csv", index=False)
+            if len(sfs.k_feature_idx_) < 3:
+                logging.warning(
+                    f"Number of features from rfe is few: {sfs.k_feature_idx_}")
+            else:
+                logging.info(f"Features from rfe: {sfs.k_feature_idx_}")
 
-        # Plot confusion matrix with various metrics for validation.
-        del best_cv_result['param']
+            # use rfe results to plot curves, CM's, etc
+            X_rfe_train = X_train.iloc[:, list(sfs.k_feature_idx_)]
+            X_rfe_test = X_test.iloc[:, list(sfs.k_feature_idx_)]
+            plot_all_curves(clf, X_rfe_train, y_train, X_rfe_test, y_test,
+                            path_output_dir, use_smote_first=False, use_rfe=True, splits=splits)
+            plot_all_confusion_matrices(clf, X_rfe_train, y_train,
+                                        X_rfe_test, y_test, path_output_dir,
+                                        use_smote_first=False, use_rfe=True,
+                                        use_f1=use_f1, splits=splits)
+            # Plot embedded data points.
+            plot_all_embeddings(X_train=X_rfe_train, y_train=y_train, path_output_dir=path_output_dir,
+                                random_state=random_state, use_smote_first=False, use_rfe=True)
+            # Plot correlations for rfe
+            plot_all_correlations(X_train=X_rfe_train, y_train=y_train, feature_label=feature_label,
+                                  path_output_dir=path_output_dir, use_smote_first=False, use_rfe=True)
+            # Plot similarity matrix for rfe
+            plot_similarity_matrix(X_train=X_rfe_train, y_train=y_train,
+                                   path_output_dir=path_output_dir, use_smote_first=False, use_rfe=True)
 
-        plot_all_confusion_matrices(clf, X_smote_train, y_smote_train,
-                                    X_test, y_test, path_output_dir,
-                                    use_smote_first=True, use_rfe=False,
-                                    use_f1=use_f1, splits=splits)
+            # curves for best model no rfe
+            plot_all_curves(clf, X_train, y_train, X_test, y_test,
+                            path_output_dir, use_smote_first=False, use_rfe=False, splits=splits)
 
+            # Plot confusion matrix with various metrics for validation.
+            del best_cv_result['param']
+            plot_all_confusion_matrices(clf, X_train, y_train,
+                                        X_test, y_test, path_output_dir,
+                                        use_smote_first=False, use_rfe=False,
+                                        use_f1=use_f1, splits=splits)
     else:
         splits = KFold_by_feature(
             X=X_train,
@@ -638,7 +724,7 @@ def main(
         clf = ClassifierHandler(
             classifier_mode=best_clf,
             params=best_cv_result['param'],
-            random_state=ModelSelectionConfig.RNG_SMOTE).clf
+            use_smote=False).clf
 
         # RFE/SFS
         # Calculate and plot feature selection for the best model.
