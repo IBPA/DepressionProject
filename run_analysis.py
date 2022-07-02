@@ -136,6 +136,7 @@ def plot_all_confusion_matrices(
         path_output_dir: str,
         use_smote_first: bool,
         use_rfe: bool,
+        use_f1: bool,
         splits: Union[int, list[list, list]] = None,
         classifier: str = None):
     # for baseline, predict all positive/depressed
@@ -150,10 +151,16 @@ def plot_all_confusion_matrices(
     if classifier is not None:
         fileprefix = "_".join([classifier, fileprefix])
 
+    if use_f1:
+        mode = "f1"
+    else:
+        mode = "balanced_accuracy"
+
     best_cv_result = get_validation_statistics(clf, X_train, y_train, splits)
     plot_confusion_matrix(
         cv_result=best_cv_result,
         axis_labels=['Depressed', 'Not Depressed'],
+        mode=mode,
         path_save=f"{path_output_dir}/{fileprefix}_val.svg")
 
     best_cv_result_val_baseline = get_baseline_validation_statistics(
@@ -161,6 +168,7 @@ def plot_all_confusion_matrices(
     plot_confusion_matrix(
         cv_result=best_cv_result_val_baseline,
         axis_labels=['Depressed', 'Not Depressed'],
+        mode=mode,
         path_save=f"{path_output_dir}/{fileprefix}_val_baseline.svg")
 
     # Plot confusion matrix with various metrics for training.
@@ -169,6 +177,7 @@ def plot_all_confusion_matrices(
     plot_confusion_matrix(
         cv_result=best_cv_result_train,
         axis_labels=['Depressed', 'Not Depressed'],
+        mode=mode,
         path_save=f"{path_output_dir}/{fileprefix}_train.svg")
 
     best_cv_result_train_baseline = get_baseline_training_statistics(
@@ -176,6 +185,7 @@ def plot_all_confusion_matrices(
     plot_confusion_matrix(
         cv_result=best_cv_result_train_baseline,
         axis_labels=['Depressed', 'Not Depressed'],
+        mode=mode,
         path_save=f"{path_output_dir}/{fileprefix}_train_baseline.svg")
 
     # Plot confusion matrix with various metrics for testing.
@@ -184,6 +194,7 @@ def plot_all_confusion_matrices(
     plot_confusion_matrix(
         cv_result=best_cv_result_test,
         axis_labels=['Depressed', 'Not Depressed'],
+        mode=mode,
         path_save=f"{path_output_dir}/{fileprefix}_test.svg")
 
     # Plot confusion matrix with various metrics for baseline testing.
@@ -192,6 +203,7 @@ def plot_all_confusion_matrices(
     plot_confusion_matrix(
         cv_result=cv_result_test_baseline,
         axis_labels=['Depressed', 'Not Depressed'],
+        mode=mode,
         path_save=f"{path_output_dir}/{fileprefix}_baseline_test.svg")
 
 
@@ -257,13 +269,13 @@ def plot_all_correlations(
         rank.to_csv(path)
 
         if use_smote_first and use_rfe:
-            path = f"{path_output_dir}/pc_{method}_smote_rfe_train.svg"
+            path = f"{path_output_dir}/pc_{method}_smote_rfe_train.png"
         elif use_smote_first and not use_rfe:
-            path = f"{path_output_dir}/pc_{method}_smote_train.svg"
+            path = f"{path_output_dir}/pc_{method}_smote_train.png"
         elif not use_smote_first and use_rfe:
-            path = f"{path_output_dir}/pc_{method}_rfe_train.svg"
+            path = f"{path_output_dir}/pc_{method}_rfe_train.png"
         else:
-            path = f"{path_output_dir}/pc_{method}_train.svg"
+            path = f"{path_output_dir}/pc_{method}_train.png"
         plot_heatmap(
             corr,
             title=f"Pairwise {method.capitalize()} Correlation",
@@ -279,13 +291,13 @@ def plot_similarity_matrix(
         use_rfe: bool):
     sm = get_similarity_matrix(X_train, y_train)
     if use_smote_first and use_rfe:
-        path = f"{path_output_dir}/sim_smote_rfe_train.svg"
+        path = f"{path_output_dir}/sim_smote_rfe_train.png"
     elif use_smote_first and not use_rfe:
-        path = f"{path_output_dir}/sim_smote_train.svg"
+        path = f"{path_output_dir}/sim_smote_train.png"
     elif not use_smote_first and use_rfe:
-        path = f"{path_output_dir}/sim_rfe_train.svg"
+        path = f"{path_output_dir}/sim_rfe_train.png"
     else:
-        path = f"{path_output_dir}/sim_train.svg"
+        path = f"{path_output_dir}/sim_train.png"
     plot_heatmap(
         sm,
         title=f"Similarity Matrix",
@@ -312,7 +324,7 @@ def parse_model_selection_result(ms_result: tuple, mode: str) -> list:
         for i, c, cv_best in candidates:
             # Iterate over splits to calculate average F1 score.
             f1s = [cv_best[f'split_{j}']['f1']
-                   for j in range(len(cv_best) - 1)]
+                   for j in range(int(len(cv_best)/2) - 1)]
             f1s_mean += [np.mean(np.nan_to_num(f1s))]
 
         candidates = list(zip(candidates, f1s_mean))
@@ -330,7 +342,37 @@ def parse_model_selection_result(ms_result: tuple, mode: str) -> list:
                     break
         return best_candidate_per_clf
     elif mode == 'balanced_accuracy':
-        raise NotImplementedError
+        candidates, _ = ms_result
+        # candidates = [(i, c, cv) for i, c, cv in candidates]
+        balanced_accuracys_mean = []
+        grid_results = []
+        for i, c, cv in candidates:
+            # parse every grid search result
+            for key in cv:
+                # Iterate over splits to calculate average F1 score for clf
+                result = cv[key]
+                balanced_accuracys = [
+                    result[f'split_{j}']['balanced_accuracy'] for j in range(int(len(result)/2) - 1)]
+                grid_results += [(i, c, result)]
+                balanced_accuracys_mean += [
+                    np.mean(np.nan_to_num(balanced_accuracys))]
+        candidates = list(zip(grid_results, balanced_accuracys_mean))
+        candidates = sorted(candidates, key=lambda x: x[1], reverse=True)
+
+        best_candidate_per_clf = []
+        for clf in CLASSIFIER_MODES:
+            for (i, c, cv), balanced_accuracy_mean in candidates:
+                if c[3] == clf:
+                    if cv['param'] is not None:
+                        cv['param'] = {k.split('__')[-1]: v
+                                       for k, v in cv['param'].items()}
+
+                    best_candidate_per_clf += [((i, c, cv),
+                                                balanced_accuracy_mean)]
+                    break
+        return best_candidate_per_clf
+
+        # raise NotImplementedError
     else:
         raise ValueError(f"Unknown mode: {mode}")
 
@@ -352,11 +394,17 @@ def parse_model_selection_result(ms_result: tuple, mode: str) -> list:
     'feature-label',
     type=str)
 @click.option(
+    '--use-smote/--no-use-smote',
+    default=True)
+@click.option(
     '--use-smote-first/--no-use-smote-first',
     default=False)
 @click.option(
     '--all-best-confusion-matrices-test/--no-all-best-confusion-matrices-test',
     default=False)
+@click.option(
+    '--use-f1/--use-balanced-accuracy',
+    default=True)
 @click.option(
     '--feature-kfold',
     type=str,
@@ -371,8 +419,10 @@ def main(
         path_input_data_raw,
         path_output_dir,
         feature_label,
+        use_smote,
         use_smote_first,
         all_best_confusion_matrices_test,
+        use_f1,
         feature_kfold,
         random_state):
     """
@@ -383,9 +433,14 @@ def main(
     model_selection_result = None
     with open(path_input_model_selection_result, 'rb') as f:
         model_selection_result = pickle.load(f)
-
-    best_candidate_per_clf = parse_model_selection_result(
-        model_selection_result)
+    if use_f1:
+        mode = "f1"
+        best_candidate_per_clf = parse_model_selection_result(
+            model_selection_result, mode)
+    else:
+        mode = "balanced_accuracy"
+        best_candidate_per_clf = parse_model_selection_result(
+            model_selection_result, mode)
     if all_best_confusion_matrices_test:
         pd.DataFrame(best_candidate_per_clf).to_csv(
             f"{path_output_dir}/best_clfs.csv")
@@ -417,7 +472,8 @@ def main(
                     random_state=random_state)
                 del best_cv_result['param']
                 plot_all_confusion_matrices(clf, X_smote_train, y_smote_train, X_test, y_test,
-                                            path_output_dir, use_smote_first=True, use_rfe=False, splits=splits, classifier=best_clf)
+                                            path_output_dir, use_smote_first=True, use_rfe=False,
+                                            use_f1=use_f1, splits=splits, classifier=best_clf)
             else:
                 clf = ClassifierHandler(
                     classifier_mode=best_clf,
@@ -431,7 +487,9 @@ def main(
                     random_state=random_state)
                 del best_cv_result['param']
                 plot_all_confusion_matrices(clf, X_train, y_train, X_test, y_test,
-                                            path_output_dir, use_smote_first=False, use_rfe=False, splits=splits, classifier=best_clf)
+                                            path_output_dir, use_smote_first=False,
+                                            use_rfe=False, use_f1=use_f1, splits=splits,
+                                            classifier=best_clf)
         return
 
     best_candidate = max(best_candidate_per_clf, key=lambda x: x[1])
@@ -513,7 +571,12 @@ def main(
 
         # RFE/SFS
         # Calculate and plot feature selection for the best model.
-        sfs = get_selected_features(clf, X_smote_train, y_smote_train, splits)
+        if use_f1:
+            mode = "f1"
+        else:
+            mode = "balanced_accuracy"
+        sfs = get_selected_features(
+            clf, X_smote_train, y_smote_train, mode, splits)
         plot_rfe_line(
             sfs,
             title="Recursive Feature Elimination",
@@ -536,7 +599,9 @@ def main(
         plot_all_curves(clf, X_rfe_train, y_smote_train, X_rfe_test, y_test,
                         path_output_dir, use_smote_first=True, use_rfe=True, splits=splits)
         plot_all_confusion_matrices(clf, X_rfe_train, y_smote_train,
-                                    X_rfe_test, y_test, path_output_dir, use_smote_first=True, use_rfe=True, splits=splits)
+                                    X_rfe_test, y_test, path_output_dir,
+                                    use_smote_first=True, use_rfe=True,
+                                    use_f1=use_f1, splits=splits)
         # Plot embedded data points.
         plot_all_embeddings(X_train=X_rfe_train, y_train=y_smote_train, path_output_dir=path_output_dir,
                             random_state=random_state, use_smote_first=True, use_rfe=True)
@@ -555,7 +620,9 @@ def main(
         del best_cv_result['param']
 
         plot_all_confusion_matrices(clf, X_smote_train, y_smote_train,
-                                    X_test, y_test, path_output_dir, use_smote_first=True, use_rfe=False, splits=splits)
+                                    X_test, y_test, path_output_dir,
+                                    use_smote_first=True, use_rfe=False,
+                                    use_f1=use_f1, splits=splits)
 
     else:
         splits = KFold_by_feature(
@@ -575,7 +642,11 @@ def main(
 
         # RFE/SFS
         # Calculate and plot feature selection for the best model.
-        sfs = get_selected_features(clf, X_train, y_train, splits)
+        if use_f1:
+            mode = "f1"
+        else:
+            mode = "balanced_accuracy"
+        sfs = get_selected_features(clf, X_train, y_train, mode, splits)
         plot_rfe_line(
             sfs,
             title="Recursive Feature Elimination",
@@ -598,7 +669,9 @@ def main(
         plot_all_curves(clf, X_rfe_train, y_train, X_rfe_test, y_test,
                         path_output_dir, use_smote_first=False, use_rfe=True, splits=splits)
         plot_all_confusion_matrices(clf, X_rfe_train, y_train,
-                                    X_rfe_test, y_test, path_output_dir, use_smote_first=False, use_rfe=True, splits=splits)
+                                    X_rfe_test, y_test, path_output_dir,
+                                    use_smote_first=False, use_rfe=True,
+                                    use_f1=use_f1, splits=splits)
         # Plot embedded data points.
         plot_all_embeddings(X_train=X_rfe_train, y_train=y_train, path_output_dir=path_output_dir,
                             random_state=random_state, use_smote_first=False, use_rfe=True)
@@ -616,7 +689,9 @@ def main(
         # Plot confusion matrix with various metrics for validation.
         del best_cv_result['param']
         plot_all_confusion_matrices(clf, X_train, y_train,
-                                    X_test, y_test, path_output_dir, use_smote_first=False, use_rfe=False, splits=splits)
+                                    X_test, y_test, path_output_dir,
+                                    use_smote_first=False, use_rfe=False,
+                                    use_f1=use_f1, splits=splits)
 
 
 if __name__ == '__main__':
