@@ -14,7 +14,7 @@
 
 cd ../..
 python -u -m DepressionProjectNew.run_model_selection \
-    ./DepressionProjectNew/output/pval_filter_60_MVI/data_cleaned_encoded.csv \
+    ./DepressionProjectNew/output/pval_filter_60_MVI/output_12to18_yesmental/data_cleaned_encoded.csv \
     ./DepressionProjectNew/output/pval_filter_60_MVI/output_12to18_yesmental/results.pkl \
     ./DepressionProjectNew/output/pval_filter_60_MVI/output_12to18_yesmental/preprocessed \
     y12to18_Dep_YN_216m \
