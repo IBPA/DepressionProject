@@ -324,7 +324,7 @@ def parse_model_selection_result(ms_result: tuple, mode: str) -> list:
         for i, c, cv_best in candidates:
             # Iterate over splits to calculate average F1 score.
             f1s = [cv_best[f'split_{j}']['f1']
-                   for j in range(int(len(cv_best)/2) - 1)]
+                   for j in range(int(len(cv_best)/2))]
             f1s_mean += [np.mean(np.nan_to_num(f1s))]
 
         candidates = list(zip(candidates, f1s_mean))
