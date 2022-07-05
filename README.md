@@ -69,9 +69,20 @@ python -m DepressionProjectNew.run_encode DepressionProjectNew/output/data_clean
 ## Run run_analysis.py
 - Use script
 
-## Run run_tsne.py
+## Run univariate comparison
+```
+python -u -m DepressionProjectNew.run_univariate \
+    ./DepressionProjectNew/output/pval_filter_60_MVI/output_12to18_yesmental/results.pkl \
+    ./DepressionProjectNew/output/pval_filter_60_MVI/output_12to18_yesmental/preprocessed \
+    ./DepressionProjectNew/output/pval_filter_60_MVI/output_12to18_yesmental/data_cleaned_encoded.csv \
+    ./DepressionProjectNew/output/pval_filter_60_MVI/output_12to18_yesmental/balanced_accuracy \
+    y12to18_Dep_YN_216m \
+    --use-balanced-accuracy
+```
 
-## Run make_readable_pcc_sc_kendall.py and make_readable_list.py after pasting in the best rfe list
+## Run run_tsne.py (don't need)
+
+## Run make_readable_pcc_sc_kendall.py and make_readable_list.py after pasting in the best rfe list and lists from run_univariate's output
 
 ## Can also run model using current best results if low on time
 ```
@@ -79,7 +90,7 @@ python -u -m DepressionProjectNew.run_model_and_analysis ./DepressionProjectNew/
 ```
 or use script
 
-## Plot tsne using only best results from RFE/Elbow method
+## Plot tsne using only best results from RFE/Elbow method (don't need)
 Make sure to input the hardcoded variables for the rfe results
 ```
 python -u -m DepressionProjectNew.run_tsne_use_rfe_results_all \
@@ -93,7 +104,7 @@ python -u -m DepressionProjectNew.run_tsne_use_rfe_results_all \
     y18CH_Dep_YN_216m
 ```
 
-## Can also run analysis without rfe and calculate f1's
+## Can also run analysis without rfe and calculate f1's (don't need)
 ```
 python -u -m DepressionProjectNew.run_model_and_analysis_no_rfe_calc \
     ./DepressionProjectNew/output/10MVIout/output_18_yesmental/results.pkl \
@@ -103,7 +114,7 @@ python -u -m DepressionProjectNew.run_model_and_analysis_no_rfe_calc \
     y18CH_Dep_YN_216m
 ```
 
-## Calculate F1 baselines and plot into confusion matrix
+## Calculate F1 baselines and plot into confusion matrix (don't need)
 ```
 python -u -m DepressionProjectNew.run_f1_calcs_baseline_all \
     ./DepressionProjectNew/output/10MVIout/output_12_yesmental \
@@ -116,7 +127,7 @@ python -u -m DepressionProjectNew.run_f1_calcs_baseline_all \
     y18CH_Dep_YN_216m
 ```
 
-## Plot F1's with their baseline
+## Plot F1's with their baseline (don't need)
 ```
 python -u -m DepressionProjectNew.plot_f1_overall
     ./DepressionProjectNew/output/10MVIout/f1s.png

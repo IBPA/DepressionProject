@@ -42,6 +42,8 @@ from msap.utils.plot import (
     plot_rfe_line,
     plot_curves,
     plot_confusion_matrix)
+from msap.modeling.configs import (
+    ModelSelectionConfig)
 
 logger = logging.getLogger(__file__)
 logging.basicConfig(
@@ -60,7 +62,7 @@ CLASSIFIER_MODES = [
     'mlpclassifier']
 
 
-def parse_model_selection_result(ms_result: tuple) -> list:
+def parse_model_selection_result(ms_result: tuple, mode: str) -> list:
     """Parse the model selection result tuple and get the best models.
 
     Args:
@@ -71,29 +73,64 @@ def parse_model_selection_result(ms_result: tuple) -> list:
 
     """
     candidates, _ = ms_result
-    candidates = [(i, c, cv['best']) for i, c, cv in candidates]
+    candidates = [(i, c, cv['best_f1']) for i, c, cv in candidates]
 
-    f1s_mean = []
-    for i, c, cv_best in candidates:
-        # Iterate over splits to calculate average F1 score.
-        f1s = [cv_best[f'split_{j}']['f1'] for j in range(len(cv_best) - 1)]
-        f1s_mean += [np.mean(np.nan_to_num(f1s))]
+    if mode == 'f1':
+        f1s_mean = []
+        for i, c, cv_best in candidates:
+            # Iterate over splits to calculate average F1 score.
+            f1s = [cv_best[f'split_{j}']['f1']
+                   for j in range(int(len(cv_best)/2) - 1)]
+            f1s_mean += [np.mean(np.nan_to_num(f1s))]
 
-    candidates = list(zip(candidates, f1s_mean))
-    candidates = sorted(candidates, key=lambda x: x[1], reverse=True)
+        candidates = list(zip(candidates, f1s_mean))
+        candidates = sorted(candidates, key=lambda x: x[1], reverse=True)
 
-    best_candidate_per_clf = []
-    for clf in CLASSIFIER_MODES:
-        for (i, c, cv_best), f1_mean in candidates:
-            if c[3] == clf:
-                if cv_best['param'] is not None:
-                    cv_best['param'] = {k.split('__')[-1]: v
-                                        for k, v in cv_best['param'].items()}
+        best_candidate_per_clf = []
+        for clf in CLASSIFIER_MODES:
+            for (i, c, cv_best), f1_mean in candidates:
+                if c[3] == clf:
+                    if cv_best['param'] is not None:
+                        cv_best['param'] = {k.split('__')[-1]: v
+                                            for k, v in cv_best['param'].items()}
 
-                best_candidate_per_clf += [((i, c, cv_best), f1_mean)]
-                break
+                    best_candidate_per_clf += [((i, c, cv_best), f1_mean)]
+                    break
+        return best_candidate_per_clf
+    elif mode == 'balanced_accuracy':
+        candidates, _ = ms_result
+        # candidates = [(i, c, cv) for i, c, cv in candidates]
+        balanced_accuracys_mean = []
+        grid_results = []
+        for i, c, cv in candidates:
+            # parse every grid search result
+            for key in cv:
+                # Iterate over splits to calculate average F1 score for clf
+                result = cv[key]
+                balanced_accuracys = [
+                    result[f'split_{j}']['balanced_accuracy'] for j in range(int(len(result)/2) - 1)]
+                grid_results += [(i, c, result)]
+                balanced_accuracys_mean += [
+                    np.mean(np.nan_to_num(balanced_accuracys))]
+        candidates = list(zip(grid_results, balanced_accuracys_mean))
+        candidates = sorted(candidates, key=lambda x: x[1], reverse=True)
 
-    return best_candidate_per_clf
+        best_candidate_per_clf = []
+        for clf in CLASSIFIER_MODES:
+            for (i, c, cv), balanced_accuracy_mean in candidates:
+                if c[3] == clf:
+                    if cv['param'] is not None:
+                        cv['param'] = {k.split('__')[-1]: v
+                                       for k, v in cv['param'].items()}
+
+                    best_candidate_per_clf += [((i, c, cv),
+                                                balanced_accuracy_mean)]
+                    break
+        return best_candidate_per_clf
+
+        # raise NotImplementedError
+    else:
+        raise ValueError(f"Unknown mode: {mode}")
 
 
 @click.command()
@@ -113,6 +150,9 @@ def parse_model_selection_result(ms_result: tuple) -> list:
     'feature-label',
     type=str)
 @click.option(
+    '--use-f1/--use-balanced-accuracy',
+    default=True)
+@click.option(
     '--feature-kfold',
     type=str,
     default=None)
@@ -126,6 +166,7 @@ def main(
         path_input_data_raw,
         path_output_dir,
         feature_label,
+        use_f1,
         feature_kfold,
         random_state):
     """
@@ -137,8 +178,14 @@ def main(
     with open(path_input_model_selection_result, 'rb') as f:
         model_selection_result = pickle.load(f)
 
-    best_candidate_per_clf = parse_model_selection_result(
-        model_selection_result)
+    if use_f1:
+        mode = "f1"
+        best_candidate_per_clf = parse_model_selection_result(
+            model_selection_result, mode)
+    else:
+        mode = "balanced_accuracy"
+        best_candidate_per_clf = parse_model_selection_result(
+            model_selection_result, mode)
     best_candidate = max(best_candidate_per_clf, key=lambda x: x[1])
     _, best_combination, best_cv_result = best_candidate[0]
     best_scale_mode, best_impute_mode, best_outlier_mode, best_clf \
@@ -171,7 +218,7 @@ def main(
     clf = ClassifierHandler(
         classifier_mode=best_clf,
         params=best_cv_result['param'],
-        random_state=random_state).clf
+        random_state=ModelSelectionConfig.RNG_SMOTE).clf
 
     # Calculate and plot feature selection for the best model.
     # sfs = get_selected_features(clf, X, y, splits)

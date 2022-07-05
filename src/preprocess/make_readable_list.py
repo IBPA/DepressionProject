@@ -11,16 +11,16 @@ df_variable_info = pd.read_csv(
 
 # if categorical, get new name
 #categorical = df_variable_info.loc[df_variable_info['Categorical'] == '1', 'RelabeledName'].tolist()
-want_readable = ['Adaptability_24m',
+want_readable = ['kz021_0m_1.0_0_2.0_1',
                  'fddp130_120m',
-                 'ke804b_24m',
-                 'kz021_0m_1.0_0_2.0_1',
-                 'c645_32wg',
-                 'Avg_camsis_p_97m',
-                 'j607a_47m_1.0_0_2.0_1',
-                 'pc095_8w',
-                 'sa042b_90m_1.0_0_2.0_1',
-                 'pe283_21m'
+                 'q2240_122m',
+                 'LifeEvents103_103m',
+                 'sa062_90m',
+                 'MOMED5Y_61m',
+                 'f519a_8m_1.0_0_2.0_1',
+                 'l3011r_73m_1.0_0_2.0_1',
+                 'e612_8w',
+                 'kt3006_103m'
                  ]
 relabeled = []
 variable_description = []
