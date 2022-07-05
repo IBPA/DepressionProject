@@ -352,7 +352,7 @@ def parse_model_selection_result(ms_result: tuple, mode: str) -> list:
                 # Iterate over splits to calculate average F1 score for clf
                 result = cv[key]
                 balanced_accuracys = [
-                    result[f'split_{j}']['balanced_accuracy'] for j in range(int(len(result)/2) - 1)]
+                    result[f'split_{j}']['balanced_accuracy'] for j in range(int(len(result)/2))]
                 grid_results += [(i, c, result)]
                 balanced_accuracys_mean += [
                     np.mean(np.nan_to_num(balanced_accuracys))]
