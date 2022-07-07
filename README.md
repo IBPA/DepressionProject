@@ -40,7 +40,7 @@ python get_config_info.py
 - Make sure within get_config_info the default preprocessed data filename is correct
 - Prediction label is 0/1 so does not need to be marked as categorical unless mistake is made
 - Change preprocessing.py config categorical variables if needed (probably not)
-- Change cleaning.py with columns_ignored to add mental health variables (don't do for now because our predictions are bad already)
+- Change cleaning.py with columns_ignored to add mental health variables (don't do for now because our predictions seem to use these variables heavily to predict)
 
 ## Run depression-predictor run_eda.py and feature_analysis_correlations_iterativeimpute.ipynb
 ```
@@ -56,12 +56,13 @@ python -u -m depression-predictor.depp.run_eda
 ```
 python -u -m DepressionProjectNew.run_cleaner
 ```
-- Make sure to not overwrite missing_value png’s and data_cleaned.csv
+- Make sure to not overwrite png's from feature_analysis_correlations_iterativeimpute.ipynb, missing_value png’s, and data_cleaned.csv's
 
 ## Run run_encode.py
 ```
 python -m DepressionProjectNew.run_encode DepressionProjectNew/output/data_cleaned.csv DepressionProjectNew/output/data_cleaned_encoded.csv
 ```
+- Move output files into output folder (separated by age, include png's and etc)
 
 ## Run run_model_selection.py
 - Use script
