@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 
 DEFAULT_VARIABLE_INFO = '../../data/Variables052122.csv'
-DEFAULT_PREPROCESSED = '../../output/preprocessed_data_without_temporal_12to18.csv'
+# DEFAULT_PREPROCESSED = '../../output/preprocessed_data_without_temporal_12to18ave.csv'
 
 df_variable_info = pd.read_csv(
     DEFAULT_VARIABLE_INFO, dtype='str', encoding='unicode_escape')
@@ -12,15 +12,15 @@ df_variable_info = pd.read_csv(
 # if categorical, get new name
 #categorical = df_variable_info.loc[df_variable_info['Categorical'] == '1', 'RelabeledName'].tolist()
 want_readable = ['kz021_0m_1.0_0_2.0_1',
-                 'g840_21m',
-                 'pj2013_73m',
-                 'pn2240_122m',
-                 'sa010_90m',
-                 'pc341_8w',
-                 'e372a_8w',
-                 'kr492b_91m',
-                 'f8lc125_96m',
-                 'pc088a_8w'
+                 'fddp130_120m',
+                 'q2240_122m',
+                 'LifeEvents103_103m',
+                 'sa062_90m',
+                 'MOMED5Y_61m',
+                 'f519a_8m_1.0_0_2.0_1',
+                 'l3011r_73m_1.0_0_2.0_1',
+                 'e612_8w',
+                 'kt3006_103m'
                  ]
 relabeled = []
 variable_description = []

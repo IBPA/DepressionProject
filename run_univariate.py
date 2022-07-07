@@ -21,8 +21,12 @@ import logging
 import numpy as np
 import pandas as pd
 import click
+import scipy as sp
 from sklearn.metrics import precision_score
 from ast import literal_eval
+from functools import reduce
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 from msap.modeling.model_evaluation.statistics import (
     get_embedded_data,
@@ -60,6 +64,8 @@ CLASSIFIER_MODES = [
     'adaboostclassifier',
     'randomforestclassifier',
     'mlpclassifier']
+DEFAULT_VARIABLE_INFO = './DepressionProjectNew/data/Variables052122.csv'
+# DEFAULT_PREPROCESSED = './output/preprocessed_data_without_temporal_12to18ave.csv'
 
 
 def parse_model_selection_result(ms_result: tuple, mode: str) -> list:
@@ -131,6 +137,72 @@ def parse_model_selection_result(ms_result: tuple, mode: str) -> list:
         # raise NotImplementedError
     else:
         raise ValueError(f"Unknown mode: {mode}")
+
+
+def make_readable(want_readable, variable_filepath=DEFAULT_VARIABLE_INFO):
+    """Make variable names readable.
+
+    Args:
+        want_readable: List of variable names to make readable.
+        variable_filepath: String of filepath of variable info
+
+    Returns:
+        result: List of readable variable names.
+
+    """
+    df_variable_info = pd.read_csv(
+        variable_filepath, dtype='str', encoding='unicode_escape')
+    relabeled = []
+    variable_description = []
+    unfound = []
+
+    # make variable description
+    descriptions = ["{} ({})".format(a_, b_) for a_, b_ in zip(list(
+        df_variable_info['Variable Label'].str.strip()), list(df_variable_info['Coding_details'].str.strip()))]
+
+    mapper = dict(zip(
+        list(df_variable_info['RelabeledName'].str.strip()),
+        descriptions
+    ))
+
+    for name in want_readable:
+        if len(name.split("_")) > 2:
+            label_in_variable_info = "_".join(name.split("_")[0:2])
+            var_map = map(mapper.get, [label_in_variable_info])
+            var_desc = list(var_map)[0]
+            if var_desc == None:
+                # print(
+                #     f"Len of name is 3 but not found in mapper if sliced: {name}")
+                unfound.append(name)
+                continue
+            relabeled.append(name)
+            variable_description.append(" ".join([var_desc, name]))
+        else:
+            label_in_variable_info = name
+            var_map = map(mapper.get, [label_in_variable_info])
+            var_desc = list(var_map)[0]
+            # if var_desc == None:
+            #     print(
+            #         f"Len of name is <=2 but not found in mapper if sliced: {name}")
+            #     unfound.append(name)
+            #     continue
+            relabeled.append(name)
+            variable_description.append(" ".join([var_desc, name]))
+
+    for name in unfound:  # assume these are in info somewhere
+        # print(f"Looking for: {name}")
+        relabeled.append(name)
+        label_in_variable_info = name
+        var_map = map(mapper.get, [label_in_variable_info])
+        var_desc = list(var_map)[0]
+        variable_description.append(" ".join([var_desc, name]))
+
+    mapper = dict(zip(
+        relabeled,
+        variable_description))
+
+    result = [mapper.get(item, item) for item in want_readable]
+    return result
 
 
 @click.command()
@@ -252,6 +324,10 @@ def main(
                          columns=['Univariate', 'RFE'])
     df_fs.to_csv(f"{path_output_dir}/feature_selection_ordered.csv",
                  index=False)
+    df_fs_readable = pd.DataFrame(list(zip(make_readable(fts_univariate), make_readable(rfe_fts_ordered))),
+                                  columns=['Univariate', 'RFE'])
+    df_fs_readable.to_csv(f"{path_output_dir}/feature_selection_ordered_readable.csv",
+                          index=False)
 
     # print what top 10 match
     top10match = [x for x in fts_univariate[:10] if x in rfe_fts_ordered[:10]]
@@ -269,6 +345,72 @@ def main(
                       columns=['Variable', 'RFE Index', 'Univariate Index'])
     df.to_csv(f"{path_output_dir}/feature_selection_indices.csv",
               index=False)
+    df_fs_readable = pd.DataFrame(list(zip(make_readable(rfe_fts_ordered), indices_rfe, indices_univariate)),
+                                  columns=['Variable', 'RFE Index', 'Univariate Index'])
+    df_fs_readable.to_csv(f"{path_output_dir}/feature_selection_indices_readable.csv",
+                          index=False)
+
+    # plot with pearson and spearman info?
+    # assumes pearson and spearman info is in output folder
+    pearson_corr = pd.read_csv(
+        f"{path_output_dir}/pc_rank_pearson_train.csv")
+    # print(pearson_corr)
+    pearson_corr = pearson_corr.rename(columns={
+                                       "Unnamed: 0": "Variable", "corr": "pearson_corr", "p-value": "pearson_pvalue"})
+    spearman_corr = pd.read_csv(
+        f"{path_output_dir}/pc_rank_spearman_train.csv")
+    spearman_corr = spearman_corr.rename(columns={
+                                         "Unnamed: 0": "Variable", "corr": "spearman_corr", "p-value": "spearman_pvalue"})
+
+    # plot Pearson and Spearman pdfs
+    # Pearson
+    sns.set(style='whitegrid', font_scale=1.5)
+    ax = sns.kdeplot(pearson_corr['pearson_corr'],
+                     label='Pearson Correlation', shade=True)
+    # ax.legend(loc='upper right')
+    ax.figure.tight_layout()
+    ax.figure.savefig(f"{path_output_dir}/pearson.svg", bbox_inches='tight')
+    plt.close()
+    # Spearman
+    ax = sns.kdeplot(spearman_corr['spearman_corr'],
+                     label='Spearman Correlation', shade=True)
+    # ax.legend(loc='upper right')
+    ax.figure.tight_layout()
+    ax.figure.savefig(f"{path_output_dir}/spearman.svg", bbox_inches='tight')
+    plt.close()
+
+    # plot absolute value of Pearson and Spearman pdfs
+    # Pearson
+    sns.set(style='whitegrid', font_scale=1.5)
+    ax = sns.kdeplot(abs(pearson_corr['pearson_corr']),
+                     label='Pearson Correlation', shade=True)
+    # ax.legend(loc='upper right')
+    ax.figure.tight_layout()
+    ax.figure.savefig(f"{path_output_dir}/pearson_abs.svg",
+                      bbox_inches='tight')
+    plt.close()
+    # Spearman
+    ax = sns.kdeplot(abs(spearman_corr['spearman_corr']),
+                     label='Spearman Correlation', shade=True)
+    # ax.legend(loc='upper right')
+    ax.figure.tight_layout()
+    ax.figure.savefig(
+        f"{path_output_dir}/spearman_abs.svg", bbox_inches='tight')
+    plt.close()
+
+    # print(spearman_corr)
+    dataframes = [df, pearson_corr, spearman_corr]
+    df_corr = reduce(lambda left, right: pd.merge(left, right, on=['Variable'],
+                                                  how='outer'), dataframes)
+    # print(df_corr)
+    df_corr.to_csv(f"{path_output_dir}/feature_selection_corr.csv",
+                   index=False)
+    df_corr_readable = df_corr.copy()
+    df_corr_readable['Variable'] = make_readable(df_corr_readable['Variable'])
+    df_corr_readable.to_csv(f"{path_output_dir}/feature_selection_corr_readable.csv",
+                            index=False)
+
+    # plot kendall tau
 
 
 if __name__ == '__main__':
