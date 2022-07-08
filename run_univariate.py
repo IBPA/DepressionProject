@@ -445,6 +445,64 @@ def main(
                       bbox_inches='tight')
     plt.close()
 
+    # plot pearson correlation and rfe
+    df_corr['pearson_corr_abs'] = abs(df_corr['pearson_corr'])
+    ax = sns.scatterplot(data=df_corr, x='pearson_corr_abs', y='RFE Index')
+    ax.figure.tight_layout()
+    ax.figure.savefig(f"{path_output_dir}/pearson_vs_rfe.svg",
+                      bbox_inches='tight')
+    plt.close()
+
+    ax = sns.scatterplot(data=df_corr, x='RFE Index', y='pearson_corr_abs')
+    ax.figure.tight_layout()
+    ax.figure.savefig(f"{path_output_dir}/rfe_vs_pearson.svg",
+                      bbox_inches='tight')
+    plt.close()
+
+    # plot spearman correlation and rfe
+    df_corr['spearman_corr_abs'] = abs(df_corr['spearman_corr'])
+    ax = sns.scatterplot(data=df_corr, x='spearman_corr_abs', y='RFE Index')
+    ax.figure.tight_layout()
+    ax.figure.savefig(f"{path_output_dir}/spearman_vs_rfe.svg",
+                      bbox_inches='tight')
+    plt.close()
+
+    ax = sns.scatterplot(data=df_corr, x='RFE Index', y='spearman_corr_abs')
+    ax.figure.tight_layout()
+    ax.figure.savefig(f"{path_output_dir}/rfe_vs_spearman.svg",
+                      bbox_inches='tight')
+    plt.close()
+
+    # plot pearson correlation and univariate
+    ax = sns.scatterplot(
+        data=df_corr, x='pearson_corr_abs', y='Univariate Index')
+    ax.figure.tight_layout()
+    ax.figure.savefig(f"{path_output_dir}/pearson_vs_univariate.svg",
+                      bbox_inches='tight')
+    plt.close()
+
+    ax = sns.scatterplot(
+        data=df_corr, x='Univariate Index', y='pearson_corr_abs')
+    ax.figure.tight_layout()
+    ax.figure.savefig(f"{path_output_dir}/univariate_vs_pearson.svg",
+                      bbox_inches='tight')
+    plt.close()
+
+    # plot spearman correlation and univariate
+    ax = sns.scatterplot(
+        data=df_corr, x='spearman_corr_abs', y='Univariate Index')
+    ax.figure.tight_layout()
+    ax.figure.savefig(f"{path_output_dir}/spearman_vs_univariate.svg",
+                      bbox_inches='tight')
+    plt.close()
+
+    ax = sns.scatterplot(
+        data=df_corr, x='Univariate Index', y='spearman_corr_abs')
+    ax.figure.tight_layout()
+    ax.figure.savefig(f"{path_output_dir}/univariate_vs_spearman.svg",
+                      bbox_inches='tight')
+    plt.close()
+
     # calc kendall tau
     tau, pval = kendalltau(df_corr['RFE Index'], df_corr['Univariate Index'])
     # print(df_corr['RFE Index'].dtype)
