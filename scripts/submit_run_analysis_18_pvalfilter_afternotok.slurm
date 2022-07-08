@@ -9,7 +9,7 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=24
-#SBATCH --mem=100G
+#SBATCH --mem=50G
 #SBATCH --time=100:00:00
 
 cd ../..
