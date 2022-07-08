@@ -17,6 +17,7 @@ python -u -m DepressionProjectNew.run_univariate \
 import os
 import pickle
 import logging
+from statistics import stdev
 
 import numpy as np
 import pandas as pd
@@ -27,6 +28,7 @@ from ast import literal_eval
 from functools import reduce
 import seaborn as sns
 import matplotlib.pyplot as plt
+from scipy.stats import kendalltau
 
 from msap.modeling.model_evaluation.statistics import (
     get_embedded_data,
@@ -369,6 +371,11 @@ def main(
                      label='Pearson Correlation', shade=True)
     # ax.legend(loc='upper right')
     ax.figure.tight_layout()
+    plt.axvline(pearson_corr['pearson_corr'].mean(), color='r', linestyle='--')
+    plt.axvline(pearson_corr['pearson_corr'].mean(
+    ) - stdev(pearson_corr['pearson_corr']), color='b', linestyle='--')
+    plt.axvline(pearson_corr['pearson_corr'].mean() +
+                stdev(pearson_corr['pearson_corr']), color='b', linestyle='--')
     ax.figure.savefig(f"{path_output_dir}/pearson.svg", bbox_inches='tight')
     plt.close()
     # Spearman
@@ -376,6 +383,12 @@ def main(
                      label='Spearman Correlation', shade=True)
     # ax.legend(loc='upper right')
     ax.figure.tight_layout()
+    plt.axvline(spearman_corr['spearman_corr'].mean(),
+                color='r', linestyle='--')
+    plt.axvline(spearman_corr['spearman_corr'].mean() -
+                stdev(spearman_corr['spearman_corr']), color='b', linestyle='--')
+    plt.axvline(spearman_corr['spearman_corr'].mean() + stdev(spearman_corr['spearman_corr']),
+                color='b', linestyle='--')
     ax.figure.savefig(f"{path_output_dir}/spearman.svg", bbox_inches='tight')
     plt.close()
 
@@ -386,6 +399,14 @@ def main(
                      label='Pearson Correlation', shade=True)
     # ax.legend(loc='upper right')
     ax.figure.tight_layout()
+    plt.axvline(abs(pearson_corr['pearson_corr']
+                    ).mean(), color='r', linestyle='--')
+    plt.axvline(abs(pearson_corr['pearson_corr']).mean() -
+                stdev(abs(pearson_corr['pearson_corr'])), color='b',
+                linestyle='--')
+    plt.axvline(abs(pearson_corr['pearson_corr']).mean() +
+                stdev(abs(pearson_corr['pearson_corr'])),
+                color='b', linestyle='--')
     ax.figure.savefig(f"{path_output_dir}/pearson_abs.svg",
                       bbox_inches='tight')
     plt.close()
@@ -394,6 +415,13 @@ def main(
                      label='Spearman Correlation', shade=True)
     # ax.legend(loc='upper right')
     ax.figure.tight_layout()
+    plt.axvline(abs(spearman_corr['spearman_corr']
+                    ).mean(), color='r', linestyle='--')
+    plt.axvline(abs(spearman_corr['spearman_corr']).mean() -
+                stdev(abs(spearman_corr['spearman_corr'])), color='b', linestyle='--')
+    plt.axvline(abs(spearman_corr['spearman_corr']).mean() +
+                stdev(abs(spearman_corr['spearman_corr'])),
+                color='b', linestyle='--')
     ax.figure.savefig(
         f"{path_output_dir}/spearman_abs.svg", bbox_inches='tight')
     plt.close()
@@ -410,7 +438,19 @@ def main(
     df_corr_readable.to_csv(f"{path_output_dir}/feature_selection_corr_readable.csv",
                             index=False)
 
-    # plot kendall tau
+    # plot ranks from univariate vs rfe
+    ax = sns.scatterplot(data=df_corr, x='RFE Index', y='Univariate Index')
+    ax.figure.tight_layout()
+    ax.figure.savefig(f"{path_output_dir}/rfe_vs_univariate.svg",
+                      bbox_inches='tight')
+    plt.close()
+
+    # calc kendall tau
+    tau, pval = kendalltau(df_corr['RFE Index'], df_corr['Univariate Index'])
+    # print(df_corr['RFE Index'].dtype)
+    # print(df_corr['Univariate Index'].dtype)
+    print(f"Tau: {tau}")
+    print(f"P-value: {pval}")
 
 
 if __name__ == '__main__':
