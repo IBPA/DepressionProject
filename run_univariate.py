@@ -207,6 +207,35 @@ def make_readable(want_readable, variable_filepath=DEFAULT_VARIABLE_INFO):
     return result
 
 
+def has_feature_importance(clf):
+    """Check if classifier has feature importance.
+
+    Args:
+        clf: Classifier object.
+
+    Returns:
+        Boolean.
+
+    """
+    return hasattr(clf, 'feature_importances_')
+
+
+def get_feature_importance(clf):
+    """Get feature importance.
+
+    Args:
+        clf: Classifier object.
+
+    Returns:
+        importances: Dataframe of feature names and importances
+
+    """
+    names = list(clf.feature_names_in_)
+    imp = list(clf.feature_importances_)
+    data = list(zip(names, imp))
+    return pd.DataFrame(data=data, columns=["Variable", "Feature Importance"])
+
+
 @click.command()
 @click.argument(
     'path-input-model-selection-result',
@@ -224,6 +253,12 @@ def make_readable(want_readable, variable_filepath=DEFAULT_VARIABLE_INFO):
     'feature-label',
     type=str)
 @click.option(
+    '--use-smote/--no-use-smote',
+    default=True)
+@click.option(
+    '--use-smote-first/--no-use-smote-first',
+    default=False)
+@click.option(
     '--use-f1/--use-balanced-accuracy',
     default=True)
 @click.option(
@@ -240,6 +275,8 @@ def main(
         path_input_data_raw,
         path_output_dir,
         feature_label,
+        use_smote,
+        use_smote_first,
         use_f1,
         feature_kfold,
         random_state):
@@ -264,6 +301,84 @@ def main(
     _, best_combination, best_cv_result = best_candidate[0]
     best_scale_mode, best_impute_mode, best_outlier_mode, best_clf \
         = best_combination
+
+    X_train, y_train = load_X_and_y(
+        f"{path_input_preprocessed_data_dir}/"
+        f"{best_scale_mode}_{best_impute_mode}_{best_outlier_mode}_train.csv",
+        col_y=feature_label)
+    X_test, y_test = load_X_and_y(
+        f"{path_input_preprocessed_data_dir}/"
+        f"{best_scale_mode}_{best_impute_mode}_{best_outlier_mode}_test.csv",
+        col_y=feature_label)
+
+    if use_smote:
+        if use_smote_first:
+            X_smote_train, y_smote_train = load_X_and_y(
+                f"{path_input_preprocessed_data_dir}/"
+                f"{best_scale_mode}_{best_impute_mode}_{best_outlier_mode}_smote_train.csv",
+                col_y=feature_label)
+
+            splits = KFold_by_feature(
+                X=X_smote_train,
+                y=y_smote_train,
+                n_splits=5,
+                feature=feature_kfold,
+                random_state=random_state)
+            if feature_kfold is not None:
+                X_smote_train = X_smote_train.drop([feature_kfold], axis=1)
+                X_test = X_test.drop([feature_kfold], axis=1)
+
+            clf = ClassifierHandler(
+                classifier_mode=best_clf,
+                params=best_cv_result['param'],
+                use_smote=False).clf
+
+            # reset X_train and y_train
+            X_train = X_smote_train
+            y_train = y_smote_train
+        else:
+            splits = KFold_by_feature(
+                X=X_train,
+                y=y_train,
+                n_splits=5,
+                feature=feature_kfold,
+                random_state=random_state)
+            if feature_kfold is not None:
+                X_train = X_train.drop([feature_kfold], axis=1)
+                X_test = X_test.drop([feature_kfold], axis=1)
+
+            clf = ClassifierHandler(
+                classifier_mode=best_clf,
+                params=best_cv_result['param'],
+                random_state=ModelSelectionConfig.RNG_SMOTE).clf
+    else:
+        splits = KFold_by_feature(
+            X=X_train,
+            y=y_train,
+            n_splits=5,
+            feature=feature_kfold,
+            random_state=random_state)
+        if feature_kfold is not None:
+            X_train = X_train.drop([feature_kfold], axis=1)
+            X_test = X_test.drop([feature_kfold], axis=1)
+
+        clf = ClassifierHandler(
+            classifier_mode=best_clf,
+            params=best_cv_result['param'],
+            use_smote=False).clf
+
+    clf.fit(X_train, y_train)
+    if has_feature_importance(clf.named_steps[best_clf]):
+        feature_importance = get_feature_importance(clf.named_steps[best_clf])
+        feature_importance.to_csv(
+            f"{path_output_dir}/feature_importance.csv",
+            index=False)
+        feature_importance_readable = pd.DataFrame(list(zip(make_readable(
+            feature_importance["Variable"]), feature_importance["Feature Importance"])), columns=feature_importance.columns)
+        feature_importance_readable.to_csv(
+            f"{path_output_dir}/feature_importance_readable.csv",
+            index=False)
+
     # pd.DataFrame(best_candidate_per_clf).to_csv(
     #    f"{path_output_dir}/best_clfs.csv")
 
@@ -289,10 +404,10 @@ def main(
     if feature_kfold is not None:
         X = X.drop([feature_kfold], axis=1)
 
-    clf = ClassifierHandler(
-        classifier_mode=best_clf,
-        params=best_cv_result['param'],
-        random_state=ModelSelectionConfig.RNG_SMOTE).clf
+    # clf = ClassifierHandler(
+    #     classifier_mode=best_clf,
+    #     params=best_cv_result['param'],
+    #     random_state=ModelSelectionConfig.RNG_SMOTE).clf
 
     # Calculate and plot feature selection for the best model.
     # sfs = get_selected_features(clf, X, y, splits)
@@ -509,6 +624,8 @@ def main(
     # print(df_corr['Univariate Index'].dtype)
     print(f"Tau: {tau}")
     print(f"P-value: {pval}")
+
+    # get feature importances?
 
 
 if __name__ == '__main__':
