@@ -236,6 +236,27 @@ def get_feature_importance(clf):
     return pd.DataFrame(data=data, columns=["Variable", "Feature Importance"])
 
 
+def get_parsimonious(rfe_result):
+    """
+    """
+    n_features = len(rfe_result.loc[0, 'feature_idx'])
+    i_best = rfe_result['avg_score'].argmax()
+    k_best = len(rfe_result.loc[i_best, 'feature_idx'])
+    score_best = rfe_result.loc[i_best, 'avg_score']
+
+    for k in range(n_features, 0, -1):
+        if k >= k_best:
+            continue
+
+        if rfe_result.loc[n_features - k, 'avg_score'] \
+                >= (score_best - rfe_result.loc[n_features - k, 'std_dev']
+                    / len(rfe_result.loc[n_features - k, 'cv_scores'])):
+            k_best = k
+            score_best = rfe_result.loc[n_features - k, 'avg_score']
+
+    return k_best, score_best
+
+
 @click.command()
 @click.argument(
     'path-input-model-selection-result',
@@ -450,6 +471,31 @@ def main(
     top10match = [x for x in fts_univariate[:10] if x in rfe_fts_ordered[:10]]
     logging.info("Top 10 matching: "
                  f"{top10match}")
+
+    # get feature importance for rfe results (from fang's code)
+    rfe['feature_idx'] = rfe['feature_idx'].apply(literal_eval)
+    rfe['cv_scores'] = rfe['cv_scores'].apply(
+        lambda x: np.fromstring(x[1:-1], dtype=float, sep=' ')
+    )
+    rfe['feature_names'] = rfe['feature_names'].apply(
+        literal_eval
+    )
+    k = get_parsimonious(rfe)[0]
+    selected_fts = rfe_fts_ordered[:k]
+    logging.info(f"Selected features: {selected_fts}")
+    X_train_rfe = X_train[selected_fts]
+    X_test_rfe = X_test[selected_fts]
+    clf.fit(X_train_rfe, y_train)
+    if has_feature_importance(clf.named_steps[best_clf]):
+        feature_importance = get_feature_importance(clf.named_steps[best_clf])
+        feature_importance.to_csv(
+            f"{path_output_dir}/feature_importance_rfe.csv",
+            index=False)
+        feature_importance_readable = pd.DataFrame(list(zip(make_readable(
+            feature_importance["Variable"]), feature_importance["Feature Importance"])), columns=feature_importance.columns)
+        feature_importance_readable.to_csv(
+            f"{path_output_dir}/feature_importance_readable_rfe.csv",
+            index=False)
 
     # organize into table
     # row is column, column rank in RFE, column rank in univariate
