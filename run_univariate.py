@@ -266,8 +266,9 @@ def get_knee(rfe_result):
     # kl = KneeLocator(x, y, curve='concave',
     #                 direction='increasing', S=4.9)
     kl = KneeLocator(x, y, curve='concave',
-                     direction='decreasing', S=1)
+                     direction='decreasing', S=100)
     print(kl.knee)
+    print(kl.y_difference_maxima)
     return kl.knee, kl.knee_y
 
 
@@ -528,6 +529,62 @@ def main(
         feature_importance_readable.to_csv(
             f"{path_output_dir}/feature_importance_readable_knee.csv",
             index=False)
+    knee_folder = f"{path_output_dir}/knee"
+    if not os.path.exists(knee_folder):
+        os.makedirs(knee_folder)
+    plot_rfe_line_from_dataframe(
+        rfe, k, title='Sequential Feature Selection', path_save=f"{knee_folder}/rfe_val_detailed.svg")
+    splits = KFold_by_feature(
+        X_train_knee, y_train, n_splits=5, feature=feature_kfold, random_state=random_state)
+    if feature_kfold is not None:
+        X_train_knee = X_train_knee.drop([feature_kfold], axis=1)
+        X_test = X_test.drop([feature_kfold], axis=1)
+        X_test_knee = X_test_knee.drop([feature_kfold], axis=1)
+    if use_smote:
+        if use_smote_first:
+            if use_f1:
+                mode = "f1"
+            else:
+                mode = "balanced_accuracy"
+            plot_all_curves(clf, X_train_knee, y_train, X_test_knee, y_test,
+                            knee_folder, use_smote_first=True, use_rfe=True, splits=splits)
+            plot_all_confusion_matrices(clf, X_train_knee, y_train,
+                                        X_test_knee, y_test, knee_folder,
+                                        use_smote_first=True, use_rfe=True,
+                                        use_f1=use_f1, splits=splits)
+            # Plot embedded data points.
+            plot_all_embeddings(X_train=X_train_knee, y_train=y_train, path_output_dir=knee_folder,
+                                random_state=random_state, use_smote_first=True, use_rfe=True)
+
+        else:
+            if use_f1:
+                mode = "f1"
+            else:
+                mode = "balanced_accuracy"
+            plot_all_curves(clf, X_train_knee, y_train, X_test_knee, y_test,
+                            knee_folder, use_smote_first=False, use_rfe=True, splits=splits)
+            plot_all_confusion_matrices(clf, X_train_knee, y_train,
+                                        X_test_knee, y_test, knee_folder,
+                                        use_smote_first=False, use_rfe=True,
+                                        use_f1=use_f1, splits=splits)
+            # Plot embedded data points.
+            plot_all_embeddings(X_train=X_train_knee, y_train=y_train, path_output_dir=knee_folder,
+                                random_state=random_state, use_smote_first=False, use_rfe=True)
+
+    else:
+        if use_f1:
+            mode = "f1"
+        else:
+            mode = "balanced_accuracy"
+        plot_all_curves(clf, X_train_knee, y_train, X_test_knee, y_test,
+                        knee_folder, use_smote_first=False, use_rfe=True, splits=splits)
+        plot_all_confusion_matrices(clf, X_train_knee, y_train,
+                                    X_test_knee, y_test, knee_folder,
+                                    use_smote_first=False, use_rfe=True,
+                                    use_f1=use_f1, splits=splits)
+        # Plot embedded data points.
+        plot_all_embeddings(X_train=X_train_knee, y_train=y_train, path_output_dir=knee_folder,
+                            random_state=random_state, use_smote_first=False, use_rfe=True)
 
     # organize into table
     # row is column, column rank in RFE, column rank in univariate
