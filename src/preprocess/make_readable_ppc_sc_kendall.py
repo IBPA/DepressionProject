@@ -11,12 +11,12 @@ DEFAULT_VARIABLE_INFO = '../../data/Variables052122.csv'
 # OUT_PPC = '../../output/output_18_yesmental/pc_rank_pearson_readable.csv'
 # OUT_SC = '../../output/output_18_yesmental/pc_rank_spearman_readable.csv'
 # OUT_K = '../../output/output_18_yesmental/pc_rank_kendall_readable.csv'
-DEFAULT_PPC = '../../output/pval_filter_60_MVI/output_12to18_yesmental/f1/pc_rank_pearson_train.csv'
-DEFAULT_SC = '../../output/pval_filter_60_MVI/output_12to18_yesmental/f1/pc_rank_spearman_train.csv'
-DEFAULT_K = '../../output/pval_filter_60_MVI/output_12to18_yesmental/f1/pc_rank_kendall_train.csv'
-OUT_PPC = '../../output/pval_filter_60_MVI/output_12to18_yesmental/f1/pc_rank_pearson_train_readable.csv'
-OUT_SC = '../../output/pval_filter_60_MVI/output_12to18_yesmental/f1/pc_rank_spearman_train_readable.csv'
-OUT_K = '../../output/pval_filter_60_MVI/output_12to18_yesmental/f1/pc_rank_kendall_train_readable.csv'
+DEFAULT_PPC = '../../output/pval_filter_60_MVI/output_18_yesmental/pc_rank_pearson_train.csv'
+DEFAULT_SC = '../../output/pval_filter_60_MVI/output_18_yesmental/pc_rank_spearman_train.csv'
+DEFAULT_K = '../../output/pval_filter_60_MVI/output_18_yesmental/pc_rank_kendall_train.csv'
+OUT_PPC = '../../output/pval_filter_60_MVI/output_18_yesmental/pc_rank_pearson_train_readable.csv'
+OUT_SC = '../../output/pval_filter_60_MVI/output_18_yesmental/pc_rank_spearman_train_readable.csv'
+OUT_K = '../../output/pval_filter_60_MVI/output_18_yesmental/pc_rank_kendall_train_readable.csv'
 
 df_variable_info = pd.read_csv(
     DEFAULT_VARIABLE_INFO, dtype='str', encoding='unicode_escape')

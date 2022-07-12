@@ -29,6 +29,7 @@ from functools import reduce
 import seaborn as sns
 import matplotlib.pyplot as plt
 from scipy.stats import kendalltau
+from kneed import KneeLocator
 
 from msap.modeling.model_evaluation.statistics import (
     get_embedded_data,
@@ -46,10 +47,20 @@ from msap.utils.plot import (
     plot_heatmap,
     plot_embedded_scatter,
     plot_rfe_line,
+    plot_rfe_line_from_dataframe,
     plot_curves,
     plot_confusion_matrix)
 from msap.modeling.configs import (
     ModelSelectionConfig)
+
+from .plot_rfe_fang import get_parsimonious
+
+from .run_analysis import (
+    plot_all_confusion_matrices,
+    plot_all_embeddings,
+    plot_all_curves,
+    plot_all_correlations,
+    plot_similarity_matrix)
 
 logger = logging.getLogger(__file__)
 logging.basicConfig(
@@ -236,25 +247,28 @@ def get_feature_importance(clf):
     return pd.DataFrame(data=data, columns=["Variable", "Feature Importance"])
 
 
-def get_parsimonious(rfe_result):
+def get_knee(rfe_result):
+    """Get knee of RFE.
+
+    Args:
+        rfe_result: Result of RFE.
+
+    Returns:
+        knee: Integer index of knee.
+
     """
-    """
-    n_features = len(rfe_result.loc[0, 'feature_idx'])
-    i_best = rfe_result['avg_score'].argmax()
-    k_best = len(rfe_result.loc[i_best, 'feature_idx'])
-    score_best = rfe_result.loc[i_best, 'avg_score']
-
-    for k in range(n_features, 0, -1):
-        if k >= k_best:
-            continue
-
-        if rfe_result.loc[n_features - k, 'avg_score'] \
-                >= (score_best - rfe_result.loc[n_features - k, 'std_dev']
-                    / len(rfe_result.loc[n_features - k, 'cv_scores'])):
-            k_best = k
-            score_best = rfe_result.loc[n_features - k, 'avg_score']
-
-    return k_best, score_best
+    # n_features = len(rfe_result.loc[0, 'feature_idx'])
+    # x = range(0, n_features)
+    # y = rfe_result['avg_score'][::-1].tolist()  # reverse order
+    x = rfe_result['index'].tolist()
+    y = rfe_result['avg_score'].tolist()
+    # print(y)
+    # kl = KneeLocator(x, y, curve='concave',
+    #                 direction='increasing', S=4.9)
+    kl = KneeLocator(x, y, curve='concave',
+                     direction='decreasing', S=1)
+    print(kl.knee)
+    return kl.knee, kl.knee_y
 
 
 @click.command()
@@ -416,12 +430,12 @@ def main(
     #     delimiter='\n',
     #     dtype=int)
 
-    splits = KFold_by_feature(
-        X=X,
-        y=y,
-        n_splits=5,
-        feature=feature_kfold,
-        random_state=random_state)
+    # splits = KFold_by_feature(
+    #     X=X,
+    #     y=y,
+    #     n_splits=5,
+    #     feature=feature_kfold,
+    #     random_state=random_state)
     if feature_kfold is not None:
         X = X.drop([feature_kfold], axis=1)
 
@@ -495,6 +509,24 @@ def main(
             feature_importance["Variable"]), feature_importance["Feature Importance"])), columns=feature_importance.columns)
         feature_importance_readable.to_csv(
             f"{path_output_dir}/feature_importance_readable_rfe.csv",
+            index=False)
+
+    # TODO - replot rfe with selected features from knee method
+    k = get_knee(rfe)[0]
+    selected_fts = rfe_fts_ordered[:k]
+    logging.info(f"Selected features knee: {selected_fts}")
+    X_train_knee = X_train[selected_fts]
+    X_test_knee = X_test[selected_fts]
+    clf.fit(X_train_knee, y_train)
+    if has_feature_importance(clf.named_steps[best_clf]):
+        feature_importance = get_feature_importance(clf.named_steps[best_clf])
+        feature_importance.to_csv(
+            f"{path_output_dir}/feature_importance_knee.csv",
+            index=False)
+        feature_importance_readable = pd.DataFrame(list(zip(make_readable(
+            feature_importance["Variable"]), feature_importance["Feature Importance"])), columns=feature_importance.columns)
+        feature_importance_readable.to_csv(
+            f"{path_output_dir}/feature_importance_readable_knee.csv",
             index=False)
 
     # organize into table
