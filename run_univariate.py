@@ -266,7 +266,10 @@ def get_knee(rfe_result):
     # kl = KneeLocator(x, y, curve='concave',
     #                 direction='increasing', S=4.9)
     kl = KneeLocator(x, y, curve='concave',
-                     direction='decreasing', S=100)
+                     direction='decreasing', S=50)
+    # kl = KneeLocator(x, y, curve='concave',
+    #                 direction='decreasing',
+    #                 interp_method="polynomial", polynomial_degree=2, S=10)
     print(kl.knee)
     print(kl.y_difference_maxima)
     return kl.knee, kl.knee_y
@@ -759,8 +762,6 @@ def main(
     # print(df_corr['Univariate Index'].dtype)
     print(f"Tau: {tau}")
     print(f"P-value: {pval}")
-
-    # get feature importances?
 
 
 if __name__ == '__main__':
