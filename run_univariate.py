@@ -30,6 +30,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from scipy.stats import kendalltau
 from kneed import KneeLocator
+from kneebow.rotor import Rotor
 
 from msap.modeling.model_evaluation.statistics import (
     get_embedded_data,
@@ -275,6 +276,29 @@ def get_knee(rfe_result):
     return kl.knee, kl.knee_y
 
 
+def get_kneebow(rfe_result):
+    """Get knee of RFE.
+
+    Args:
+        rfe_result: Result of RFE.
+
+    Returns:
+        knee: Integer index of knee.
+
+    """
+    # n_features = len(rfe_result.loc[0, 'feature_idx'])
+    # x = range(0, n_features)
+    # y = rfe_result['avg_score'][::-1].tolist()  # reverse order
+    x = rfe_result['index'].tolist()
+    y = rfe_result['avg_score'].tolist()
+    data = [list(z) for z in zip(x, y)]
+    rotor = Rotor()
+    rotor.fit_rotate(data)
+    index = rotor.get_knee_index()
+    rfe_index = index + 1
+    return rfe_index
+
+
 @click.command()
 @click.argument(
     'path-input-model-selection-result',
@@ -515,8 +539,9 @@ def main(
             f"{path_output_dir}/feature_importance_readable_rfe.csv",
             index=False)
 
-    # TODO - replot rfe with selected features from knee method
+    # replot rfe with selected features from knee method
     k = get_knee(rfe)[0]
+    # k = get_kneebow(rfe)
     selected_fts = rfe_fts_ordered[:k]
     logging.info(f"Selected features knee: {selected_fts}")
     X_train_knee = X_train[selected_fts]

@@ -40,6 +40,7 @@ jupyter-core @ file:///Users/runner/miniforge3/conda-bld/jupyter_core_1652365332
 jupyterlab-pygments @ file:///home/conda/feedstock_root/build_artifacts/jupyterlab_pygments_1649936611996/work
 jupyterlab-widgets @ file:///home/conda/feedstock_root/build_artifacts/jupyterlab_widgets_1647446862951/work
 kiwisolver==1.4.0
+kneebow==1.0.0
 kneed==0.7.0
 llvmlite==0.38.0
 MarkupSafe @ file:///Users/runner/miniforge3/conda-bld/markupsafe_1648737610588/work
