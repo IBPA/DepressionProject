@@ -258,10 +258,10 @@ def get_knee(rfe_result):
         knee: Integer index of knee.
 
     """
-    # n_features = len(rfe_result.loc[0, 'feature_idx'])
-    # x = range(0, n_features)
+    n_features = len(rfe_result.loc[0, 'feature_idx'])
+    x = range(0, n_features)
     # y = rfe_result['avg_score'][::-1].tolist()  # reverse order
-    x = rfe_result['index'].tolist()
+    # x = rfe_result['index'].tolist()
     y = rfe_result['avg_score'].tolist()
     # print(y)
     # kl = KneeLocator(x, y, curve='concave',
@@ -295,8 +295,7 @@ def get_kneebow(rfe_result):
     rotor = Rotor()
     rotor.fit_rotate(data)
     index = rotor.get_knee_index()
-    rfe_index = index + 1
-    return rfe_index
+    return index
 
 
 @click.command()
@@ -650,8 +649,8 @@ def main(
     # ax.legend(loc='upper right')
     ax.figure.tight_layout()
     plt.axvline(pearson_corr['pearson_corr'].mean(), color='r', linestyle='--')
-    plt.axvline(pearson_corr['pearson_corr'].mean(
-    ) - stdev(pearson_corr['pearson_corr']), color='b', linestyle='--')
+    plt.axvline(pearson_corr['pearson_corr'].mean() -
+                stdev(pearson_corr['pearson_corr']), color='b', linestyle='--')
     plt.axvline(pearson_corr['pearson_corr'].mean() +
                 stdev(pearson_corr['pearson_corr']), color='b', linestyle='--')
     ax.figure.savefig(f"{path_output_dir}/pearson.svg", bbox_inches='tight')
