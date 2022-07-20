@@ -253,6 +253,13 @@ def get_kneebow(rfe_result, filepath=None, test=False):
     # x = rfe_result['index'].tolist()
     # y = rfe_result['avg_score'].tolist()
     data = [list(z) for z in zip(x, y)]
+    rotor = Rotor()
+    rotor.fit_rotate(data)
+    index = rotor.get_knee_index()
+    print(index)
+    # get elbow for test
+    rfe_index = x[index]
+    print(rfe_index)
     if test:
         # test from kneebow package
         data = np.array([
@@ -271,18 +278,10 @@ def get_kneebow(rfe_result, filepath=None, test=False):
             [13, 256],
             [14, 512]
         ])
-    rotor = Rotor()
-    rotor.fit_rotate(data)
-    index = rotor.get_knee_index()
-    print(index)
-    # get elbow for test
-    if test:
+        rotor = Rotor()
+        rotor.fit_rotate(data)
         index = rotor.get_elbow_index()
-    rfe_index = x[index]
-    if test:
         rfe_index = data[index, 0]
-    print(rfe_index)
-
     if filepath is not None:
         plt.tight_layout()
         # code from kneebow plot knee function
