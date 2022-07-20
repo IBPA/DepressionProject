@@ -271,6 +271,7 @@ def get_knee(rfe_result, filepath=None):
     # kl = KneeLocator(x, y, curve='concave',
     #                  direction='increasing',
     #                  interp_method="polynomial", polynomial_degree=4)
+    # high sensitivity
     # kl = KneeLocator(x, y, curve='concave',
     #                  direction='increasing', S=50)
     print(kl.knee)
