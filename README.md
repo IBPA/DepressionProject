@@ -7,6 +7,12 @@ git clone https://github.com/asmyoo/MSAP.git
 pip install -e ./MSAP
 ```
 
+## Install kneed
+```
+git clone https://github.com/asmyoo/kneed.git
+pip install -e ./kneed
+```
+
 ## Install requirements
 ```
 pip install -r requirements.txt

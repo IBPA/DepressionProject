@@ -31,6 +31,7 @@ import matplotlib.pyplot as plt
 from scipy.stats import kendalltau
 from kneed import KneeLocator
 from kneebow.rotor import Rotor
+import matplotlib.pyplot as plt
 
 from msap.modeling.model_evaluation.statistics import (
     get_embedded_data,
@@ -248,7 +249,7 @@ def get_feature_importance(clf):
     return pd.DataFrame(data=data, columns=["Variable", "Feature Importance"])
 
 
-def get_knee(rfe_result):
+def get_knee(rfe_result, filepath=None):
     """Get knee of RFE.
 
     Args:
@@ -259,24 +260,52 @@ def get_knee(rfe_result):
 
     """
     n_features = len(rfe_result.loc[0, 'feature_idx'])
-    # x = range(0, n_features)
-    # y = rfe_result['avg_score'][::-1].tolist()  # reverse order
-    x = rfe_result['index'].tolist()
-    y = rfe_result['avg_score'].tolist()
+    # reverse order so indices are increasing
+    x = rfe_result['index'][::-1].tolist()
+    y = rfe_result['avg_score'][::-1].tolist()
+    # x = rfe_result['index'].tolist()
+    # y = rfe_result['avg_score'].tolist()
     # print(y)
-    # kl = KneeLocator(x, y, curve='concave',
-    #                 direction='increasing', S=4.9)
     kl = KneeLocator(x, y, curve='concave',
-                     direction='decreasing', S=50)
+                     direction='increasing', S=15)
     # kl = KneeLocator(x, y, curve='concave',
-    #                 direction='decreasing',
-    #                 interp_method="polynomial", polynomial_degree=2, S=10)
+    #                  direction='increasing',
+    #                  interp_method="polynomial", polynomial_degree=4)
+    # kl = KneeLocator(x, y, curve='concave',
+    #                  direction='increasing', S=50)
     print(kl.knee)
-    print(kl.y_difference_maxima)
+    print(kl.all_knees)
+    if filepath is not None:
+        plt.tight_layout()
+        # code from kneed plot knee function
+        plt.title("Normalized Knee Point")
+        plt.plot(kl.x_normalized, kl.y_normalized,
+                 "b", label="normalized curve")
+        plt.plot(kl.x_difference, kl.y_difference,
+                 "r", label="difference curve")
+        plt.plot(kl.x_difference_maxima, kl.Tmx, "g", label="threshold")
+        plt.xticks(
+            np.arange(kl.x_normalized.min(), kl.x_normalized.max() + 0.1, 0.1)
+        )
+        plt.yticks(
+            np.arange(kl.y_difference.min(), kl.y_normalized.max() + 0.1, 0.1)
+        )
+
+        plt.vlines(
+            kl.norm_knee,
+            plt.ylim()[0],
+            plt.ylim()[1],
+            linestyles="--",
+            label="knee/elbow",
+        )
+        plt.legend(loc="best")
+        plt.savefig(filepath)
+        plt.close()
+
     return kl.knee, kl.knee_y
 
 
-def get_kneebow(rfe_result):
+def get_kneebow(rfe_result, filepath=None):
     """Get knee of RFE.
 
     Args:
@@ -286,16 +315,29 @@ def get_kneebow(rfe_result):
         knee: Integer index of knee.
 
     """
-    # n_features = len(rfe_result.loc[0, 'feature_idx'])
-    # x = range(0, n_features)
-    # y = rfe_result['avg_score'][::-1].tolist()  # reverse order
-    x = rfe_result['index'].tolist()
-    y = rfe_result['avg_score'].tolist()
+    # reverse order so indices are increasing
+    x = rfe_result['index'][::-1].tolist()
+    y = rfe_result['avg_score'][::-1].tolist()
+    # x = rfe_result['index'].tolist()
+    # y = rfe_result['avg_score'].tolist()
     data = [list(z) for z in zip(x, y)]
-    rotor = Rotor()
+    rotor = Rotor(scale=True)
     rotor.fit_rotate(data)
     index = rotor.get_knee_index()
     rfe_index = index + 1  # +1 because rfe_index is 1-based
+
+    if filepath is not None:
+        plt.tight_layout()
+        # code from kneebow plot knee function
+        plt.title("Normalized Knee Point")
+        plt.scatter(rotor._data[:, 0], rotor._data[:, 1],
+                    c='b', label="normalized curve")
+        plt.vlines(rotor._data[index, 0], ymin=rotor._data[:, 1].min(),
+                   ymax=rotor._data[:, 1].max(), c='r', linestyles="--",
+                   label="knee/elbow")
+        plt.legend(loc="best")
+        plt.savefig(filepath)
+        plt.close()
     return index
 
 
@@ -540,8 +582,11 @@ def main(
             index=False)
 
     # replot rfe with selected features from knee method
-    k = get_knee(rfe)[0]
-    # k = get_kneebow(rfe)
+    knee_folder = f"{path_output_dir}/knee"
+    if not os.path.exists(knee_folder):
+        os.makedirs(knee_folder)
+    k = get_knee(rfe, f"{knee_folder}/knee_info.svg")[0]
+    # k = get_kneebow(rfe, f"{knee_folder}/knee_info.svg")
     selected_fts = rfe_fts_ordered[:k]
     logging.info(f"Selected features knee: {selected_fts}")
     X_train_knee = X_train[selected_fts]
@@ -557,9 +602,6 @@ def main(
         feature_importance_readable.to_csv(
             f"{path_output_dir}/feature_importance_readable_knee.csv",
             index=False)
-    knee_folder = f"{path_output_dir}/knee"
-    if not os.path.exists(knee_folder):
-        os.makedirs(knee_folder)
     plot_rfe_line_from_dataframe(
         rfe, k, title='Sequential Feature Selection', path_save=f"{knee_folder}/rfe_val_detailed.svg")
     splits = KFold_by_feature(
