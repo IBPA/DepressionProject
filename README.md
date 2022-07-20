@@ -13,6 +13,12 @@ git clone https://github.com/asmyoo/kneed.git
 pip install -e ./kneed
 ```
 
+## Install kneebow
+```
+git clone https://github.com/asmyoo/kneebow.git
+pip install -e ./kneebow
+```
+
 ## Install requirements
 ```
 pip install -r requirements.txt

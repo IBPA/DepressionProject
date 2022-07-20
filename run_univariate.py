@@ -58,6 +58,7 @@ from msap.modeling.configs import (
 from .plot_rfe_fang import get_parsimonious
 
 from .run_analysis import (
+    parse_model_selection_result,
     plot_all_confusion_matrices,
     plot_all_embeddings,
     plot_all_curves,
@@ -81,77 +82,6 @@ CLASSIFIER_MODES = [
     'mlpclassifier']
 DEFAULT_VARIABLE_INFO = './DepressionProjectNew/data/Variables052122.csv'
 # DEFAULT_PREPROCESSED = './output/preprocessed_data_without_temporal_12to18ave.csv'
-
-
-def parse_model_selection_result(ms_result: tuple, mode: str) -> list:
-    """Parse the model selection result tuple and get the best models.
-
-    Args:
-        ms_result: Model selection result tuple.
-
-    Returns:
-        List of best model and statistics for each classifiers.
-
-    """
-    candidates, _ = ms_result
-    candidates = [(i, c, cv['best_f1']) for i, c, cv in candidates]
-
-    if mode == 'f1':
-        f1s_mean = []
-        for i, c, cv_best in candidates:
-            # Iterate over splits to calculate average F1 score.
-            f1s = [cv_best[f'split_{j}']['f1']
-                   for j in range(int(len(cv_best)/2))]
-            f1s_mean += [np.mean(np.nan_to_num(f1s))]
-
-        candidates = list(zip(candidates, f1s_mean))
-        candidates = sorted(candidates, key=lambda x: x[1], reverse=True)
-
-        best_candidate_per_clf = []
-        for clf in CLASSIFIER_MODES:
-            for (i, c, cv_best), f1_mean in candidates:
-                if c[3] == clf:
-                    if cv_best['param'] is not None:
-                        cv_best['param'] = {k.split('__')[-1]: v
-                                            for k, v in cv_best['param'].items()}
-
-                    best_candidate_per_clf += [((i, c, cv_best), f1_mean)]
-                    break
-        return best_candidate_per_clf
-    elif mode == 'balanced_accuracy':
-        candidates, _ = ms_result
-        # candidates = [(i, c, cv) for i, c, cv in candidates]
-        balanced_accuracys_mean = []
-        grid_results = []
-        for i, c, cv in candidates:
-            # parse every grid search result
-            for key in cv:
-                # Iterate over splits to calculate average F1 score for clf
-                result = cv[key]
-                balanced_accuracys = [
-                    result[f'split_{j}']['balanced_accuracy'] for j in range(int(len(result)/2))]
-                grid_results += [(i, c, result)]
-                balanced_accuracys_mean += [
-                    np.mean(np.nan_to_num(balanced_accuracys))]
-        candidates = list(zip(grid_results, balanced_accuracys_mean))
-        candidates = sorted(candidates, key=lambda x: x[1], reverse=True)
-
-        best_candidate_per_clf = []
-        for clf in CLASSIFIER_MODES:
-            for (i, c, cv), balanced_accuracy_mean in candidates:
-                if c[3] == clf:
-                    if cv['param'] is not None:
-                        cv['param'] = {k.split('__')[-1]: v
-                                       for k, v in cv['param'].items()}
-
-                    best_candidate_per_clf += [((i, c, cv),
-                                                balanced_accuracy_mean)]
-                    break
-        return best_candidate_per_clf
-
-        # raise NotImplementedError
-    else:
-        raise ValueError(f"Unknown mode: {mode}")
 
 
 def make_readable(want_readable, variable_filepath=DEFAULT_VARIABLE_INFO):
@@ -297,7 +227,7 @@ def get_knee(rfe_result, filepath=None):
             plt.ylim()[0],
             plt.ylim()[1],
             linestyles="--",
-            label="knee/elbow",
+            label=f"knee/elbow {kl.knee}",
         )
         plt.legend(loc="best")
         plt.savefig(filepath)
@@ -306,11 +236,12 @@ def get_knee(rfe_result, filepath=None):
     return kl.knee, kl.knee_y
 
 
-def get_kneebow(rfe_result, filepath=None):
+def get_kneebow(rfe_result, filepath=None, test=False):
     """Get knee of RFE.
 
     Args:
         rfe_result: Result of RFE.
+        test: Boolean. If true, use test data
 
     Returns:
         knee: Integer index of knee.
@@ -322,24 +253,49 @@ def get_kneebow(rfe_result, filepath=None):
     # x = rfe_result['index'].tolist()
     # y = rfe_result['avg_score'].tolist()
     data = [list(z) for z in zip(x, y)]
-    rotor = Rotor(scale=True)
+    if test:
+        # test from kneebow package
+        data = np.array([
+            [1, 1],
+            [2, 2],
+            [3, 3],
+            [4, 4],
+            [5, 5],
+            [6, 6],
+            [7, 7],
+            [8, 8],
+            [9, 16],
+            [10, 32],
+            [11, 64],
+            [12, 128],
+            [13, 256],
+            [14, 512]
+        ])
+    rotor = Rotor()
     rotor.fit_rotate(data)
     index = rotor.get_knee_index()
-    rfe_index = index + 1  # +1 because rfe_index is 1-based
+    print(index)
+    # get elbow for test
+    if test:
+        index = rotor.get_elbow_index()
+    rfe_index = x[index]
+    if test:
+        rfe_index = data[index, 0]
+    print(rfe_index)
 
     if filepath is not None:
         plt.tight_layout()
         # code from kneebow plot knee function
         plt.title("Normalized Knee Point")
-        plt.scatter(rotor._data[:, 0], rotor._data[:, 1],
-                    c='b', label="normalized curve")
+        plt.plot(rotor._data[:, 0], rotor._data[:, 1],
+                 c='b', label="normalized curve")
         plt.vlines(rotor._data[index, 0], ymin=rotor._data[:, 1].min(),
-                   ymax=rotor._data[:, 1].max(), c='r', linestyles="--",
-                   label="knee/elbow")
+                   ymax=rotor._data[:, 1].max(), colors='r', linestyles="--",
+                   label=f"knee/elbow {rfe_index}")
         plt.legend(loc="best")
         plt.savefig(filepath)
         plt.close()
-    return index
+    return rfe_index
 
 
 @click.command()
@@ -586,8 +542,8 @@ def main(
     knee_folder = f"{path_output_dir}/knee"
     if not os.path.exists(knee_folder):
         os.makedirs(knee_folder)
-    k = get_knee(rfe, f"{knee_folder}/knee_info.svg")[0]
-    # k = get_kneebow(rfe, f"{knee_folder}/knee_info.svg")
+    # k = get_knee(rfe, f"{knee_folder}/knee_info.svg")[0]
+    k = get_kneebow(rfe, f"{knee_folder}/knee_info.svg")
     selected_fts = rfe_fts_ordered[:k]
     logging.info(f"Selected features knee: {selected_fts}")
     X_train_knee = X_train[selected_fts]
