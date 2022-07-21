@@ -193,6 +193,9 @@ def get_knee(rfe_result, filepath=None):
     # reverse order so indices are increasing
     x = rfe_result['index'][::-1].tolist()
     y = rfe_result['avg_score'][::-1].tolist()
+    max_index = np.argmax(y)
+    x = x[:max_index + 1]
+    y = y[:max_index + 1]
     # x = rfe_result['index'].tolist()
     # y = rfe_result['avg_score'].tolist()
     # print(y)
@@ -215,6 +218,8 @@ def get_knee(rfe_result, filepath=None):
         plt.plot(kl.x_difference, kl.y_difference,
                  "r", label="difference curve")
         plt.plot(kl.x_difference_maxima, kl.Tmx, "g", label="threshold")
+        plt.scatter(kl.x_difference_maxima, kl.Tmx,
+                    c="c", label="threshold points")
         plt.xticks(
             np.arange(kl.x_normalized.min(), kl.x_normalized.max() + 0.1, 0.1)
         )
@@ -250,13 +255,15 @@ def get_kneebow(rfe_result, filepath=None, test=False):
     # reverse order so indices are increasing
     x = rfe_result['index'][::-1].tolist()
     y = rfe_result['avg_score'][::-1].tolist()
+    max_index = np.argmax(y)
+    x = x[:max_index + 1]
+    y = y[:max_index + 1]
     # x = rfe_result['index'].tolist()
     # y = rfe_result['avg_score'].tolist()
     data = [list(z) for z in zip(x, y)]
     rotor = Rotor()
     rotor.fit_rotate(data)
     index = rotor.get_knee_index()
-    print(index)
     # get elbow for test
     rfe_index = x[index]
     print(rfe_index)
