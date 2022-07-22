@@ -26,33 +26,36 @@ import seaborn as sns
 import matplotlib
 import matplotlib.pyplot as plt
 
+
 @click.command()
 @click.argument(
     'path-save',
     type=str,
-    default = "")
+    default="")
 def main(
         path_save):
     """
     """
-    f1_scores = [0.192, 0.318, 0.339, 0.376]
-    f1_scores_std = [0.022, 0.026, 0.013, 0.025]
-    f1_bases = [0.1, 0.27, 0.32, 0.314]
-    f1_bases_std = [0.008, 0.023, 0.014, 0.01]
-    ages = [12, 16, 17, 18]
+    f1_scores = [0.173, 0.217, 0.317, 0.33, 0.389, 0.517]
+    # f1_scores_std = [0.022, 0.026, 0.013, 0.025]
+    f1_bases = [0.093, 0.156, 0.27, 0.3, 0.316, 0.515]
+    # f1_bases_std = [0.008, 0.023, 0.014, 0.01]
+    ages = [12, 13, 16, 17, 18, "12 to 18"]
 
     ind = np.arange(len(ages))
-    width = 0.35
-    
+    width = 0.25
+
     fig, ax = plt.subplots()
-    rects1 = ax.bar(ind-width/2, f1_bases, width, yerr = f1_bases_std, label = 'Baseline')
-    rects2 = ax.bar(ind+width/2, f1_scores, width, yerr = f1_scores_std, label = 'Best Model')
+    # rects1 = ax.bar(ind-width/2, f1_bases, width, yerr = f1_bases_std, label = 'Baseline')
+    # rects2 = ax.bar(ind+width/2, f1_scores, width, yerr = f1_scores_std, label = 'Best Model')
+    rects1 = ax.bar(ind-width/2, f1_bases, width, label='Baseline')
+    rects2 = ax.bar(ind+width/2, f1_scores, width, label='Best Model')
 
     # Add some text for labels, title and custom x-axis tick labels, etc.
     ax.set_ylabel('F1 Scores')
     ax.set_title('Scores by age with baseline')
     ax.set_xticks(ind)
-    ax.set_xticklabels(('12', '16', '17', '18'))
+    ax.set_xticklabels(('12', '13', '16', '17', '18', "12 to 18"))
     ax.legend()
 
     def autolabel(rects, xpos='center'):
@@ -74,7 +77,6 @@ def main(
                         textcoords="offset points",  # in both directions
                         ha=ha[xpos], va='bottom')
 
-
     autolabel(rects1, "left")
     autolabel(rects2, "right")
 
@@ -85,6 +87,7 @@ def main(
         plt.close()
     else:
         plt.show()
+
 
 if __name__ == '__main__':
     main()
