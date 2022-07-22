@@ -588,10 +588,22 @@ def main(
     # will need to change cluster based on what interested in
     X_cluster = X_embedded[labels == 3]
     y_cluster = y_scatter[labels == 3]
+    X_not_cluster = X_embedded[labels != 3]
+    y_not_cluster = y_scatter[labels != 3]
+
+    # get original data for cluster
+    X_rfe_cluster = X_rfe_train[labels == 3]
+    y_rfe_cluster = y_rfe_train[labels == 3]
+    X_rfe_not_cluster = X_rfe_train[labels != 3]
+    y_rfe_not_cluster = y_rfe_train[labels != 3]
     # print(X_cluster)
     # print(y_cluster)
 
     # why are there so many depressed ppl in this cluster?
+    print(X_rfe_cluster.describe())
+    print(y_rfe_cluster.describe())
+    print(X_rfe_not_cluster.describe())
+    print(y_rfe_not_cluster.describe())
 
 
 if __name__ == '__main__':
