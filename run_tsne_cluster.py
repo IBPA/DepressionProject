@@ -577,7 +577,7 @@ def main(
     labels = pd.Series(kmeans.fit_predict(X_embedded))
     labels.name = 'Cluster'
     # print(len(labels))
-    path = f"{path_output_dir}/testing_embed_{method}_train.svg"
+    path = f"{path_output_dir}/clustered_embed_{method}_train.svg"
     plot_embedded_scatter(
         X_embedded,
         labels,
