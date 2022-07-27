@@ -605,6 +605,8 @@ def main(
     print(X_rfe_not_cluster.describe())
     print(y_rfe_not_cluster.describe())
 
+    # saving describe output to csvs
+
 
 if __name__ == '__main__':
     main()
