@@ -60,6 +60,7 @@ python get_config_info.py
 ```
 python -u -m depression-predictor.depp.run_eda
 ```
+- Make sure using a NEW conda environment for running depression-predictor run_eda.py
 - Copy the Variables excel file and preprocessed data into the depression-predictor data folder
 - Check filename for data in depression-predictor utils/dataset.py
 - Takes approx 1 hr
