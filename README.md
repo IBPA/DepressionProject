@@ -94,6 +94,14 @@ python -u -m DepressionProjectNew.run_univariate \
 ```
 
 ## Run fix_embed_colors for age 12/if colors are switched for depressed/not depressed
+```
+python -u -m DepressionProjectNew.fix_embed_colors \
+    ./DepressionProjectNew/output/pval_filter_60_MVI/output_12_yesmental/results.pkl \
+    ./DepressionProjectNew/output/pval_filter_60_MVI/output_12_yesmental/preprocessed \
+    ./DepressionProjectNew/output/pval_filter_60_MVI/output_12_yesmental/data_cleaned_encoded.csv \
+    ./DepressionProjectNew/output/pval_filter_60_MVI/output_12_yesmental/ \
+    y12CH_Dep_YN_144m
+```
 
 ## Run run_tsne.py (don't need)
 
