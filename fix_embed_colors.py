@@ -47,7 +47,6 @@ from msap.utils import (
     KFold_by_feature)
 from msap.utils.plot import (
     plot_heatmap,
-    plot_embedded_scatter,
     plot_rfe_line,
     plot_rfe_line_from_dataframe,
     plot_curves,
@@ -60,7 +59,6 @@ from .plot_rfe_fang import get_parsimonious
 from .run_analysis import (
     parse_model_selection_result,
     plot_all_confusion_matrices,
-    plot_all_embeddings,
     plot_all_curves,
     plot_all_correlations,
     plot_similarity_matrix)
@@ -88,6 +86,73 @@ CLASSIFIER_MODES = [
     'mlpclassifier']
 DEFAULT_VARIABLE_INFO = './DepressionProjectNew/data/Variables052122.csv'
 # DEFAULT_PREPROCESSED = './output/preprocessed_data_without_temporal_12to18ave.csv'
+FONT_SIZE_LABEL = 30
+
+
+def plot_embedded_scatter(
+        X: pd.DataFrame,
+        y: pd.Series,
+        title: str = None,
+        path_save: str = None):
+    fig, ax = plt.subplots(figsize=(15, 15))
+
+    g = sns.scatterplot(
+        data=pd.concat([X, y], axis=1),
+        x=X.columns[0],
+        y=X.columns[1],
+        hue=y.name,
+        hue_order=['Not Depressed', 'Depressed'],
+        legend="full",
+        s=50)
+    ax.set_xlabel(
+        xlabel=ax.get_xlabel(),
+        fontsize=FONT_SIZE_LABEL)
+    ax.set_ylabel(
+        ylabel=ax.get_ylabel(),
+        fontsize=FONT_SIZE_LABEL)
+    plt.setp(g.get_legend().get_texts(), fontsize='20')
+    plt.setp(g.get_legend().get_title(), fontsize='20')
+
+    if title is not None:
+        ax.set_title(title, fontsize=40, fontweight='bold')
+
+    if path_save is not None:
+        fig.savefig(path_save)
+        plt.close()
+    else:
+        plt.show()
+
+
+def plot_all_embeddings(
+        X_train: pd.DataFrame,
+        y_train: pd.Series,
+        path_output_dir: str,
+        random_state: int,
+        use_smote_first: bool,
+        use_rfe: bool):
+    # Plot embedded data points.
+    y_scatter = y_train.map({1.0: 'Depressed', 0.0: 'Not Depressed'})
+    y_scatter.name = 'Translation'
+    for method in METHODS_EMBEDDING:
+        X_embedded = pd.DataFrame(
+            get_embedded_data(
+                X_train,
+                method=method, random_state=random_state))
+        X_embedded.columns = ['First Dimension', 'Second Dimension']
+        if use_smote_first and use_rfe:
+            path = f"{path_output_dir}/embed_{method}_smote_rfe_train.svg"
+        elif use_smote_first and not use_rfe:
+            path = f"{path_output_dir}/embed_{method}_smote_train.svg"
+        elif not use_smote_first and use_rfe:
+            path = f"{path_output_dir}/embed_{method}_rfe_train.svg"
+        else:
+            path = f"{path_output_dir}/embed_{method}_train.svg"
+        plot_embedded_scatter(
+            X_embedded,
+            y_scatter,
+            title=f"{method.upper()}",
+            path_save=path)
+    return
 
 
 @click.command()
@@ -166,16 +231,16 @@ def main(
         f"{best_scale_mode}_{best_impute_mode}_{best_outlier_mode}_train.csv",
         col_y=feature_label)
 
-    # swap depression with non depression in first element
-    tmp_x = X_train.iloc[0].copy()
-    tmp_y = y_train.iloc[0].copy()
-    # get next location where non depression is
-    idx_non_depression = y_train[y_train == 0].index[0]
-    # swap depression with non depression in first element
-    X_train.iloc[0] = X_train.iloc[idx_non_depression]
-    y_train.iloc[0] = y_train.iloc[idx_non_depression]
-    X_train.iloc[idx_non_depression] = tmp_x
-    y_train.iloc[idx_non_depression] = tmp_y
+    # # swap depression with non depression in first element
+    # tmp_x = X_train.iloc[0].copy()
+    # tmp_y = y_train.iloc[0].copy()
+    # # get next location where non depression is
+    # idx_non_depression = y_train[y_train == 0].index[0]
+    # # swap depression with non depression in first element
+    # X_train.iloc[0] = X_train.iloc[idx_non_depression]
+    # y_train.iloc[0] = y_train.iloc[idx_non_depression]
+    # X_train.iloc[idx_non_depression] = tmp_x
+    # y_train.iloc[idx_non_depression] = tmp_y
 
     plot_all_embeddings(X_train=X_train, y_train=y_train, path_output_dir=embed_folder,
                         random_state=random_state, use_smote_first=False, use_rfe=False)
@@ -192,16 +257,16 @@ def main(
                 f"{best_scale_mode}_{best_impute_mode}_{best_outlier_mode}_smote_train.csv",
                 col_y=feature_label)
 
-            # swap depression with non depression in first element
-            tmp_x = X_smote_train.iloc[0].copy()
-            tmp_y = y_smote_train.iloc[0].copy()
-            # get next location where non depression is
-            idx_non_depression = y_smote_train[y_smote_train == 0].index[0]
-            # swap depression with non depression in first element
-            X_smote_train.iloc[0] = X_smote_train.iloc[idx_non_depression]
-            y_smote_train.iloc[0] = y_smote_train.iloc[idx_non_depression]
-            X_smote_train.iloc[idx_non_depression] = tmp_x
-            y_smote_train.iloc[idx_non_depression] = tmp_y
+            # # swap depression with non depression in first element
+            # tmp_x = X_smote_train.iloc[0].copy()
+            # tmp_y = y_smote_train.iloc[0].copy()
+            # # get next location where non depression is
+            # idx_non_depression = y_smote_train[y_smote_train == 0].index[0]
+            # # swap depression with non depression in first element
+            # X_smote_train.iloc[0] = X_smote_train.iloc[idx_non_depression]
+            # y_smote_train.iloc[0] = y_smote_train.iloc[idx_non_depression]
+            # X_smote_train.iloc[idx_non_depression] = tmp_x
+            # y_smote_train.iloc[idx_non_depression] = tmp_y
 
             splits = KFold_by_feature(
                 X=X_smote_train,

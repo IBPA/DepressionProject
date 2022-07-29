@@ -93,6 +93,8 @@ python -u -m DepressionProjectNew.run_univariate \
     --use-balanced-accuracy
 ```
 
+## Run fix_embed_colors for age 12/if colors are switched for depressed/not depressed
+
 ## Run run_tsne.py (don't need)
 
 ## Run make_readable_pcc_sc_kendall.py and make_readable_list.py after pasting in the best rfe list and lists from run_univariate's output
