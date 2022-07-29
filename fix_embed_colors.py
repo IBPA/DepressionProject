@@ -89,6 +89,9 @@ DEFAULT_VARIABLE_INFO = './DepressionProjectNew/data/Variables052122.csv'
 FONT_SIZE_LABEL = 30
 
 
+# added hue order to MSAP code for plotting
+
+
 def plot_embedded_scatter(
         X: pd.DataFrame,
         y: pd.Series,
@@ -121,6 +124,9 @@ def plot_embedded_scatter(
         plt.close()
     else:
         plt.show()
+
+
+# same as code from run_analysis.py
 
 
 def plot_all_embeddings(
