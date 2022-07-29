@@ -23,6 +23,8 @@ pip install -e ./kneebow
 ```
 pip install -r requirements.txt
 ```
+- hpc is what was used to run all the results except for ones requiring ipynb
+- local is what was used to run ipynb results
 
 ## Get “preprocessed” data - run reformat_ml.py within src/preprocess
 ```
