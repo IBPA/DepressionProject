@@ -57,10 +57,14 @@ python get_config_info.py
 - Change cleaning.py with columns_ignored to add mental health variables (don't do for now because our predictions seem to use these variables heavily to predict)
 
 ## Run depression-predictor run_eda.py and feature_analysis_correlations_iterativeimpute.ipynb
+- Make sure to create a new conda environment for the requirements for depression-predictor
 ```
+git clone https://github.com/asmyoo/depression-predictor.git
+cd depression-predictor
+pip install -r requirements.txt
+cd ..
 python -u -m depression-predictor.depp.run_eda
 ```
-- Make sure using a NEW conda environment for running depression-predictor run_eda.py
 - Copy the Variables excel file and preprocessed data into the depression-predictor data folder
 - Check filename for data in depression-predictor utils/dataset.py
 - Takes approx 1 hr
