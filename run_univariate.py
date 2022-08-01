@@ -579,6 +579,9 @@ def main(
                 mode = "f1"
             else:
                 mode = "balanced_accuracy"
+
+            plot_all_correlations(X_train=X_train_knee, y_train=y_train, feature_label=feature_label,
+                                  path_output_dir=knee_folder, use_smote_first=True, use_rfe=True)
             plot_all_curves(clf, X_train_knee, y_train, X_test_knee, y_test,
                             knee_folder, use_smote_first=True, use_rfe=True, splits=splits)
             plot_all_confusion_matrices(clf, X_train_knee, y_train,
@@ -594,6 +597,8 @@ def main(
                 mode = "f1"
             else:
                 mode = "balanced_accuracy"
+            plot_all_correlations(X_train=X_train_knee, y_train=y_train, feature_label=feature_label,
+                                  path_output_dir=knee_folder, use_smote_first=False, use_rfe=True)
             plot_all_curves(clf, X_train_knee, y_train, X_test_knee, y_test,
                             knee_folder, use_smote_first=False, use_rfe=True, splits=splits)
             plot_all_confusion_matrices(clf, X_train_knee, y_train,
@@ -609,6 +614,8 @@ def main(
             mode = "f1"
         else:
             mode = "balanced_accuracy"
+        plot_all_correlations(X_train=X_train_knee, y_train=y_train, feature_label=feature_label,
+                              path_output_dir=knee_folder, use_smote_first=False, use_rfe=True)
         plot_all_curves(clf, X_train_knee, y_train, X_test_knee, y_test,
                         knee_folder, use_smote_first=False, use_rfe=True, splits=splits)
         plot_all_confusion_matrices(clf, X_train_knee, y_train,
