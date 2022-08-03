@@ -31,7 +31,6 @@ import matplotlib.pyplot as plt
 from scipy.stats import kendalltau
 from kneed import KneeLocator
 from kneebow.rotor import Rotor
-import matplotlib.pyplot as plt
 
 from msap.modeling.model_evaluation.statistics import (
     get_embedded_data,
