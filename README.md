@@ -110,6 +110,16 @@ python -u -m DepressionProjectNew.fix_embed_colors \
     y12CH_Dep_YN_144m
 ```
 
+## Run make_readable_heatmapcsv.py if have pearson.csv of x and y variables that are highly correlated or anticorrelated after looking at the pearson heatmap
+```
+python -u -m DepressionProjectNew.make_readable_heatmapcsv ./DepressionProjectNew/output/rfe_pearson_spearman/output_12_yesmental
+```
+
+## Run get_unique_fts for getting list of unique features for each model
+```
+python -u -m DepressionProjectNew.get_unique_fts ./DepressionProjectNew/output/pval_filter_60_MVI
+```
+
 ## Run run_tsne.py (don't need)
 
 ## Run make_readable_pcc_sc_kendall.py and make_readable_list.py after pasting in the best rfe list and lists from run_univariate's output
