@@ -110,6 +110,11 @@ python -u -m DepressionProjectNew.fix_embed_colors \
     y12CH_Dep_YN_144m
 ```
 
+## Run make_readable_all_var_sorted.py to change the description column of all vars_sorted_dir_ranked_rounded.csv to be more readable
+```
+python -u -m DepressionProjectNew.make_readable_all_var_sorted ./DepressionProjectNew/output/pval_filter_60_MVI
+```
+
 ## Run make_readable_heatmapcsv.py if have pearson.csv of x and y variables that are highly correlated or anticorrelated after looking at the pearson heatmap
 ```
 python -u -m DepressionProjectNew.make_readable_heatmapcsv ./DepressionProjectNew/output/rfe_pearson_spearman/output_12_yesmental
