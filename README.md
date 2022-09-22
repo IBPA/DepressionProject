@@ -125,6 +125,16 @@ python -u -m DepressionProjectNew.make_readable_heatmapcsv ./DepressionProjectNe
 python -u -m DepressionProjectNew.get_unique_fts ./DepressionProjectNew/output/pval_filter_60_MVI
 ```
 
+## Run run_tsne_cluster.py for age 12to18 to understand one cluster
+```
+ python -u -m DepressionProjectNew.run_tsne_cluster \
+./DepressionProjectNew/output/pval_filter_60_MVI/output_12to18_yesmental/results.pkl \
+./DepressionProjectNew/output/pval_filter_60_MVI/output_12to18_yesmental/preprocessed \
+./DepressionProjectNew/output/pval_filter_60_MVI/output_12to18_yesmental/data_cleaned_encoded.csv \
+./DepressionProjectNew/output/pval_filter_60_MVI/output_12to18_yesmental/f1 \
+y12to18_Dep_YN_216m
+```
+
 ## Run run_tsne.py (don't need)
 
 ## Run make_readable_pcc_sc_kendall.py and make_readable_list.py after pasting in the best rfe list and lists from run_univariate's output

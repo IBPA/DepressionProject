@@ -48,6 +48,7 @@ from msap.utils.plot import (
 from msap.modeling.configs import (
     ModelSelectionConfig)
 from .plot_rfe_fang import get_parsimonious
+from .run_univariate import make_readable
 
 logger = logging.getLogger(__file__)
 logging.basicConfig(
@@ -606,6 +607,16 @@ def main(
     print(y_rfe_not_cluster.describe())
 
     # saving describe output to csvs
+    rfe_cluster = pd.concat([X_rfe_cluster, y_rfe_cluster], axis=1)
+    rfe_cluster.columns = make_readable(rfe_cluster.columns)
+    # print(rfe_cluster.describe())
+    rfe_cluster.describe().to_csv(
+        f"{path_output_dir}/clustered_embed_{method}_cluster.csv")
+    rfe_not_cluster = pd.concat([X_rfe_not_cluster, y_rfe_not_cluster], axis=1)
+    rfe_not_cluster.columns = make_readable(rfe_not_cluster.columns)
+    # print(rfe_not_cluster.describe())
+    rfe_cluster.describe().to_csv(
+        f"{path_output_dir}/clustered_embed_{method}_not_cluster.csv")
 
 
 if __name__ == '__main__':
