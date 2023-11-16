@@ -90,6 +90,7 @@ def main(
     cols.extend([col for col in df_merged.columns if 'masked_rfe_rank' in col])
     cols.append('ave_Pearson_rank')
     cols.extend([col for col in df_merged.columns if 'PearsonCorr Rank' in col])
+    cols.extend([col for col in df_merged.columns if 'pearson_corr' in col])
     df_merged[cols].to_csv(
         f"{path_input_dir}/rank_pearson_rfe.csv", index=False)
 
