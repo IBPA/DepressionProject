@@ -125,6 +125,11 @@ python -u -m DepressionProjectNew.make_readable_heatmapcsv ./DepressionProjectNe
 python -u -m DepressionProjectNew.get_unique_fts ./DepressionProjectNew/output/pval_filter_60_MVI
 ```
 
+## Run rank_pearson_rfe for getting table of pearson correlations
+```
+python -u -m DepressionProjectNew.rank_pearson_rfe ./DepressionProjectNew/output/pval_filter_60_MVI
+```
+
 ## Run run_tsne_cluster.py for age 12to18 to understand one cluster
 ```
  python -u -m DepressionProjectNew.run_tsne_cluster \
