@@ -78,7 +78,8 @@ def main(
     df_merged['rfe_count'] = df_merged[rfe_index_cols].count(axis=1)
 
     # sort by rfe_count
-    df_merged = df_merged.sort_values(by=['rfe_count'], ascending=False)
+    df_merged = df_merged.sort_values(
+        by=['rfe_count', 'ave_rfe_rank'], ascending=[False, True])
 
     # save
     df_merged.to_csv(
