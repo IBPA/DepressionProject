@@ -1,4 +1,4 @@
-# DepressionProjectNew
+# DepressionProject
 
 ## Install python 3.10
 ## Install MSAP
@@ -68,18 +68,18 @@ python -u -m depression-predictor.depp.run_eda
 - Copy the Variables excel file and preprocessed data into the depression-predictor data folder
 - Check filename for data in depression-predictor utils/dataset.py
 - Takes approx 1 hr
-- Copy vars_sorted.csv to DepressionProjectNew/output
+- Copy vars_sorted.csv to DepressionProject/output
 - Then run python notebook feature_analysis_correlations_iterativeimpute.ipynb
 
 ## Run run_cleaner.py
 ```
-python -u -m DepressionProjectNew.run_cleaner
+python -u -m DepressionProject.run_cleaner
 ```
 - Make sure to not overwrite png's from feature_analysis_correlations_iterativeimpute.ipynb, missing_value png’s, and data_cleaned.csv's
 
 ## Run run_encode.py
 ```
-python -m DepressionProjectNew.run_encode DepressionProjectNew/output/data_cleaned.csv DepressionProjectNew/output/data_cleaned_encoded.csv
+python -m DepressionProject.run_encode DepressionProject/output/data_cleaned.csv DepressionProject/output/data_cleaned_encoded.csv
 ```
 - Move output files into output folder (separated by age, include png's and etc)
 
@@ -91,96 +91,80 @@ python -m DepressionProjectNew.run_encode DepressionProjectNew/output/data_clean
 
 ## Run univariate comparison
 ```
-python -u -m DepressionProjectNew.run_univariate \
-    ./DepressionProjectNew/output/pval_filter_60_MVI/output_12to18_yesmental/results.pkl \
-    ./DepressionProjectNew/output/pval_filter_60_MVI/output_12to18_yesmental/preprocessed \
-    ./DepressionProjectNew/output/pval_filter_60_MVI/output_12to18_yesmental/data_cleaned_encoded.csv \
-    ./DepressionProjectNew/output/pval_filter_60_MVI/output_12to18_yesmental/balanced_accuracy \
+python -u -m DepressionProject.run_univariate \
+    ./DepressionProject/output/pval_filter_60_MVI/output_12to18_yesmental/results.pkl \
+    ./DepressionProject/output/pval_filter_60_MVI/output_12to18_yesmental/preprocessed \
+    ./DepressionProject/output/pval_filter_60_MVI/output_12to18_yesmental/data_cleaned_encoded.csv \
+    ./DepressionProject/output/pval_filter_60_MVI/output_12to18_yesmental/balanced_accuracy \
     y12to18_Dep_YN_216m \
     --use-balanced-accuracy
 ```
 
 ## Run fix_embed_colors for age 12/if colors are switched for depressed/not depressed
 ```
-python -u -m DepressionProjectNew.fix_embed_colors \
-    ./DepressionProjectNew/output/pval_filter_60_MVI/output_12_yesmental/results.pkl \
-    ./DepressionProjectNew/output/pval_filter_60_MVI/output_12_yesmental/preprocessed \
-    ./DepressionProjectNew/output/pval_filter_60_MVI/output_12_yesmental/data_cleaned_encoded.csv \
-    ./DepressionProjectNew/output/pval_filter_60_MVI/output_12_yesmental/ \
+python -u -m DepressionProject.fix_embed_colors \
+    ./DepressionProject/output/pval_filter_60_MVI/output_12_yesmental/results.pkl \
+    ./DepressionProject/output/pval_filter_60_MVI/output_12_yesmental/preprocessed \
+    ./DepressionProject/output/pval_filter_60_MVI/output_12_yesmental/data_cleaned_encoded.csv \
+    ./DepressionProject/output/pval_filter_60_MVI/output_12_yesmental/ \
     y12CH_Dep_YN_144m
 ```
 
 ## Run make_readable_all_var_sorted.py to change the description column of all vars_sorted_dir_ranked_rounded.csv to be more readable
 ```
-python -u -m DepressionProjectNew.make_readable_all_var_sorted ./DepressionProjectNew/output/pval_filter_60_MVI
+python -u -m DepressionProject.make_readable_all_var_sorted ./DepressionProject/output/pval_filter_60_MVI
 ```
 
 ## Run make_readable_heatmapcsv.py if have pearson.csv of x and y variables that are highly correlated or anticorrelated after looking at the pearson heatmap
 ```
-python -u -m DepressionProjectNew.make_readable_heatmapcsv ./DepressionProjectNew/output/rfe_pearson_spearman/output_12_yesmental
+python -u -m DepressionProject.make_readable_heatmapcsv ./DepressionProject/output/rfe_pearson_spearman/output_12_yesmental
 ```
 
 ## Run get_unique_fts for getting list of unique features for each model
 ```
-python -u -m DepressionProjectNew.get_unique_fts ./DepressionProjectNew/output/pval_filter_60_MVI
+python -u -m DepressionProject.get_unique_fts ./DepressionProject/output/pval_filter_60_MVI
 ```
 
 ## Run rank_pearson_rfe for getting table of pearson correlations
 ```
-python -u -m DepressionProjectNew.rank_pearson_rfe ./DepressionProjectNew/output/pval_filter_60_MVI
+python -u -m DepressionProject.rank_pearson_rfe ./DepressionProject/output/pval_filter_60_MVI
 ```
 
 ## Run run_tsne_cluster.py for age 12to18 to understand one cluster
 ```
- python -u -m DepressionProjectNew.run_tsne_cluster \
-./DepressionProjectNew/output/pval_filter_60_MVI/output_12to18_yesmental/results.pkl \
-./DepressionProjectNew/output/pval_filter_60_MVI/output_12to18_yesmental/preprocessed \
-./DepressionProjectNew/output/pval_filter_60_MVI/output_12to18_yesmental/data_cleaned_encoded.csv \
-./DepressionProjectNew/output/pval_filter_60_MVI/output_12to18_yesmental/f1 \
+ python -u -m DepressionProject.run_tsne_cluster \
+./DepressionProject/output/pval_filter_60_MVI/output_12to18_yesmental/results.pkl \
+./DepressionProject/output/pval_filter_60_MVI/output_12to18_yesmental/preprocessed \
+./DepressionProject/output/pval_filter_60_MVI/output_12to18_yesmental/data_cleaned_encoded.csv \
+./DepressionProject/output/pval_filter_60_MVI/output_12to18_yesmental/f1 \
 y12to18_Dep_YN_216m
 ```
 
 ## Run run_tsne.py (don't need)
 
-## Run make_readable_pcc_sc_kendall.py and make_readable_list.py after pasting in the best rfe list and lists from run_univariate's output
-
-## Can also run model using current best results if low on time
-```
-python -u -m DepressionProjectNew.run_model_and_analysis ./DepressionProjectNew/output/output_18_yesmental/results.pkl ./DepressionProjectNew/output/output_12_yesmental/preprocessed ./DepressionProjectNew/output/data_cleaned_encoded_12_yesmental.csv ./DepressionProjectNew/output/output_12_yesmental y12CH_Dep_YN_144m
-```
-or use script
+## Run make_readable_pcc_sc_kendall.py and make_readable_list.py after pasting in the best rfe list and lists from run_univariate's output from src/preprocess
 
 ## Plot tsne using only best results from RFE/Elbow method (don't need)
 Make sure to input the hardcoded variables for the rfe results
 ```
-python -u -m DepressionProjectNew.run_tsne_use_rfe_results_all \
-    ./DepressionProjectNew/output/10MVIout/output_12_yesmental \
-    ./DepressionProjectNew/output/10MVIout/output_16_yesmental \
-    ./DepressionProjectNew/output/10MVIout/output_17_yesmental \
-    ./DepressionProjectNew/output/10MVIout/output_18_yesmental \
+python -u -m DepressionProject.run_tsne_use_rfe_results_all \
+    ./DepressionProject/output/10MVIout/output_12_yesmental \
+    ./DepressionProject/output/10MVIout/output_16_yesmental \
+    ./DepressionProject/output/10MVIout/output_17_yesmental \
+    ./DepressionProject/output/10MVIout/output_18_yesmental \
     y12CH_Dep_YN_144m \
     y16CH_Dep_YN_192m \
     y17CH_Dep_YN_204m \
     y18CH_Dep_YN_216m
 ```
 
-## Can also run analysis without rfe and calculate f1's (don't need)
-```
-python -u -m DepressionProjectNew.run_model_and_analysis_no_rfe_calc \
-    ./DepressionProjectNew/output/10MVIout/output_18_yesmental/results.pkl \
-    ./DepressionProjectNew/output/output_18_yesmental/preprocessed \
-    ./DepressionProjectNew/output/data_cleaned_encoded_18_yesmental_30MVI.csv \
-    ./DepressionProjectNew/output/output_18_yesmental \
-    y18CH_Dep_YN_216m
-```
-
 ## Calculate F1 baselines and plot into confusion matrix (don't need)
 ```
-python -u -m DepressionProjectNew.run_f1_calcs_baseline_all \
-    ./DepressionProjectNew/output/10MVIout/output_12_yesmental \
-    ./DepressionProjectNew/output/10MVIout/output_16_yesmental \
-    ./DepressionProjectNew/output/10MVIout/output_17_yesmental \
-    ./DepressionProjectNew/output/10MVIout/output_18_yesmental \
+python -u -m DepressionProject.run_f1_calcs_baseline_all \
+    ./DepressionProject/output/10MVIout/output_12_yesmental \
+    ./DepressionProject/output/10MVIout/output_16_yesmental \
+    ./DepressionProject/output/10MVIout/output_17_yesmental \
+    ./DepressionProject/output/10MVIout/output_18_yesmental \
     y12CH_Dep_YN_144m \
     y16CH_Dep_YN_192m \
     y17CH_Dep_YN_204m \
@@ -189,6 +173,6 @@ python -u -m DepressionProjectNew.run_f1_calcs_baseline_all \
 
 ## Plot F1's with their baseline (don't need)
 ```
-python -u -m DepressionProjectNew.plot_f1_overall
-    ./DepressionProjectNew/output/10MVIout/f1s.png
+python -u -m DepressionProject.plot_f1_overall
+    ./DepressionProject/output/10MVIout/f1s.png
 ```
