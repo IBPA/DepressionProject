@@ -11,9 +11,9 @@ Authors:
 Todo:
     * maybe change to using seaborn instead and calculating f1s directly
 
-python -u -m DepressionProjectNew.plot_f1_overall
-python -u -m DepressionProjectNew.plot_f1_overall
-./DepressionProjectNew/output/10MVIout/f1s.png
+python -u -m DepressionProject.plot_f1_overall
+python -u -m DepressionProject.plot_f1_overall
+./DepressionProject/output/10MVIout/f1s.png
 """
 import os
 import pickle

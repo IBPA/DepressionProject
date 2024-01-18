@@ -25,9 +25,9 @@ from .configs import (CleaningConfig, PreprocessingConfig, GridSearchingConfig,
                       DefaultAdaBoostClassifierConfig,
                       DefaultRandomForestClassifierConfig,
                       DefaultMLPClassifierConfig)
-from .cleaner import Cleaner
-from .preprocessor import Preprocessor
-from .model_selector import ModelSelector
+from .utils.cleaner import Cleaner
+from .utils.preprocessor import Preprocessor
+from .utils.model_selector import ModelSelector
 from .utils.visualization import *
 from .utils.analysis import *
 

@@ -23,6 +23,7 @@ pip install -e ./kneebow
 ```
 pip install -r requirements.txt
 ```
+- for additional info, might need some files in old_files folder
 - hpc is what was used to run all the results except for ones requiring ipynb
 - local is what was used to run ipynb results
 

@@ -6,11 +6,11 @@ Authors:
     Fangzhou Li - fzli@ucdavis.edu
     Arielle Yoo - asmyoo@ucdavis.edu
 
-python -u -m DepressionProjectNew.run_univariate \
-    ./DepressionProjectNew/output/10MVIout/output_18_yesmental/results.pkl \
-    ./DepressionProjectNew/output/10MVIout/output_18_yesmental/preprocessed \
-    ./DepressionProjectNew/output/10MVIout/data_cleaned_encoded_18_yesmental.csv \
-    ./DepressionProjectNew/output/10MVIout/output_18_yesmental \
+python -u -m DepressionProject.run_univariate \
+    ./DepressionProject/output/10MVIout/output_18_yesmental/results.pkl \
+    ./DepressionProject/output/10MVIout/output_18_yesmental/preprocessed \
+    ./DepressionProject/output/10MVIout/data_cleaned_encoded_18_yesmental.csv \
+    ./DepressionProject/output/10MVIout/output_18_yesmental \
     y18CH_Dep_YN_216m
 
 """

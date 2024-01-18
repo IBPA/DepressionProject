@@ -8,11 +8,11 @@ Todo:
     * Actually change tsne to look at clusters and manually separate
     * rfe_xy.csv by cluster to look at ?
 
-python -u -m DepressionProjectNew.run_tsne_use_rfe_results_all \
-./DepressionProjectNew/output/10MVIout/output_12_yesmental \
-./DepressionProjectNew/output/10MVIout/output_16_yesmental \
-./DepressionProjectNew/output/10MVIout/output_17_yesmental \
-./DepressionProjectNew/output/10MVIout/output_18_yesmental \
+python -u -m DepressionProject.run_tsne_use_rfe_results_all \
+./DepressionProject/output/10MVIout/output_12_yesmental \
+./DepressionProject/output/10MVIout/output_16_yesmental \
+./DepressionProject/output/10MVIout/output_17_yesmental \
+./DepressionProject/output/10MVIout/output_18_yesmental \
 y12CH_Dep_YN_144m \
 y16CH_Dep_YN_192m \
 y17CH_Dep_YN_204m \
@@ -415,9 +415,10 @@ def main(
 
     # filename_data_prep = cfg_model.get_filename_preprocessed_data(
     #    scale_mode, impute_mode, outlier_mode)
-    #data = pd.read_csv(f"{path_data_preprocessed_dir}/preprocessed/{filename_data_prep}")
-    #X_prep = data.drop([feature_label], axis=1)
-    #y_prep = data[feature_label]
+    # data = pd.read_csv(f"{path_data_preprocessed_dir}/preprocessed/{filename_data_prep}")
+    # X_prep = data.drop([feature_label], axis=1)
+    # y_prep = data[feature_label]
+
 
     # plot_tsne( # removed outliers
     #    X = X_prep,

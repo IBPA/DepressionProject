@@ -6,11 +6,11 @@ Authors:
     Fangzhou Li - fzli@ucdavis.edu
     Arielle Yoo - asmyoo@ucdavis.edu
 
-python -u -m DepressionProjectNew.fix_embed_colors \
-    ./DepressionProjectNew/output/pval_filter_60_MVI/output_12_yesmental/results.pkl \
-    ./DepressionProjectNew/output/pval_filter_60_MVI/output_12_yesmental/preprocessed \
-    ./DepressionProjectNew/output/pval_filter_60_MVI/output_12_yesmental/data_cleaned_encoded.csv \
-    ./DepressionProjectNew/output/pval_filter_60_MVI/output_12_yesmental/ \
+python -u -m DepressionProject.fix_embed_colors \
+    ./DepressionProject/output/pval_filter_60_MVI/output_12_yesmental/results.pkl \
+    ./DepressionProject/output/pval_filter_60_MVI/output_12_yesmental/preprocessed \
+    ./DepressionProject/output/pval_filter_60_MVI/output_12_yesmental/data_cleaned_encoded.csv \
+    ./DepressionProject/output/pval_filter_60_MVI/output_12_yesmental/ \
     y12CH_Dep_YN_144m
 
 """

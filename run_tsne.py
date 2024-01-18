@@ -9,7 +9,7 @@ Todo:
     * I don;t like preprocessor...
     * Help for clicks
 
-python -u -m DepressionProjectNew.run_tsne
+python -u -m DepressionProject.run_tsne
 ./DepressionProjectNew/output/output_18_yesmental/preprocessed
 robust missforest none y18CH_Dep_YN_216m
 """
@@ -91,34 +91,37 @@ def main(
 
     filename_outliers = cfg_model.get_filename_outliers(
         scale_mode, impute_mode, outlier_mode)
-    idxs_outlier = np.loadtxt(f"{path_data_preprocessed_dir}/{filename_outliers}")
+    idxs_outlier = np.loadtxt(
+        f"{path_data_preprocessed_dir}/{filename_outliers}")
 
     filename_tsne = cfg_model.get_filename_tsne(
         scale_mode, impute_mode, outlier_mode)
     filename_outliers_tsne = cfg_model.get_filename_outliers_tsne(
         scale_mode, impute_mode, outlier_mode)
     plot_tsne_outliers(
-        X = X_scale_impute,
-        y = y,
-        idxs_outlier = idxs_outlier,
-        random_state = random_state,
-        path_save = f"{path_data_preprocessed_dir}/"
+        X=X_scale_impute,
+        y=y,
+        idxs_outlier=idxs_outlier,
+        random_state=random_state,
+        path_save=f"{path_data_preprocessed_dir}/"
         f"{filename_outliers_tsne}")
-    plot_tsne( # removed outliers
-        X = X_prep,
-        y = y_prep,
-        random_state = random_state,
-        path_save = f"{path_data_preprocessed_dir}/"
+    plot_tsne(  # removed outliers
+        X=X_prep,
+        y=y_prep,
+        random_state=random_state,
+        path_save=f"{path_data_preprocessed_dir}/"
         f"{filename_tsne}")
-    
-    idxs_inlier = [i for i in range(len(X_scale_impute)) if i not in idxs_outlier]
+
+    idxs_inlier = [i for i in range(
+        len(X_scale_impute)) if i not in idxs_outlier]
     X_scale_impute = X_scale_impute.iloc[idxs_inlier]
     y_se = y.iloc[idxs_inlier]
     dump_X_and_y(
         X=X_scale_impute,
         y=y_se,
-        path_output_data = f"{path_data_preprocessed_dir}/"
+        path_output_data=f"{path_data_preprocessed_dir}/"
         f"test_{filename_data_prep}")
+
 
 if __name__ == '__main__':
     main()
