@@ -2,7 +2,7 @@
     Plot comparison of RFE selected features for different ages
 
     python -u -m DepressionProject.plot_rfe_jaccard \
-        ./DepressionProject/output/pval_filter_60_MVI/Supplementary\ Spreadsheet\ 3.xlsx
+        ./DepressionProject/output/pval_filter_60_MVI/Supplementary\ Spreadsheet\ 3.xlsx \
         ./DepressionProject/output/pval_filter_60_MVI/rfe_jaccard.svg
     
     Authors:

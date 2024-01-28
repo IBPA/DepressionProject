@@ -148,6 +148,13 @@ python -u -m DepressionProject.plot_rfe_jaccard \
 ./DepressionProject/output/pval_filter_60_MVI/rfe_jaccard.svg
 ```
 
+## Run get_top_10_rfe.py to get top 10 features from RFE for all ages into a csv
+```
+python -u -m DepressionProject.get_top_10_rfe \
+./DepressionProject/output/pval_filter_60_MVI/Supplementary\ Spreadsheet\ 3.xlsx
+./DepressionProject/output/pval_filter_60_MVI/rfe_jaccard.svg
+```
+
 ## Run run_tsne.py (don't need)
 
 ## Run make_readable_pcc_sc_kendall.py and make_readable_list.py after pasting in the best rfe list and lists from run_univariate's output from src/preprocess
