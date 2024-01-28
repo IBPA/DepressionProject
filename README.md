@@ -133,12 +133,19 @@ python -u -m DepressionProject.rank_pearson_rfe ./DepressionProject/output/pval_
 
 ## Run run_tsne_cluster.py for age 12to18 to understand one cluster
 ```
- python -u -m DepressionProject.run_tsne_cluster \
+python -u -m DepressionProject.run_tsne_cluster \
 ./DepressionProject/output/pval_filter_60_MVI/output_12to18_yesmental/results.pkl \
 ./DepressionProject/output/pval_filter_60_MVI/output_12to18_yesmental/preprocessed \
 ./DepressionProject/output/pval_filter_60_MVI/output_12to18_yesmental/data_cleaned_encoded.csv \
 ./DepressionProject/output/pval_filter_60_MVI/output_12to18_yesmental/f1 \
 y12to18_Dep_YN_216m
+```
+
+## Run plot_rfe_jaccard.py to compare overlap of RFE selected features
+```
+python -u -m DepressionProject.plot_rfe_jaccard \
+./DepressionProject/output/pval_filter_60_MVI/Supplementary\ Spreadsheet\ 3.xlsx
+./DepressionProject/output/pval_filter_60_MVI/rfe_jaccard.svg
 ```
 
 ## Run run_tsne.py (don't need)

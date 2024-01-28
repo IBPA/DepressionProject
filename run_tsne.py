@@ -10,7 +10,7 @@ Todo:
     * Help for clicks
 
 python -u -m DepressionProject.run_tsne
-./DepressionProjectNew/output/output_18_yesmental/preprocessed
+./DepressionProject/output/output_18_yesmental/preprocessed
 robust missforest none y18CH_Dep_YN_216m
 """
 import os
