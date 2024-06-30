@@ -155,6 +155,11 @@ python -u -m DepressionProject.get_top_10_rfe \
 ./DepressionProject/output/pval_filter_60_MVI/rfe_jaccard.svg
 ```
 
+## Run print_num_fts_missingvalratio.py to get number of features and missing value ratio before cleaning
+```
+python -u -m DepressionProject.print_num_fts_missingvalratio
+```
+
 ## Run run_tsne.py (don't need)
 
 ## Run make_readable_pcc_sc_kendall.py and make_readable_list.py after pasting in the best rfe list and lists from run_univariate's output from src/preprocess
