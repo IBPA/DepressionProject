@@ -493,20 +493,20 @@ def main(
 
     if use_smote:
         if use_smote_first:
-            clf = ClassifierHandler(
-                classifier_mode=best_clf,
-                params=best_cv_result['param'],
-                use_smote=False).clf
+            # clf = ClassifierHandler(
+            #     classifier_mode=best_clf,
+            #     params=best_cv_result['param'],
+            #     use_smote=False).clf
             X_smote_train, y_smote_train = load_X_and_y(
                 f"{path_input_preprocessed_data_dir}/"
                 f"{best_scale_mode}_{best_impute_mode}_{best_outlier_mode}_smote_train.csv",
                 col_y=feature_label)
-            splits = KFold_by_feature(
-                X=X_smote_train,
-                y=y_smote_train,
-                n_splits=5,
-                feature=feature_kfold,
-                random_state=random_state)
+            # splits = KFold_by_feature(
+            #     X=X_smote_train,
+            #     y=y_smote_train,
+            #     n_splits=5,
+            #     feature=feature_kfold,
+            #     random_state=random_state)
             del best_cv_result['param']
             # plot_all_confusion_matrices(clf, X_smote_train, y_smote_train, X_test, y_test,
             #                             path_output_dir, use_smote_first=True, use_rfe=False,
@@ -516,16 +516,16 @@ def main(
             X_rfe_train = X_smote_train[selected_fts]
             y_rfe_train = y_smote_train
         else:
-            clf = ClassifierHandler(
-                classifier_mode=best_clf,
-                params=best_cv_result['param'],
-                random_state=ModelSelectionConfig.RNG_SMOTE).clf
-            splits = KFold_by_feature(
-                X=X_train,
-                y=y_train,
-                n_splits=5,
-                feature=feature_kfold,
-                random_state=random_state)
+            # clf = ClassifierHandler(
+            #     classifier_mode=best_clf,
+            #     params=best_cv_result['param'],
+            #     random_state=ModelSelectionConfig.RNG_SMOTE).clf
+            # splits = KFold_by_feature(
+            #     X=X_train,
+            #     y=y_train,
+            #     n_splits=5,
+            #     feature=feature_kfold,
+            #     random_state=random_state)
             del best_cv_result['param']
             # plot_all_confusion_matrices(clf, X_train, y_train, X_test, y_test,
             #                             path_output_dir, use_smote_first=False,
@@ -536,16 +536,16 @@ def main(
             X_rfe_train = X_train[selected_fts]
             y_rfe_train = y_train
     else:
-        clf = ClassifierHandler(
-            classifier_mode=best_clf,
-            params=best_cv_result['param'],
-            use_smote=False).clf
-        splits = KFold_by_feature(
-            X=X_train,
-            y=y_train,
-            n_splits=5,
-            feature=feature_kfold,
-            random_state=random_state)
+        # clf = ClassifierHandler(
+        #     classifier_mode=best_clf,
+        #     params=best_cv_result['param'],
+        #     use_smote=False).clf
+        # splits = KFold_by_feature(
+        #     X=X_train,
+        #     y=y_train,
+        #     n_splits=5,
+        #     feature=feature_kfold,
+        #     random_state=random_state)
         del best_cv_result['param']
         # plot_all_confusion_matrices(clf, X_train, y_train, X_test, y_test,
         #                             path_output_dir, use_smote_first=False,
@@ -568,12 +568,12 @@ def main(
     X_embedded.columns = ['First Dimension', 'Second Dimension']
 
     # print(X_embedded)
-    # path = f"{path_output_dir}/testing_embed_{method}_train.svg"
-    # plot_embedded_scatter(
-    #     X_embedded,
-    #     y_scatter,
-    #     title=f"{method.upper()}",
-    #     path_save=path)
+    path = f"{path_output_dir}/testing_embed_{method}_train.svg"
+    plot_embedded_scatter(
+        X_embedded,
+        y_scatter,
+        title=f"{method.upper()}",
+        path_save=path)
     kmeans = MiniBatchKMeans(n_clusters=clusters, random_state=random_state)
     labels = pd.Series(kmeans.fit_predict(X_embedded))
     labels.name = 'Cluster'
@@ -617,6 +617,12 @@ def main(
     # print(rfe_not_cluster.describe())
     rfe_not_cluster.describe().to_csv(
         f"{path_output_dir}/clustered_embed_{method}_not_cluster.csv")
+
+    rfe_train = pd.concat([X_rfe_train, y_rfe_train], axis=1)
+    rfe_train.columns = make_readable(rfe_train.columns)
+    # print(rfe_train.describe())
+    rfe_train.describe().to_csv(
+        f"{path_output_dir}/clustered_embed_{method}_train.csv")
 
 
 if __name__ == '__main__':
