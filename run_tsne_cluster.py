@@ -615,7 +615,7 @@ def main(
     rfe_not_cluster = pd.concat([X_rfe_not_cluster, y_rfe_not_cluster], axis=1)
     rfe_not_cluster.columns = make_readable(rfe_not_cluster.columns)
     # print(rfe_not_cluster.describe())
-    rfe_cluster.describe().to_csv(
+    rfe_not_cluster.describe().to_csv(
         f"{path_output_dir}/clustered_embed_{method}_not_cluster.csv")
 
 

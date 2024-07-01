@@ -79,7 +79,7 @@ CLASSIFIER_MODES = [
     'adaboostclassifier',
     'randomforestclassifier',
     'mlpclassifier']
-DEFAULT_VARIABLE_INFO = './DepressionProjectNew/data/Variables052122.csv'
+DEFAULT_VARIABLE_INFO = './DepressionProject/data/Variables052122.csv'
 # DEFAULT_PREPROCESSED = './output/preprocessed_data_without_temporal_12to18ave.csv'
 
 
