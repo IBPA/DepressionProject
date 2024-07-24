@@ -68,17 +68,21 @@ def check_dups(df: pd.DataFrame, id_col: str = 'cidB2846_0m', nonempty_cols: lis
                         if pd.isna(row_data[col]) and not pd.isna(subset[col][0]):
                             diff_cols.append(col)
                 df.at[i, 'duplicated_id_subset'] = diff_cols
-        df["is_empty"] = df[df.columns.difference(
-            nonempty_cols + ['duplicated', 'duplicated_id', 'duplicated_id_subset'])].isnull().all(axis=1)
+        df["is_empty"] = df.drop(nonempty_cols + ['duplicated', 'duplicated_id', 'duplicated_id_subset'], axis=1).isnull().all(
+            axis=1)
         df["duplicated_id_subset_length"] = df["duplicated_id_subset"].apply(
             lambda x: len(x) if x is not None else 0)
         return df
 
 
 def save_fullest_data(df: pd.DataFrame, id_col: str = 'cidB2846_0m') -> pd.DataFrame:
-    df = df.sort_values(
-        by=['duplicated_id_subset_length'], ascending=False)
-    df = df.drop_duplicates(subset='cidB2846_0m', keep='first')
+    # TODO - debug this
+    # for duplicates, only keep the fullest data
+    idx_min = df.groupby(id_col)['duplicated_id_subset_length'].idxmin()
+    df = df.loc[idx_min].reset_index(drop=True)
+    # print any where duplicated_id_subset_length > 0
+    print(df[df['duplicated_id_subset_length'] > 0]
+          [[id_col, 'duplicated_id_subset_length']])
     return df
 
 
@@ -98,11 +102,18 @@ def main(input_file: str, input_file_temporal: str, output_folder: str):
 
     df_dup.to_csv(output_folder +
                   'preprocessed_data_without_temporal_checkdup_dups.csv', index=False)
+    df_dup[['cidB2846_0m', 'duplicated', 'duplicated_id', 'duplicated_id_subset', 'is_empty', 'duplicated_id_subset_length']].to_csv(
+        output_folder + 'preprocessed_data_without_temporal_checkdup_dups_info.csv', index=False)
     # only save duplicates that have the most columns filled?
-    # TODO - might want to actually save the subset data
     df = save_fullest_data(df)
     df.to_csv(output_folder +
-              'preprocessed_data_without_temporal_checkdup.csv', index=False)
+              'preprocessed_data_without_temporal_checkdup_cleaned.csv', index=False)
+    df[['cidB2846_0m', 'duplicated', 'duplicated_id', 'duplicated_id_subset', 'is_empty', 'duplicated_id_subset_length']].to_csv(
+        output_folder + 'preprocessed_data_without_temporal_checkdup_cleaned_info.csv', index=False)
+    df_no_info = df.drop(
+        ['duplicated', 'duplicated_id', 'duplicated_id_subset', 'is_empty', 'duplicated_id_subset_length'], axis=1)
+    df_no_info.to_csv(output_folder +
+                      'preprocessed_data_without_temporal_checkdup_cleaned_no_info.csv', index=False)
     # df_temporal.to_csv(output_folder + 'preprocessed_data_with_temporal_checkdup_dups.csv', index=False)
 
 
