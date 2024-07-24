@@ -167,7 +167,7 @@ python reformat_ml_checkdups.py
 ```
 ### Run check_dups.py within src/preprocess
 ```
-python check_dups.py
+python clean_dups.py
 ```
 
 
