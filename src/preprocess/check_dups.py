@@ -21,7 +21,7 @@ DEFAULT_OUTPUT_FOLDER = '../../output/'
 DEFAULT_LOG_LEVEL = 'DEBUG'
 
 
-def check_dups(df: pd.DataFrame, id_col: str = 'cidB2846_0m', temporal: bool = False) -> pd.DataFrame:
+def check_dups(df: pd.DataFrame, id_col: str = 'cidB2846_0m', nonempty_cols: list = ['cidB2846_0m', 'kz021_0m'], temporal: bool = False) -> pd.DataFrame:
     if temporal:
         raise NotImplementedError('Not implemented yet')
     else:
@@ -68,7 +68,18 @@ def check_dups(df: pd.DataFrame, id_col: str = 'cidB2846_0m', temporal: bool = F
                         if pd.isna(row_data[col]) and not pd.isna(subset[col][0]):
                             diff_cols.append(col)
                 df.at[i, 'duplicated_id_subset'] = diff_cols
+        df["is_empty"] = df[df.columns.difference(
+            nonempty_cols + ['duplicated', 'duplicated_id', 'duplicated_id_subset'])].isnull().all(axis=1)
+        df["duplicated_id_subset_length"] = df["duplicated_id_subset"].apply(
+            lambda x: len(x) if x is not None else 0)
         return df
+
+
+def save_fullest_data(df: pd.DataFrame, id_col: str = 'cidB2846_0m') -> pd.DataFrame:
+    df = df.sort_values(
+        by=['duplicated_id_subset_length'], ascending=False)
+    df = df.drop_duplicates(subset='cidB2846_0m', keep='first')
+    return df
 
 
 @click.command()
@@ -81,12 +92,17 @@ def main(input_file: str, input_file_temporal: str, output_folder: str):
 
     df = check_dups(df)
     # only keep where duplicated or duplicated_id is True
-    df = df[(df['duplicated'] == True) | (df['duplicated_id'] == True)]
+    df_dup = df[(df['duplicated'] == True) | (df['duplicated_id'] == True)]
     # df_temporal = check_dups(df_temporal, temporal=True)
     # df_temporal = df_temporal[(df_temporal['duplicated'] == True) | (df_temporal['duplicated_id'] == True)]
 
+    df_dup.to_csv(output_folder +
+                  'preprocessed_data_without_temporal_checkdup_dups.csv', index=False)
+    # only save duplicates that have the most columns filled?
+    # TODO - might want to actually save the subset data
+    df = save_fullest_data(df)
     df.to_csv(output_folder +
-              'preprocessed_data_without_temporal_checkdup_dups.csv', index=False)
+              'preprocessed_data_without_temporal_checkdup.csv', index=False)
     # df_temporal.to_csv(output_folder + 'preprocessed_data_with_temporal_checkdup_dups.csv', index=False)
 
 
