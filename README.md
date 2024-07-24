@@ -160,6 +160,22 @@ python -u -m DepressionProject.get_top_10_rfe \
 python -u -m DepressionProject.print_num_fts_missingvalratio
 ```
 
+## Check duplicate samples
+### Get “preprocessed” data with more info - run reformat_ml_checkdups.py within src/preprocess
+```
+python reformat_ml_checkdups.py
+```
+### Run check_dups.py within src/preprocess
+```
+python check_dups.py
+```
+
+
+## Check missing value ratio before cleaning again
+
+
+
+
 ## Run run_tsne.py (don't need)
 
 ## Run make_readable_pcc_sc_kendall.py and make_readable_list.py after pasting in the best rfe list and lists from run_univariate's output from src/preprocess
