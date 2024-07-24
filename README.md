@@ -160,18 +160,22 @@ python -u -m DepressionProject.get_top_10_rfe \
 python -u -m DepressionProject.print_num_fts_missingvalratio
 ```
 
-## Check duplicate samples
+## Check duplicate samples that were created on accident prior to analysis
 ### Get “preprocessed” data with more info - run reformat_ml_checkdups.py within src/preprocess
 ```
 python reformat_ml_checkdups.py
 ```
-### Run check_dups.py within src/preprocess
+### Run clean_dups.py within src/preprocess
 ```
 python clean_dups.py
 ```
+### Run check_dups.py within src/preprocess to see if the duplicates affect the analysis
+```
+python check_dups.py
+```
 
 
-## Check missing value ratio before cleaning again
+## Check missing value ratio before analysis again
 
 
 

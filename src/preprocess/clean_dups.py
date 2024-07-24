@@ -1,18 +1,11 @@
-import copy
-from functools import partial
-from multiprocessing import cpu_count, Pool
-import random
 import sys
-from typing import List, Tuple
 import click
 sys.path.append('..')
 
 import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
-from tqdm import tqdm  # noqa: E402
 
 from utils import logging  # noqa: E402
-from utils.utils import calc_chunksize, read_lines  # noqa: E402
 logger = logging.set_logging(__name__)
 
 DEFAULT_OUTPUT_FILE_WITHOUT_TEMPORAL = '../../output/preprocessed_data_without_temporal_checkdup.csv'
