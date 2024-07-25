@@ -55,7 +55,7 @@ def check_dups(df: pd.DataFrame, id_col: str = 'cidB2846_0m', nonempty_cols: lis
                     ['duplicated', 'duplicated_id', 'duplicated_id_subset'], axis=1)
                 # reformat subset to be same as row_data
                 subset = subset.reset_index()
-                print(subset)
+                # print(subset)
                 # save columns that are different
                 diff_cols = []
                 for col in subset.columns:
