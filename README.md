@@ -176,7 +176,7 @@ python check_dups.py
 
 ## Check missing value ratio before analysis again
 ```
-python -u -m DepressionProject.print_num_fts_missvalratio ./DepressionProject/output/preprocessed_data_without_temporal_checkdup_cleaned_no_info.csv
+python -u -m DepressionProject.print_num_fts_missvalratio --path_data ./DepressionProject/output/preprocessed_data_without_temporal_checkdup_cleaned_no_info.csv
 ```
 
 
