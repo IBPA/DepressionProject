@@ -12,6 +12,12 @@ DEFAULT_OUTPUT_FILE_WITHOUT_TEMPORAL = '../../output/preprocessed_data_without_t
 DEFAULT_OUTPUT_FILE_WITH_TEMPORAL = '../../output/preprocessed_data_with_temporal_checkdup.csv'
 DEFAULT_OUTPUT_FOLDER = '../../output/'
 DEFAULT_LOG_LEVEL = 'DEBUG'
+UNCLEANED_WITHINFO_FILE = 'preprocessed_data_without_temporal_checkdup_withinfo.csv'
+DUPS_FILE = 'preprocessed_data_without_temporal_checkdup_dups.csv'
+DUPS_INFO_FILE = 'preprocessed_data_without_temporal_checkdup_dups_info.csv'
+CLEANED_FILE = 'preprocessed_data_without_temporal_checkdup_cleaned.csv'
+CLEANED_INFO_FILE = 'preprocessed_data_without_temporal_checkdup_cleaned_info.csv'
+CLEANED_NO_INFO_FILE = '.preprocessed_data_without_temporal_checkdup_cleaned_no_info.csv'
 
 
 def check_dups(df: pd.DataFrame, id_col: str = 'cidB2846_0m', nonempty_cols: list = ['cidB2846_0m', 'kz021_0m'], temporal: bool = False) -> pd.DataFrame:
@@ -69,7 +75,6 @@ def check_dups(df: pd.DataFrame, id_col: str = 'cidB2846_0m', nonempty_cols: lis
 
 
 def save_fullest_data(df: pd.DataFrame, id_col: str = 'cidB2846_0m') -> pd.DataFrame:
-    # TODO - debug this
     # for duplicates, only keep the fullest data
     idx_min = df.groupby(id_col)['duplicated_id_subset_length'].idxmin()
     df = df.loc[idx_min].reset_index(drop=True)
@@ -85,29 +90,27 @@ def save_fullest_data(df: pd.DataFrame, id_col: str = 'cidB2846_0m') -> pd.DataF
 @click.option('--output_folder', '-o', default=DEFAULT_OUTPUT_FOLDER, help='Output folder path')
 def main(input_file: str, input_file_temporal: str, output_folder: str):
     df = pd.read_csv(input_file)
-    # df_temporal = pd.read_csv(input_file_temporal)
 
     df = check_dups(df)
+    df.to_csv(output_folder +
+              UNCLEANED_WITHINFO_FILE, index=False)
     # only keep where duplicated or duplicated_id is True
     df_dup = df[(df['duplicated'] == True) | (df['duplicated_id'] == True)]
-    # df_temporal = check_dups(df_temporal, temporal=True)
-    # df_temporal = df_temporal[(df_temporal['duplicated'] == True) | (df_temporal['duplicated_id'] == True)]
 
     df_dup.to_csv(output_folder +
-                  'preprocessed_data_without_temporal_checkdup_dups.csv', index=False)
+                  DUPS_FILE, index=False)
     df_dup[['cidB2846_0m', 'duplicated', 'duplicated_id', 'duplicated_id_subset', 'is_empty', 'duplicated_id_subset_length']].to_csv(
-        output_folder + 'preprocessed_data_without_temporal_checkdup_dups_info.csv', index=False)
-    # only save duplicates that have the most columns filled?
+        output_folder + DUPS_INFO_FILE, index=False)
+    # only save duplicates that have the most columns filled
     df = save_fullest_data(df)
     df.to_csv(output_folder +
-              'preprocessed_data_without_temporal_checkdup_cleaned.csv', index=False)
+              CLEANED_FILE, index=False)
     df[['cidB2846_0m', 'duplicated', 'duplicated_id', 'duplicated_id_subset', 'is_empty', 'duplicated_id_subset_length']].to_csv(
-        output_folder + 'preprocessed_data_without_temporal_checkdup_cleaned_info.csv', index=False)
+        output_folder + CLEANED_INFO_FILE, index=False)
     df_no_info = df.drop(
         ['duplicated', 'duplicated_id', 'duplicated_id_subset', 'is_empty', 'duplicated_id_subset_length'], axis=1)
     df_no_info.to_csv(output_folder +
-                      'preprocessed_data_without_temporal_checkdup_cleaned_no_info.csv', index=False)
-    # df_temporal.to_csv(output_folder + 'preprocessed_data_with_temporal_checkdup_dups.csv', index=False)
+                      CLEANED_NO_INFO_FILE, index=False)
 
 
 if __name__ == '__main__':
