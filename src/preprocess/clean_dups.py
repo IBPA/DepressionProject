@@ -17,7 +17,7 @@ DUPS_FILE = 'preprocessed_data_without_temporal_checkdup_dups.csv'
 DUPS_INFO_FILE = 'preprocessed_data_without_temporal_checkdup_dups_info.csv'
 CLEANED_FILE = 'preprocessed_data_without_temporal_checkdup_cleaned.csv'
 CLEANED_INFO_FILE = 'preprocessed_data_without_temporal_checkdup_cleaned_info.csv'
-CLEANED_NO_INFO_FILE = '.preprocessed_data_without_temporal_checkdup_cleaned_no_info.csv'
+CLEANED_NO_INFO_FILE = 'preprocessed_data_without_temporal_checkdup_cleaned_no_info.csv'
 
 
 def check_dups(df: pd.DataFrame, id_col: str = 'cidB2846_0m', nonempty_cols: list = ['cidB2846_0m', 'kz021_0m'], temporal: bool = False) -> pd.DataFrame:
