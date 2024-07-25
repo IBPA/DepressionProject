@@ -8,8 +8,10 @@ Authors:
 
 import pandas as pd
 import os
+import click
 
 from .configs import (ModelSelectingConfig)
+from .utils.visualization import plot_missing_value_ratio_histogram
 
 
 def print_missing(ratio_missing, min_inclusive, min_missing, max_missing):
@@ -37,8 +39,9 @@ def print_missing(ratio_missing, min_inclusive, min_missing, max_missing):
         )
 
 
-def print_num_fts_missvalratio(path_data):
+def print_num_fts_missvalratio(path_data, path_save):
     data = pd.read_csv(path_data)
+    plot_missing_value_ratio_histogram(data, path_save=path_save)
     ratio_missing = data.isnull().sum() / len(data)
     print(f"Number of features: {len(data.columns)}")
     print(f"Missing value ratio of each feature:")
@@ -54,10 +57,14 @@ def print_num_fts_missvalratio(path_data):
     print_missing(ratio_missing, False, 0.9, 1)
 
 
-def main():
-    path_data = ModelSelectingConfig.PATH_ROOT + \
-        "/output/preprocessed_data_without_temporal.txt"
-    print_num_fts_missvalratio(path_data)
+@click.command()
+@click.option('--path_data', default=ModelSelectingConfig.PATH_ROOT + "/output/preprocessed_data_without_temporal.txt", help='Path to the preprocessed data')
+@click.option('--path_save', default=ModelSelectingConfig.PATH_ROOT + "/output/missing_value_ratio_histogram.png", help='Path to save the histogram')
+def main(
+    path_data: str,
+    path_save: str
+):
+    print_num_fts_missvalratio(path_data, path_save)
 
 
 if __name__ == "__main__":

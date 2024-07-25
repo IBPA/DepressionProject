@@ -157,7 +157,7 @@ python -u -m DepressionProject.get_top_10_rfe \
 
 ## Run print_num_fts_missingvalratio.py to get number of features and missing value ratio before cleaning
 ```
-python -u -m DepressionProject.print_num_fts_missingvalratio
+python -u -m DepressionProject.print_num_fts_missvalratio
 ```
 
 ## Check duplicate samples that were created on accident prior to analysis
@@ -174,10 +174,10 @@ python clean_dups.py
 python check_dups.py
 ```
 
-
 ## Check missing value ratio before analysis again
-
-
+```
+python -u -m DepressionProject.print_num_fts_missvalratio ./DepressionProject/output/preprocessed_data_without_temporal_checkdup_cleaned_no_info.csv
+```
 
 
 ## Run run_tsne.py (don't need)
