@@ -18,6 +18,7 @@ CLEANED_FILE = '../../output/preprocessed_data_without_temporal_checkdup_cleaned
 CLEANED_INFO_FILE = '../../output/preprocessed_data_without_temporal_checkdup_cleaned_info.csv'
 CLEANED_NO_INFO_FILE = '../../output/preprocessed_data_without_temporal_checkdup_cleaned_no_info.csv'
 OUTPUT_FILE = 'preprocessed_data_without_temporal_checkdup_issues.csv'
+OUTPUT_FILE_DUP = 'preprocessed_data_without_temporal_checkdup_dupsissuescheck.csv'
 INFO_COLS = ['cidB2846_0m', 'duplicated', 'duplicated_id',
              'duplicated_id_subset', 'is_empty', 'duplicated_id_subset_length']
 DEPRESSION_VARS = ['y10CH_Dep_YN_127m', 'y12CH_Dep_YN_144m', 'y13CH_Dep_YN_162m', 'y16CH_Dep_YN_192m',
@@ -42,19 +43,29 @@ def main(uncleaned_withinfo_file: str, dups_file: str, dups_info_file: str, clea
     unique_ids = df[ID_COL].unique()
     # add columns to do counts for each DEPRESSION_VARS
     for var in DEPRESSION_VARS:
-        df[var + '_count'] = 0
+        df[var + '_countallperid'] = 0
         for id_ in unique_ids:
             df.loc[df[ID_COL] == id_, var +
-                   '_count'] = df.loc[df[ID_COL] == id_, var].count()
+                   '_countallperid'] = df.loc[df[ID_COL] == id_, var].count()
     # only save info columns + DEPRESSION_VARS columns + count columns
     cols_to_save = INFO_COLS + DEPRESSION_VARS + \
-        [var + '_count' for var in DEPRESSION_VARS]
+        [var + '_countallperid' for var in DEPRESSION_VARS]
     # only save rows where any count is greater than 1
-    df = df[df[[var + '_count' for var in DEPRESSION_VARS]].gt(1).any(axis=1)]
-    df = df[cols_to_save]
+    df_tmp = df[df[[var + '_countallperid' for var in DEPRESSION_VARS]
+                   ].gt(1).any(axis=1)]
+    df_tmp = df_tmp[cols_to_save]
     # move id col to end
     # df = df[[col for col in df.columns if col != ID_COL] + [ID_COL]]
-    df.to_csv(output_folder + OUTPUT_FILE, index=False)
+    df_tmp.to_csv(output_folder + OUTPUT_FILE, index=False)
+    logger.info(
+        f"Duplicates with more than one depression variable saved to {output_folder + OUTPUT_FILE}")
+    logger.info(f"Total rows: {df_tmp.shape[0]}")
+
+    # save duplicates
+    df_dups = df[df['duplicated_id'] == True]
+    df_dups = df_dups[cols_to_save]
+    df_dups.to_csv(output_folder + OUTPUT_FILE_DUP, index=False)
+    logger.info(f"Duplicates saved to {output_folder + OUTPUT_FILE_DUP}")
 
 
 if __name__ == '__main__':
