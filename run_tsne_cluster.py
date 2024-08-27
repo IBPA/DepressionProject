@@ -464,6 +464,11 @@ def main(
         f"{path_input_preprocessed_data_dir}/"
         f"{best_scale_mode}_{best_impute_mode}_{best_outlier_mode}_train.csv",
         col_y=feature_label)
+    logger.info(f"Best combination: {best_combination}")
+    # X_train, y_train = load_X_and_y(
+    #     f"{path_input_preprocessed_data_dir}/"
+    #     f"{best_scale_mode}_{best_impute_mode}_{best_outlier_mode}.csv",
+    #     col_y=feature_label)
     X_test, y_test = load_X_and_y(
         f"{path_input_preprocessed_data_dir}/"
         f"{best_scale_mode}_{best_impute_mode}_{best_outlier_mode}_test.csv",
@@ -511,7 +516,22 @@ def main(
             # plot_all_confusion_matrices(clf, X_smote_train, y_smote_train, X_test, y_test,
             #                             path_output_dir, use_smote_first=True, use_rfe=False,
             #                             use_f1=use_f1, splits=splits, classifier=best_clf)
-
+            # plot tsne before rfe
+            y_scatter = y_smote_train.map(
+                {1.0: 'Depressed', 0.0: 'Not Depressed'})
+            y_scatter.name = 'Translation'
+            method = "tsne"
+            X_embedded = pd.DataFrame(
+                get_embedded_data(
+                    X_smote_train,
+                    method="tsne", random_state=random_state))
+            X_embedded.columns = ['First Dimension', 'Second Dimension']
+            path = f"{path_output_dir}/testing_embed_{method}_smotefirst_train_b4rfe.svg"
+            plot_embedded_scatter(
+                X_embedded,
+                y_scatter,
+                title=f"{method.upper()}",
+                path_save=path)
             # get rfe train data
             X_rfe_train = X_smote_train[selected_fts]
             y_rfe_train = y_smote_train
@@ -531,7 +551,22 @@ def main(
             #                             path_output_dir, use_smote_first=False,
             #                             use_rfe=False, use_f1=use_f1, splits=splits,
             #                             classifier=best_clf)
-
+            # plot tsne before rfe
+            y_scatter = y_train.map(
+                {1.0: 'Depressed', 0.0: 'Not Depressed'})
+            y_scatter.name = 'Translation'
+            method = "tsne"
+            X_embedded = pd.DataFrame(
+                get_embedded_data(
+                    X_train,
+                    method="tsne", random_state=random_state))
+            X_embedded.columns = ['First Dimension', 'Second Dimension']
+            path = f"{path_output_dir}/testing_embed_{method}_smote_train_b4rfe.svg"
+            plot_embedded_scatter(
+                X_embedded,
+                y_scatter,
+                title=f"{method.upper()}",
+                path_save=path)
             # get rfe train data
             X_rfe_train = X_train[selected_fts]
             y_rfe_train = y_train
@@ -551,7 +586,22 @@ def main(
         #                             path_output_dir, use_smote_first=False,
         #                             use_rfe=False, use_f1=use_f1, splits=splits,
         #                             classifier=best_clf)
-
+        # plot tsne before rfe
+        y_scatter = y_train.map(
+            {1.0: 'Depressed', 0.0: 'Not Depressed'})
+        y_scatter.name = 'Translation'
+        method = "tsne"
+        X_embedded = pd.DataFrame(
+            get_embedded_data(
+                X_train,
+                method="tsne", random_state=random_state))
+        X_embedded.columns = ['First Dimension', 'Second Dimension']
+        path = f"{path_output_dir}/testing_embed_{method}_train_b4rfe.svg"
+        plot_embedded_scatter(
+            X_embedded,
+            y_scatter,
+            title=f"{method.upper()}",
+            path_save=path)
         # get rfe train data
         X_rfe_train = X_train[selected_fts]
         y_rfe_train = y_train
