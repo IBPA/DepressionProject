@@ -1,6 +1,6 @@
 # DepressionProject
 
-Codebase for Prediction of adolescent depression from prenatal and childhood data from ALSPAC using machine learning [Link](https://www.nature.com/articles/s41598-024-72158-9)
+Codebase for [Prediction of adolescent depression from prenatal and childhood data from ALSPAC using machine learning](https://www.nature.com/articles/s41598-024-72158-9)
 
 ## Install python 3.10
 ## Install MSAP
